@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      lavadon_0: -5712204191040159060
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
