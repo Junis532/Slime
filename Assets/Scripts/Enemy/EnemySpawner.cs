@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
+using NUnit.Framework;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("스폰 가능한 적 종류")]
-    public GameObject[] enemyPrefabs;   // 여러 종류 적 프리팹
+    public List<GameObject> enemyPrefabs = new List<GameObject>();   // 여러 종류 적 프리팹
 
     [Header("스폰 주기")]
     public float spawnInterval = 3f;
@@ -34,7 +36,7 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < spawnCount; i++)
         {
             // 랜덤 적 종류 선택
-            GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+            GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
 
             // 원형 범위 내 랜덤 위치
             Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle * spawnRadius;
