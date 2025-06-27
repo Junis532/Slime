@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoSigleTone<GameManager>
+public class GameManager : MonoSingleTone<GameManager>
 {
     public PlayerStats playerStats;
     public EnemyStats enemyStats;
@@ -21,6 +22,9 @@ public class GameManager : MonoSigleTone<GameManager>
     public ShopManager shopManager;
     public WaveManager waveManager;
     public EnemyHP enemyHP;
+    public DiceAnimation diceAnimation;
+    public FireballProjectile fireballProjectile;
+    public LightningDamage lightningDamage;
 
     [Header("UI")]
     public GameObject shopUI;
@@ -41,7 +45,6 @@ public class GameManager : MonoSigleTone<GameManager>
     private GameState currentState = GameState.Idle;
     public string CurrentState => currentState.ToString();
 
-    [System.Obsolete]
     protected new void Awake()
     {
         base.Awake();
@@ -49,13 +52,12 @@ public class GameManager : MonoSigleTone<GameManager>
         // 타이머가 할당 안 됐으면 씬에서 찾아 할당
         if (timer == null)
         {
-            timer = FindObjectOfType<Timer>();
+            timer = Object.FindFirstObjectByType<Timer>();
             if (timer == null)
                 Debug.LogWarning("Timer 컴포넌트를 씬에서 찾지 못했습니다.");
         }
     }
 
-    [System.Obsolete]
     private void Start()
     {
         ChangeStateToGame();
@@ -67,8 +69,7 @@ public class GameManager : MonoSigleTone<GameManager>
         waveManager.UpdateWaveText();
     }
 
-    [System.Obsolete]
-    void Update()
+    private void Update()
     {
         if (currentState == GameState.Game && timer != null && timer.timerRunning)
         {
@@ -82,37 +83,32 @@ public class GameManager : MonoSigleTone<GameManager>
                 timer.timeRemaining = 0;
                 timer.timerRunning = false;
                 timer.UpdateTimerDisplay();
+
                 // 모든 적 스포너들 멈추기
-                EnemySpawner[] enemySpawners = FindObjectsOfType<EnemySpawner>();
+                EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in enemySpawners)
                 {
                     spawner.StopSpawning();
                 }
 
-                DashEnemySpawner[] dashSpawners = FindObjectsOfType<DashEnemySpawner>();
+                DashEnemySpawner[] dashSpawners = Object.FindObjectsByType<DashEnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in dashSpawners)
                 {
                     spawner.StopSpawning();
                 }
 
-                LongRangeEnemySpawner[] longRangeSpawners = FindObjectsOfType<LongRangeEnemySpawner>();
+                LongRangeEnemySpawner[] longRangeSpawners = Object.FindObjectsByType<LongRangeEnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in longRangeSpawners)
                 {
                     spawner.StopSpawning();
                 }
 
-                PotionEnemySpawner[] potionSpawners = FindObjectsOfType<PotionEnemySpawner>();
+                PotionEnemySpawner[] potionSpawners = Object.FindObjectsByType<PotionEnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in potionSpawners)
                 {
                     spawner.StopSpawning();
                 }
 
-
-                //EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
-                //foreach (var spawner in spawners)
-                //{
-                //    spawner.StopSpawning();
-                //}
                 string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
 
                 foreach (string tag in enemyTags)
@@ -152,15 +148,16 @@ public class GameManager : MonoSigleTone<GameManager>
                                 potionEnemy.Die();
                             }
                         }
-
-                        // 모든 코인 삭제
-                        GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-                        foreach (GameObject coin in coins)
-                        {
-                            Destroy(coin);
-                        }
                     }
                 }
+
+                // 모든 코인 삭제
+                GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+                foreach (GameObject coin in coins)
+                {
+                    Destroy(coin);
+                }
+
                 ChangeStateToShop();
             }
         }
@@ -182,35 +179,36 @@ public class GameManager : MonoSigleTone<GameManager>
         if (shopUI != null) shopUI.SetActive(false);
     }
 
-    [System.Obsolete]
     public void ChangeStateToGame()
     {
         currentState = GameState.Game;
         Debug.Log("상태: Game - 웨이브 진행 중");
 
+        diceAnimation.StartRollingLoop(); // 주사위 애니메이션 시작
+
         // 모든 일반 적 스포너 시작
-        EnemySpawner[] enemySpawners = FindObjectsOfType<EnemySpawner>();
+        EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in enemySpawners)
         {
             spawner.StartSpawning();
         }
 
         // 모든 돌진 적 스포너 시작
-        DashEnemySpawner[] dashSpawners = FindObjectsOfType<DashEnemySpawner>();
+        DashEnemySpawner[] dashSpawners = Object.FindObjectsByType<DashEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in dashSpawners)
         {
             spawner.StartSpawning();
         }
 
         // 모든 원거리 적 스포너 시작
-        LongRangeEnemySpawner[] longRangeSpawners = FindObjectsOfType<LongRangeEnemySpawner>();
+        LongRangeEnemySpawner[] longRangeSpawners = Object.FindObjectsByType<LongRangeEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in longRangeSpawners)
         {
             spawner.StartSpawning();
         }
 
         // 모든 물약 적 스포너 시작
-        PotionEnemySpawner[] potionSpawners = FindObjectsOfType<PotionEnemySpawner>();
+        PotionEnemySpawner[] potionSpawners = Object.FindObjectsByType<PotionEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in potionSpawners)
         {
             spawner.StartSpawning();
@@ -220,32 +218,23 @@ public class GameManager : MonoSigleTone<GameManager>
         if (shopUI != null) shopUI.SetActive(false);
     }
 
-
     public void ChangeStateToShop()
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
+
+        diceAnimation.StopRollingLoop();
+
         shopManager.FirstRerollItems();
         if (timer != null)
         {
-            timer.ResetTimer(0f);
+            timer.ResetTimer(10f);
         }
         Time.timeScale = 0f;
 
         if (shopUI != null)
         {
             shopUI.SetActive(true);
-
-            //// ShopManager 초기화 호출
-            //ShopManager shopManager = shopUI.GetComponent<ShopManager>();
-            //if (shopManager != null)
-            //{
-            //    shopManager.InitShopUI();
-            //}
-            //else
-            //{
-            //    Debug.LogWarning("ShopUI에 ShopManager 컴포넌트가 없습니다.");
-            //}
         }
     }
 

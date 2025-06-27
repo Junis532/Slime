@@ -3,10 +3,8 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("Wave 오브젝트")]
-    public GameObject Wave1;
-    public GameObject Wave3;
-    public GameObject Wave4;
+    [Header("Wave들의 부모 오브젝트")]
+    public GameObject waveParent;
 
     public TextMeshProUGUI waveText;
     public int currentWave = 1;
@@ -19,35 +17,41 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    [System.Obsolete]
     public void StartNextWave()
     {
         currentWave++;
 
         UpdateWaveText();
 
-        // --------- 각 Enemy 타입 HP 증가 적용 ---------
         UpdateEnemyHP();
 
-        // --------- 웨이브 오브젝트 활성화 ---------
-        if (Wave1 != null) Wave1.SetActive(false);
-        if (Wave3 != null) Wave3.SetActive(false);
-        if (Wave4 != null) Wave4.SetActive(false);
-
-        if (currentWave >= 1 && currentWave <= 2)
-        {
-            if (Wave1 != null) Wave1.SetActive(true);
-        }
-        else if (currentWave == 3)
-        {
-            if (Wave3 != null) Wave3.SetActive(true);
-        }
-        else if (currentWave >= 4 && currentWave <= 13)
-        {
-            if (Wave4 != null) Wave4.SetActive(true);
-        }
+        ActivateWaveObject();
 
         GameManager.Instance.ChangeStateToGame();
+    }
+
+    void ActivateWaveObject()
+    {
+        if (waveParent == null) return;
+
+        string targetWaveName = $"Wave_{currentWave}";
+
+        // 먼저 모든 자식 비활성화
+        foreach (Transform child in waveParent.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+
+        // 해당 웨이브 이름 가진 자식만 활성화
+        Transform targetWave = waveParent.transform.Find(targetWaveName);
+        if (targetWave != null)
+        {
+            targetWave.gameObject.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning($"[WaveManager] {targetWaveName} 오브젝트를 찾을 수 없습니다.");
+        }
     }
 
     void UpdateEnemyHP()
@@ -79,5 +83,4 @@ public class WaveManager : MonoBehaviour
         GameManager.Instance.potionEnemyStats.maxHP = nextPotionHP;
         GameManager.Instance.potionEnemyStats.currentHP = nextPotionHP;
     }
-
 }

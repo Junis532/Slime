@@ -1,9 +1,10 @@
-﻿using UnityEngine.InputSystem;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Windows;
 
 public class PlayerController : MonoBehaviour
 {
-    public VariableJoystick joystick; // 에디터에서 UI 조이스틱 연결
+    //public VariableJoystick joystick; // 에디터에서 UI 조이스틱 연결
     public Vector2 InputVector => inputVec;
 
     public Vector2 inputVec;
@@ -23,11 +24,13 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // VariableJoystick 값 우선 사용, 없으면 Input System에서 받은 값 사용
+        //Vector2 input = Vector2.zero;
+        //if (joystick != null && joystick.Direction.magnitude > 0.1f)
+        //    input = joystick.Direction;
+        //else
+        //    input = inputVec;  // OnMove 콜백으로 받은 값
         Vector2 input = Vector2.zero;
-        if (joystick != null && joystick.Direction.magnitude > 0.1f)
-            input = joystick.Direction;
-        else
-            input = inputVec;  // OnMove 콜백으로 받은 값
+        input = inputVec;
 
         currentDirection = Vector2.SmoothDamp(currentDirection, input, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;

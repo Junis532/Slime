@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
@@ -64,7 +65,7 @@ public class Enemy : MonoBehaviour
             {
                 GameManager.Instance.playerStats.currentHP = 0;
                 // 죽음 처리 함수가 있다면 호출 (예: GameManager.Instance.PlayerDie();)
-                Die();
+               
             }
         }
     }

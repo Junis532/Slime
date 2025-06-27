@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d10e452c796e4948b758040478e2612, type: 3}
   m_Name: EnemySpawnData_0
   m_EditorClassIdentifier: 
-  SpawnEnemyIndex: 1
   SpawnerCount: 2
   MinSpawn: 1
   MaxSpawn: 3

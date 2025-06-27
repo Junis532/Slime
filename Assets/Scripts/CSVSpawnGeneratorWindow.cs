@@ -5,7 +5,6 @@ using System.IO;
 
 public class CSVSpawnGeneratorWindow : EditorWindow
 {
-    // 멤버 변수는 반드시 클래스 내부에 선언해야 합니다.
     private string csvFileName = "enemy_spawn_data";
     private string savePath = "Assets/Resources/EnemySpawnData";
     private MonsterDB monsterDB;
@@ -21,7 +20,6 @@ public class CSVSpawnGeneratorWindow : EditorWindow
     {
         EditorGUILayout.LabelField("CSV 기반 스폰 데이터 생성기", EditorStyles.boldLabel);
 
-        // 아래 두 변수는 모두 클래스 멤버여야 하며, 선언 안 했으면 반드시 선언 필요!
         csvFileName = EditorGUILayout.TextField("CSV 파일명", csvFileName);
         savePath = EditorGUILayout.TextField("저장 경로", savePath);
 
@@ -31,7 +29,7 @@ public class CSVSpawnGeneratorWindow : EditorWindow
 
         GUILayout.Space(10);
 
-        if (GUILayout.Button("📄 CSV 미리보기"))
+        if (GUILayout.Button("\uD83D\uDCC4 CSV 미리보기"))
         {
             ParseCSV();
         }
@@ -39,14 +37,17 @@ public class CSVSpawnGeneratorWindow : EditorWindow
         if (previewList.Count > 0)
         {
             GUILayout.Space(10);
-            EditorGUILayout.LabelField("🔍 미리보기", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("\uD83D\uDD0D 미리보기", EditorStyles.boldLabel);
 
             using (var scroll = new GUILayout.ScrollViewScope(Vector2.zero, GUILayout.Height(200)))
             {
                 foreach (var p in previewList)
                 {
                     EditorGUILayout.BeginVertical("box");
-                    EditorGUILayout.LabelField($"Enemy Index: {p.enemyIndex}");
+                    for (int i = 0; i < p.enemyIndexesPerSpawner.Count; i++)
+                    {
+                        EditorGUILayout.LabelField($"Spawner {i + 1}: {string.Join(",", p.enemyIndexesPerSpawner[i])}");
+                    }
                     EditorGUILayout.LabelField($"Spawner Count: {p.spawnerCount}");
                     EditorGUILayout.LabelField($"Min Spawn: {p.minSpawn}");
                     EditorGUILayout.LabelField($"Max Spawn: {p.maxSpawn}");
@@ -56,12 +57,12 @@ public class CSVSpawnGeneratorWindow : EditorWindow
 
             GUILayout.Space(10);
 
-            if (GUILayout.Button("🛠️ ScriptableObject 생성"))
+            if (GUILayout.Button("\uD83D\uDEE0\uFE0F ScriptableObject 생성"))
             {
                 CreateScriptableObjects();
             }
 
-            if (GUILayout.Button("🧱 Spawner GameObjects 생성"))
+            if (GUILayout.Button("\uD83E\uDDF1 Spawner GameObjects 생성"))
             {
                 CreateSpawnerObjects();
             }
@@ -82,10 +83,17 @@ public class CSVSpawnGeneratorWindow : EditorWindow
         {
             var p = previewList[i];
             EnemySpawnData data = ScriptableObject.CreateInstance<EnemySpawnData>();
-            data.SpawnEnemyIndex = p.enemyIndex;
             data.SpawnerCount = p.spawnerCount;
             data.MinSpawn = p.minSpawn;
             data.MaxSpawn = p.maxSpawn;
+
+            // 각 스포너에 대한 몬스터 인덱스 리스트를 하나의 리스트로 합치기 (필요 시)
+            List<int> flatIndexes = new List<int>();
+            foreach (var list in p.enemyIndexesPerSpawner)
+            {
+                flatIndexes.AddRange(list);
+            }
+            data.SpawnEnemyIndexes = new List<List<int>>(p.enemyIndexesPerSpawner);
 
             string assetPath = Path.Combine(savePath, $"EnemySpawnData_{i}.asset");
             AssetDatabase.CreateAsset(data, assetPath);
@@ -96,7 +104,6 @@ public class CSVSpawnGeneratorWindow : EditorWindow
 
         Debug.Log("ScriptableObject 생성 완료!");
     }
-
 
     private void ParseCSV()
     {
@@ -110,21 +117,46 @@ public class CSVSpawnGeneratorWindow : EditorWindow
         }
 
         string[] lines = csvData.text.Split('\n');
-        for (int i = 1; i < lines.Length; i++)  // 헤더 제외
+        for (int i = 1; i < lines.Length; i++)
         {
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
-            string[] values = lines[i].Trim().Split(',');
+            string[] values = lines[i].Trim().Split('|');
             if (values.Length < 5) continue;
 
-            if (int.TryParse(values[1], out int enemyIndex) &&
-                int.TryParse(values[2], out int spawnerCount) &&
+            string[] enemyGroups = values[1].Split(new[] { "),(" }, System.StringSplitOptions.None);
+            List<List<int>> enemyIndexesPerSpawner = new List<List<int>>();
+
+            foreach (var group in enemyGroups)
+            {
+                string cleanedGroup = group.Replace("(", "").Replace(")", "");
+                string[] indices = cleanedGroup.Split(',');
+
+                List<int> parsedIndexes = new List<int>();
+                foreach (var indexStr in indices)
+                {
+                    if (int.TryParse(indexStr.Trim(), out int index))
+                        parsedIndexes.Add(index);
+                    else
+                        Debug.LogWarning($"잘못된 몬스터 인덱스: {indexStr}");
+                }
+
+                enemyIndexesPerSpawner.Add(parsedIndexes);
+            }
+
+            if (int.TryParse(values[2], out int spawnerCount) &&
                 int.TryParse(values[3], out int minSpawn) &&
                 int.TryParse(values[4], out int maxSpawn))
             {
+                if (enemyIndexesPerSpawner.Count != spawnerCount)
+                {
+                    Debug.LogWarning($"스포너 개수({spawnerCount})와 괄호 그룹 수({enemyIndexesPerSpawner.Count})가 일치하지 않습니다. → {lines[i]}");
+                    continue;
+                }
+
                 previewList.Add(new EnemySpawnDataPreview
                 {
-                    enemyIndex = enemyIndex,
+                    enemyIndexesPerSpawner = enemyIndexesPerSpawner,
                     spawnerCount = spawnerCount,
                     minSpawn = minSpawn,
                     maxSpawn = maxSpawn
@@ -170,20 +202,21 @@ public class CSVSpawnGeneratorWindow : EditorWindow
                 Undo.RegisterCreatedObjectUndo(spawner, $"Create Spawner_{j + 1}");
 
                 EnemySpawner enemySpawner = spawner.AddComponent<EnemySpawner>();
+                enemySpawner.enemyPrefabs = new List<GameObject>();
 
-                // 초기화 및 프리팹 세팅
-                if (enemySpawner.enemyPrefabs == null)
-                    enemySpawner.enemyPrefabs = new List<GameObject>();
-                else
-                    enemySpawner.enemyPrefabs.Clear();
-
-                if (p.enemyIndex >= 0 && p.enemyIndex < monsterDB.monsters.Count)
+                if (j < p.enemyIndexesPerSpawner.Count)
                 {
-                    enemySpawner.enemyPrefabs.Add(monsterDB.monsters[p.enemyIndex]);
-                }
-                else
-                {
-                    Debug.LogWarning($"MonsterDB에 존재하지 않는 인덱스: {p.enemyIndex}");
+                    foreach (int index in p.enemyIndexesPerSpawner[j])
+                    {
+                        if (index >= 0 && index < monsterDB.monsters.Count)
+                        {
+                            enemySpawner.enemyPrefabs.Add(monsterDB.monsters[index]);
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"MonsterDB에 존재하지 않는 인덱스: {index}");
+                        }
+                    }
                 }
 
                 enemySpawner.minSpawnCount = p.minSpawn;
@@ -193,13 +226,12 @@ public class CSVSpawnGeneratorWindow : EditorWindow
 
         Debug.Log("Wave 그룹 및 스포너 생성 완료!");
     }
-
 }
 
 [System.Serializable]
 public class EnemySpawnDataPreview
 {
-    public int enemyIndex;
+    public List<List<int>> enemyIndexesPerSpawner;
     public int spawnerCount;
     public int minSpawn;
     public int maxSpawn;

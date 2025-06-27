@@ -14,11 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   level: 0
-  maxHP: 0
-  currentHP: 0
-  speed: 0
-  attack: 0
+  maxHP: 20
+  currentHP: 20
+  speed: 3.5
+  attack: 1
   magic: 0
   attackSpeed: 0
-  criticalChance: 0
   defense: 0

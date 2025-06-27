@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using System.Collections;
 public class DashEnemy : MonoBehaviour
 {
     private bool isLive = true;

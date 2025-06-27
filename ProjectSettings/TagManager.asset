@@ -12,6 +12,7 @@ TagManager:
   - DashEnemy
   - LongRangeEnemy
   - Coin
+  - Wall
   layers:
   - Default
   - TransparentFX

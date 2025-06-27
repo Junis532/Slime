@@ -38,6 +38,23 @@ public class EnemyHP : MonoBehaviour
         }
     }
 
+    public void SkillTakeDamage(int damage)
+    {
+        currentHP -= damage;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+
+        if (hpBar != null)
+        {
+            hpBar.SetHP(currentHP);
+            hpBar.gameObject.SetActive(true);
+        }
+
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
     private void Die()
     {
         if (hpBar != null)
@@ -64,5 +81,22 @@ public class EnemyHP : MonoBehaviour
             PotionEnemy potionEnemy = GetComponent<PotionEnemy>();
             if (potionEnemy != null) potionEnemy.Die();
         }
+
+        //if (CompareTag("Enemy"))
+        //{
+        //    if (GameManager.Instance.enemy != null) GameManager.Instance.enemy.Die();
+        //}
+        //else if (CompareTag("DashEnemy"))
+        //{
+        //    if (GameManager.Instance.dashEnemy != null) GameManager.Instance.dashEnemy.Die();
+        //}
+        //else if (CompareTag("LongRangeEnemy"))
+        //{
+        //    if (GameManager.Instance.longRangeEnemy != null) GameManager.Instance.longRangeEnemy.Die();
+        //}
+        //else if (CompareTag("PotionEnemy"))
+        //{
+        //    if (GameManager.Instance.potionEnemy != null) GameManager.Instance.potionEnemy.Die();
+        //}
     }
 }

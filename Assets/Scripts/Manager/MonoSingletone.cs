@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MonoSigleTone<T> : MonoBehaviour where T : MonoSigleTone<T>
+public class MonoSingleTone<T> : MonoBehaviour where T : MonoSingleTone<T>
 {
 
     private static T _instance; //전역 instance 변수

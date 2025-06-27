@@ -38,5 +38,6 @@ public class SkillButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUp
 
         if (joystickCanvasGroup != null)
             joystickCanvasGroup.alpha = 0f;
+        Debug.Log("스킬 버튼 릴리즈됨!");
     }
 }

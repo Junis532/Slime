@@ -19,7 +19,7 @@ public class DashEnemyStats : ScriptableObject
         speed = 4f;
         maxHP = 20;
         currentHP = maxHP;
-        speed = 2.5f;
+        speed = 3.5f;
         attack = 1;
     }
 }

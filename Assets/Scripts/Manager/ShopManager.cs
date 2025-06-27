@@ -14,6 +14,7 @@ public class ShopManager : MonoBehaviour
 
     [Header("버튼")]
     public Button rerollButton;
+    public Button nextWaveButton;
 
     [Header("리롤 가격")]
     public TextMeshProUGUI rerollPriceText;
