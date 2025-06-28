@@ -13,11 +13,13 @@ TagManager:
   - LongRangeEnemy
   - Coin
   - Wall
+  - HP
+  - Bullet
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Wall
   - Water
   - UI
   - 

@@ -158,6 +158,12 @@ public class GameManager : MonoSingleTone<GameManager>
                     Destroy(coin);
                 }
 
+                GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
+                foreach (GameObject bullet in bullets)
+                {
+                    Destroy(bullet);
+                }
+
                 ChangeStateToShop();
             }
         }
@@ -228,7 +234,7 @@ public class GameManager : MonoSingleTone<GameManager>
         shopManager.FirstRerollItems();
         if (timer != null)
         {
-            timer.ResetTimer(10f);
+            timer.ResetTimer(60f);
         }
         Time.timeScale = 0f;
 

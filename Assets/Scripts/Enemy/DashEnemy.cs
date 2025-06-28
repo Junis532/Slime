@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+
 public class DashEnemy : MonoBehaviour
 {
     private bool isLive = true;
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
-    private Rigidbody2D rb;
 
     private Vector2 currentVelocity;
     private Vector2 currentDirection;
@@ -36,11 +36,13 @@ public class DashEnemy : MonoBehaviour
     [Header("죽을 때 드랍할 코인")]
     public GameObject coinPrefab;
 
+    [Header("벽 레이어 마스크")]
+    public LayerMask wallLayerMask;  // 반드시 Wall 레이어 설정
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
-        rb = GetComponent<Rigidbody2D>();
 
         if (dashPreviewPrefab != null)
         {
@@ -59,10 +61,10 @@ public class DashEnemy : MonoBehaviour
         Vector2 dirVec = (player.transform.position - transform.position);
         Vector2 inputVec = dirVec.normalized;
 
-        // 돌진 중
+        // 대쉬 중
         if (isDashing)
         {
-            transform.Translate(dashDirection * dashSpeed * Time.deltaTime);
+            DashMove();
             dashTimeElapsed += Time.deltaTime;
 
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
@@ -70,23 +72,13 @@ public class DashEnemy : MonoBehaviour
 
             if (dashTimeElapsed >= dashDuration)
             {
-                isDashing = false;
-                dashTimeElapsed = 0f;
-                dashTimer = 0f;
-
-                currentDirection = Vector2.zero;
-                currentVelocity = Vector2.zero;
-
-                if (rb != null)
-                {
-                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                }
+                EndDash();
             }
 
             return;
         }
 
-        // 돌진 준비 중 - 이동 멈춤
+        // 대쉬 준비 중
         if (isPreparingToDash)
         {
             pauseTimer += Time.deltaTime;
@@ -113,15 +105,9 @@ public class DashEnemy : MonoBehaviour
 
                 if (dashPreviewInstance != null)
                     dashPreviewInstance.SetActive(false);
-
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                    rb.constraints = RigidbodyConstraints2D.FreezePosition | RigidbodyConstraints2D.FreezeRotation;
-                }
             }
 
-            return; // 이동 로직 실행 안 함
+            return;  // ← 여기서 일반 이동 안 하게 함
         }
 
         // 일반 이동
@@ -130,12 +116,7 @@ public class DashEnemy : MonoBehaviour
         {
             isPreparingToDash = true;
             pauseTimer = 0f;
-            dashDirection = inputVec; // 돌진 방향 설정
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-                rb.constraints = RigidbodyConstraints2D.FreezePosition | RigidbodyConstraints2D.FreezeRotation;
-            }
+            dashDirection = inputVec;  // 대쉬 방향 고정
             return;
         }
 
@@ -157,6 +138,31 @@ public class DashEnemy : MonoBehaviour
             dashPreviewInstance.SetActive(false);
     }
 
+    private void DashMove()
+    {
+        Vector2 moveVec = dashDirection * dashSpeed * Time.deltaTime;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dashDirection, moveVec.magnitude, wallLayerMask);
+
+        if (hit.collider != null)
+        {
+            transform.position = hit.point - dashDirection.normalized * 0.01f;
+            EndDash();
+        }
+        else
+        {
+            transform.Translate(moveVec);
+        }
+    }
+
+    private void EndDash()
+    {
+        isDashing = false;
+        dashTimeElapsed = 0f;
+        dashTimer = 0f;
+        currentDirection = Vector2.zero;
+        currentVelocity = Vector2.zero;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive) return;
@@ -166,13 +172,23 @@ public class DashEnemy : MonoBehaviour
             int damage = GameManager.Instance.dashEnemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
 
-            // 체력이 0 이하가 되었는지 확인하고 처리
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // 죽음 처리 함수가 있다면 호출 (예: GameManager.Instance.PlayerDie();)
+                // 플레이어 죽음 처리
             }
         }
+    }
+
+    public void Knockback(Vector2 force)
+    {
+        if (isPreparingToDash)
+        {
+            Debug.Log("대쉬 준비 중이라 넉백 무시");
+            return;
+        }
+
+        transform.position += (Vector3)force;
     }
 
     public void Die()

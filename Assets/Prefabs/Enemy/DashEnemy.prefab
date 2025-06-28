@@ -279,6 +279,9 @@ MonoBehaviour:
   previewDistanceFromEnemy: 2.5
   previewBackOffset: 0
   coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 40
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0
