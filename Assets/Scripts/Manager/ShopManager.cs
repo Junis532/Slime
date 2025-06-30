@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 
 public class ShopManager : MonoBehaviour
 {
+    public static ShopManager Instance;
+
     [Header("아이템 데이터")]
     public List<ItemStats> allItems;
 
@@ -18,7 +19,12 @@ public class ShopManager : MonoBehaviour
 
     [Header("리롤 가격")]
     public TextMeshProUGUI rerollPriceText;
-    public int rerollPrice = 100;
+    public int rerollPrice = 1;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -33,6 +39,13 @@ public class ShopManager : MonoBehaviour
         UpdateBuyButtonStates();
     }
 
+    public void ResetRerollPrice()
+    {
+        rerollPrice = 1; // 초기값으로 리셋
+        rerollPriceText.text = $"리롤 {rerollPrice}원";
+        UpdateRerollButtonState();
+    }
+
     public void RerollItems()
     {
         int coin = GameManager.Instance.playerStats.coin;
@@ -44,6 +57,7 @@ public class ShopManager : MonoBehaviour
         }
 
         GameManager.Instance.playerStats.coin -= rerollPrice;
+        rerollPrice *= 2; // 리롤 가격 증가
 
         List<ItemStats> selectedItems = GetRandomItems(itemSlots.Count);
 
@@ -63,8 +77,8 @@ public class ShopManager : MonoBehaviour
             ItemStats capturedItem = item;
             buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
 
-            // 코인 부족 시 비활성화
-            buyBtn.interactable = GameManager.Instance.playerStats.coin >= item.price;
+            // 리롤 시 모든 버튼 다시 활성화
+            buyBtn.interactable = true;
         }
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
@@ -91,8 +105,8 @@ public class ShopManager : MonoBehaviour
             ItemStats capturedItem = item;
             buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
 
-            // 코인 부족 시 비활성화
-            buyBtn.interactable = GameManager.Instance.playerStats.coin >= item.price;
+            // 리롤 시 모든 버튼 다시 활성화
+            buyBtn.interactable = true;
         }
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
@@ -101,19 +115,55 @@ public class ShopManager : MonoBehaviour
 
     void BuyItem(ItemStats item)
     {
-        int coin = GameManager.Instance.playerStats.coin;
+        Debug.Log($"[구매] {item.itemName} - 돈 차감 없음");
 
-        if (coin < item.price)
+        // ★ 아이템별 효과 처리 ★
+        if (item == GameManager.Instance.itemStats1)
         {
-            Debug.Log("코인이 부족합니다!");
-            return;
+            Debug.Log("아이템1 효과 발동!");
+            GameManager.Instance.playerStats.maxHP += 5;
+            GameManager.Instance.playerStats.currentHP += 5;
+        }
+        else if (item == GameManager.Instance.itemStats2)
+        {
+            Debug.Log("아이템2 효과 발동!");
+            // 효과 구현 가능
+        }
+        else if (item == GameManager.Instance.itemStats3)
+        {
+            Debug.Log("아이템3 효과 발동!");
+            GameManager.Instance.playerStats.speed *= 1.03f;
+        }
+        else if (item == GameManager.Instance.itemStats4)
+        {
+            Debug.Log("아이템4 효과 발동!");
+            // 효과 구현 가능
+        }
+        else if (item == GameManager.Instance.itemStats5)
+        {
+            Debug.Log("아이템5 효과 발동!");
+            // 효과 구현 가능
+        }
+        else if (item == GameManager.Instance.itemStats6)
+        {
+            Debug.Log("아이템6 효과 발동!");
+            // 효과 구현 가능
         }
 
-        GameManager.Instance.playerStats.coin -= item.price;
-        Debug.Log($"[구매] {item.itemName} - {item.price}골드");
+        // 구매한 슬롯 버튼 외에 모두 비활성화
+        foreach (GameObject slot in itemSlots)
+        {
+            TextMeshProUGUI nameText = slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>();
+            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+
+            if (nameText.text == item.itemName)
+                buyBtn.interactable = false;
+            else
+                buyBtn.interactable = false;
+        }
 
         UpdateRerollButtonState();
-        UpdateBuyButtonStates(); // 코인 차감 후 버튼들 상태 재확인
+        UpdateBuyButtonStates();
     }
 
     List<ItemStats> GetRandomItems(int count)
@@ -138,18 +188,7 @@ public class ShopManager : MonoBehaviour
 
     void UpdateBuyButtonStates()
     {
-        int coin = GameManager.Instance.playerStats.coin;
-
-        foreach (GameObject slot in itemSlots)
-        {
-            TextMeshProUGUI priceText = slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>();
-            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-
-            if (int.TryParse(priceText.text, out int itemPrice))
-            {
-                buyBtn.interactable = coin >= itemPrice;
-            }
-        }
+        // 현재는 비활성화 상태이므로 빈 구현
     }
 
     public void OnButtonNextWaveClick()

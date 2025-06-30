@@ -14,6 +14,12 @@ public class GameManager : MonoSingleTone<GameManager>
     public DashEnemySpawner dashEnemySpawner;
     public LongRangeEnemySpawner longRangeEnemySpawner;
     public PotionEnemySpawner potionEnemySpawner;
+    public ItemStats itemStats1;
+    public ItemStats itemStats2;
+    public ItemStats itemStats3;
+    public ItemStats itemStats4;
+    public ItemStats itemStats5;
+    public ItemStats itemStats6;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -29,7 +35,7 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("UI")]
     public GameObject shopUI;
 
-    public int currentWave = 1;
+    //public int currentWave = 1;
 
     // 게임 상태 열거형
     private enum GameState
@@ -234,7 +240,7 @@ public class GameManager : MonoSingleTone<GameManager>
         shopManager.FirstRerollItems();
         if (timer != null)
         {
-            timer.ResetTimer(60f);
+            timer.ResetTimer(10f);
         }
         Time.timeScale = 0f;
 

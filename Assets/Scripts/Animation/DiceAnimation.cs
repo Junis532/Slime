@@ -108,7 +108,7 @@ public class DiceAnimation : MonoBehaviour
                 yield return new WaitForSeconds(frameRate);
             }
 
-            int result = Random.Range(4, 5);
+            int result = Random.Range(1, 5);
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
             Debug.Log($"주사위 결과: {result}");
