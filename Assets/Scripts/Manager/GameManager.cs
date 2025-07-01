@@ -169,6 +169,12 @@ public class GameManager : MonoSingleTone<GameManager>
                 {
                     Destroy(bullet);
                 }
+                GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
+                foreach (GameObject skill in skills)
+                {
+                    Destroy(skill);
+                }
+
 
                 ChangeStateToShop();
             }
@@ -234,13 +240,14 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
+        DialogManager.Instance.ShowRandomShopDialog();
 
         diceAnimation.StopRollingLoop();
 
         shopManager.FirstRerollItems();
         if (timer != null)
         {
-            timer.ResetTimer(10f);
+            timer.ResetTimer(5f);
         }
         Time.timeScale = 0f;
 

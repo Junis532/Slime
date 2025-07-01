@@ -66,6 +66,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     private Vector2 lightningCastDirection;
 
+    // 이전 blockInputCanvas 활성 상태 저장용
+    private bool prevBlockInputActive = false;
+
     void Start()
     {
         playerController = GetComponent<PlayerController>();
@@ -75,7 +78,44 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     void Update()
     {
-        if (blockInputCanvas != null && blockInputCanvas.activeSelf)
+        bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
+
+        // 상점 → 게임 전환 시점: 입력 초기화 및 조이스틱 리셋
+        if (prevBlockInputActive && !isBlockActive)
+        {
+            // 입력 상태 초기화
+            isTouchingJoystick = false;
+            wasTouchingJoystickLastFrame = false;
+            lastInputDirection = Vector2.right;
+            lastInputMagnitude = 0f;
+            hasUsedSkill = false;
+            isTeleportMode = false;
+            isLightningMode = false;
+            currentIndicatorIndex = -1;
+
+            // 인디케이터 삭제
+            if (indicatorInstance != null)
+            {
+                Destroy(indicatorInstance);
+                indicatorInstance = null;
+            }
+
+            if (joystickCanvasGroup != null)
+                joystickCanvasGroup.alpha = 0f;
+
+            // **조이스틱 입력값 강제 리셋**
+            if (joystick != null)
+            {
+                joystick.ResetInput();  // VariableJoystick에 ResetInput 함수 추가 필요
+                joystick.enabled = true;
+            }
+
+            Debug.Log("상점 → 게임 복귀: 입력 상태 초기화 및 조이스틱 리셋 완료");
+        }
+
+        prevBlockInputActive = isBlockActive;
+
+        if (isBlockActive)
         {
             if (joystick != null)
                 joystick.enabled = false;
@@ -181,6 +221,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         if (joystick != null)
             joystick.enabled = !DiceAnimation.isRolling && !hasUsedSkill;
     }
+
+    // 이하 기존 함수들 그대로 유지...
 
     void SetHideImageState(bool isVisible)
     {
@@ -388,7 +430,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         {
             float fallDelay = 0f;
 
-            // 위에서 떨어지는 라이트닝 이펙트 생성
             if (LightningEffectPrefab != null)
             {
                 Vector3 startPos = targetPos + Vector3.up * 5f;
@@ -399,13 +440,11 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 {
                     fallScript.targetPosition = targetPos;
 
-                    // 거리 / 속도로 예상 낙하시간 계산
                     float distance = Vector3.Distance(startPos, targetPos);
                     fallDelay = distance / fallScript.fallSpeed;
                 }
             }
 
-            // 낙하 시간만큼 기다린 후 번개 본체 활성화
             yield return new WaitForSeconds(fallDelay);
 
             if (lightning == null && lightningPrefab != null)
@@ -431,7 +470,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         if (lightning != null) Destroy(lightning);
     }
-
 
     private void SpawnWindWall()
     {

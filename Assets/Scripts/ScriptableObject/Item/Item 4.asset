@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Item 4
   m_EditorClassIdentifier: 
   itemID: 4
-  itemName: "\uB8E8\uB374\uC758 \uB3D9\uBC18\uC790"
-  price: 4
-  description: "\u3142\u3137\u3142"
-  icon: {fileID: -5480877249961551942, guid: cb3d280ff6e2391448f87d1f499926f3, type: 3}
-  type: 0
+  itemName: "\uB9C8\uB825\uACBD\uACC4"
+  price: 0
+  description: "\uB9C8\uB825 \uAD6C\uCCB4\uAC00 \uC8FC\uC704\uB97C \uB5A0\uB3D5\uB2C8\uB2E4."
+  icon: {fileID: 21300000, guid: 9687b8cba872c4f50aeb3b2b3ff1a0b7, type: 3}

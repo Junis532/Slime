@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 public class VariableJoystick : Joystick
 {
@@ -58,6 +59,18 @@ public class VariableJoystick : Joystick
         }
         base.HandleInput(magnitude, normalised, radius, cam);
     }
+
+    public void ResetInput()
+    {
+        // 핸들이 private라 직접 접근 불가하면 background 위치만 초기화
+        background.anchoredPosition = fixedPosition;
+
+        // 포인터 업 호출로 입력 상태 초기화
+        OnPointerUp(null);
+    }
+
+
+
 }
 
 public enum JoystickType { Fixed, Floating, Dynamic }

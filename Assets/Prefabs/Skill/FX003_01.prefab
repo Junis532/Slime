@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7218140143229743365}
   m_Layer: 0
   m_Name: FX003_01
-  m_TagString: Untagged
+  m_TagString: Skill
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

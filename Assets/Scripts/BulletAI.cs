@@ -4,20 +4,31 @@ using UnityEngine;
 public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
-    public float followDuration = 0.3f; // 플레이어를 따라다니는 시간
-    public float followOffsetX = 0.5f;  // 플레이어 좌우 따라다닐 거리 오프셋
+    public float followDuration = 0.3f;
+    public float baseSpawnOffsetDistance = 0.5f; // 기준 거리
+
+    private float currentSpawnOffsetDistance;
+    private float spawnOffsetVelocity = 0f;
 
     private Transform target;
     private Transform player;
     private bool isFollowingPlayer = true;
 
+    private Vector3 spawnOffsetDirection; // 방향은 고정 (초기 랜덤 각도에서 뽑음)
+    private Vector3 spawnOffset;
+
+    private System.Random localRandom;
+    private Collider2D myCollider;
+
     void Start()
     {
         transform.localScale = Vector3.zero;
 
-        // 플레이어 찾기
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        myCollider = GetComponent<Collider2D>();
+        if (myCollider != null)
+            myCollider.enabled = false;
 
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         if (player == null)
         {
             Debug.LogWarning("플레이어를 찾을 수 없습니다.");
@@ -25,33 +36,47 @@ public class BulletAI : MonoBehaviour
             return;
         }
 
-        // 생성 시 커지는 애니메이션
+        localRandom = new System.Random(System.DateTime.Now.Millisecond + GetInstanceID());
+        float angle = (float)(localRandom.NextDouble() * 360.0);
+        float rad = angle * Mathf.Deg2Rad;
+        spawnOffsetDirection = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f).normalized;
+
+        // 초기 spawnOffset 거리 세팅
+        currentSpawnOffsetDistance = baseSpawnOffsetDistance;
+        spawnOffset = spawnOffsetDirection * currentSpawnOffsetDistance;
+
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
-            // 일정 시간 뒤 적을 향해 날아감
+            if (myCollider != null)
+                myCollider.enabled = true;
+
             Invoke(nameof(SwitchToEnemy), followDuration);
         });
     }
 
     void Update()
     {
-        if (isFollowingPlayer && player != null)
+        if (player == null) return;
+
+        float targetScale = Mathf.Max(Mathf.Abs(player.localScale.x), 1f);
+
+        // 커지는 범위를 20% 정도만 반영하고 싶으면 0.2f 곱하기
+        float scaleEffectFactor = 0.3f;
+
+        currentSpawnOffsetDistance = Mathf.SmoothDamp(
+            currentSpawnOffsetDistance,
+            baseSpawnOffsetDistance * (1f + (targetScale - 1f) * scaleEffectFactor),
+            ref spawnOffsetVelocity,
+            0.3f);
+
+        spawnOffset = spawnOffsetDirection * currentSpawnOffsetDistance;
+
+        if (isFollowingPlayer)
         {
-            float direction = 1f;
-
-            SpriteRenderer sr = player.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                direction = sr.flipX ? -1f : 1f;
-            }
-            else
-            {
-                direction = player.localScale.x < 0 ? -1f : 1f;
-            }
-
-            transform.position = player.position + new Vector3(followOffsetX * direction, 0f, 0f);
+            transform.position = player.position + spawnOffset;
         }
     }
+
 
 
     void SwitchToEnemy()
@@ -65,7 +90,7 @@ public class BulletAI : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject, 1f); // 적이 없으면 1초 후 파괴
+            Destroy(gameObject, 1f); // 적 없으면 1초 뒤 삭제
         }
     }
 
@@ -75,10 +100,8 @@ public class BulletAI : MonoBehaviour
         {
             Vector3 direction = (target.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
             transform.rotation = Quaternion.Euler(0, 0, angle - 90f);
             transform.position += direction * moveSpeed * Time.deltaTime;
-
             yield return null;
         }
 
@@ -108,7 +131,6 @@ public class BulletAI : MonoBehaviour
         target = closest;
     }
 
-
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
@@ -124,10 +146,8 @@ public class BulletAI : MonoBehaviour
         }
     }
 
-
-
     void OnDestroy()
     {
-        transform.DOKill(); // DOTween 트윈 정리
+        transform.DOKill(); // DOTween 메모리 정리
     }
 }
