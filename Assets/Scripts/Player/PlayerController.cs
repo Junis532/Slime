@@ -62,12 +62,28 @@ public class PlayerController : MonoBehaviour
         transform.Translate(nextVec);
 
         // ✅ 6) 캐릭터 방향 전환
-        if (currentDirection.magnitude > 0.01f)
+        //if (currentDirection.magnitude > 0.01f)
+        //{
+        //    Vector3 scale = transform.localScale;
+        //    scale.x = Mathf.Abs(scale.x) * (currentDirection.x < 0 ? -1 : 1);
+        //    transform.localScale = scale;
+        //}
+        Debug.Log($"JoystickX: {joystick.Horizontal}, InputVecX: {inputVec.x}, CurrentDirX: {currentDirection.x}");
+
+        // ✅ 강제 방향 전환 (조이스틱 or 이동 방향 기준)
+        float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
+
+        if (flipInput < -0.01f)
         {
-            Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (currentDirection.x < 0 ? -1 : 1);
-            transform.localScale = scale;
+            spriteRenderer.flipX = true;
         }
+        else if (flipInput > 0.01f)
+        {
+            spriteRenderer.flipX = false;
+        }
+
+
+
 
         // ✅ 7) 애니메이션
         if (currentDirection == Vector2.zero)

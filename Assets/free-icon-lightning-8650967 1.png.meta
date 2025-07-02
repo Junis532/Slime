@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      free-icon-lightning-8650967 1_0: -7561657733803685969
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

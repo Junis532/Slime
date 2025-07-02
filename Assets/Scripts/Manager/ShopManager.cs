@@ -238,7 +238,7 @@ public class ShopManager : MonoBehaviour
             {
                 canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
             }
-            shopPanel.DOAnchorPosX(1920f, 0.7f).SetEase(Ease.InCubic).OnComplete(() =>
+            shopPanel.DOAnchorPosY(1500f, 0.7f).SetEase(Ease.InCubic).OnComplete(() =>
             {
                 if (shopUI != null)
                     shopUI.SetActive(false);

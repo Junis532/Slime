@@ -89,13 +89,13 @@ public class DialogManager : MonoBehaviour
         foreach (char c in line)
         {
             textDialog.text += c;
-            yield return new WaitForSeconds(0.1f);  // 글자당 딜레이
+            yield return new WaitForSeconds(0.07f);  // 글자당 딜레이
         }
 
         isTyping = false;
     }
 
-    void NextLine()
+    public void NextLine()
     {
         if (isTyping)
         {

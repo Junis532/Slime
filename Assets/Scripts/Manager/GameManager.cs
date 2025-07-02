@@ -29,6 +29,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public Timer timer;
     public ShopManager shopManager;
     public WaveManager waveManager;
+    public DialogManager dialogManager;
     public EnemyHP enemyHP;
     public DiceAnimation diceAnimation;
     public FireballProjectile fireballProjectile;
@@ -276,7 +277,7 @@ public class GameManager : MonoSingleTone<GameManager>
                 canvasGroup.DOFade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
             }
             // 부드럽게 X=0으로 이동 후 타임스케일 0으로 변경
-            shopPanel.DOAnchorPosX(0f, 0.7f)
+            shopPanel.DOAnchorPosY(0f, 0.7f)
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
                 {

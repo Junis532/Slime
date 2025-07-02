@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
+//using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 public class VariableJoystick : Joystick
 {
