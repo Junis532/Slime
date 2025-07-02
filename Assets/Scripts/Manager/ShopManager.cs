@@ -1,7 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using DG.Tweening;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopManager : MonoBehaviour
 {
@@ -21,6 +22,12 @@ public class ShopManager : MonoBehaviour
     public TextMeshProUGUI rerollPriceText;
     public int rerollPrice = 1;
 
+    [Header("상점 패널")]
+    public RectTransform shopPanel;
+
+    [Header("상점 UI 오브젝트")]
+    public GameObject shopUI;
+
     private void Awake()
     {
         Instance = this;
@@ -30,6 +37,7 @@ public class ShopManager : MonoBehaviour
     {
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         rerollButton.onClick.AddListener(RerollItems);
+        nextWaveButton.onClick.AddListener(OnButtonNextWaveClick);
         RerollItems();
     }
 
@@ -77,7 +85,6 @@ public class ShopManager : MonoBehaviour
             ItemStats capturedItem = item;
             buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
 
-            // 리롤 시 모든 버튼 다시 활성화
             buyBtn.interactable = true;
         }
 
@@ -105,7 +112,6 @@ public class ShopManager : MonoBehaviour
             ItemStats capturedItem = item;
             buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
 
-            // 리롤 시 모든 버튼 다시 활성화
             buyBtn.interactable = true;
         }
 
@@ -117,48 +123,35 @@ public class ShopManager : MonoBehaviour
     {
         Debug.Log($"[구매] {item.itemName} - 돈 차감 없음");
 
+        // 아이템 효과 발동 (기존 코드 유지)
         if (item == GameManager.Instance.itemStats1)
         {
-            Debug.Log("아이템1 효과 발동!");
             GameManager.Instance.playerStats.maxHP += 5;
             GameManager.Instance.playerStats.currentHP += 5;
         }
         else if (item == GameManager.Instance.itemStats2)
         {
-            Debug.Log("아이템2 효과 발동!");
-
-            GameObject gameManagerObj = GameManager.Instance.gameObject;
-            PoisonSpawner poisonSpawner = gameManagerObj.GetComponent<PoisonSpawner>();
+            GameObject gmObj = GameManager.Instance.gameObject;
+            PoisonSpawner poisonSpawner = gmObj.GetComponent<PoisonSpawner>();
 
             if (poisonSpawner != null)
             {
                 if (!poisonSpawner.enabled)
                 {
                     poisonSpawner.enabled = true;
-                    Debug.Log("PoisonSpawner 활성화됨");
                 }
                 else
                 {
                     poisonSpawner.poisonLifetime += 1;
-                    Debug.Log($"Poison 지속시간 증가! 현재: {poisonSpawner.poisonLifetime}초");
                 }
             }
-            else
-            {
-                Debug.LogWarning("GameManager에 PoisonSpawner 컴포넌트가 없습니다.");
-            }
         }
-
-
         else if (item == GameManager.Instance.itemStats3)
         {
-            Debug.Log("아이템3 효과 발동!");
             GameManager.Instance.playerStats.speed *= 1.03f;
         }
         else if (item == GameManager.Instance.itemStats4)
         {
-            Debug.Log("아이템4 효과 발동!");
-
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj != null)
             {
@@ -168,89 +161,44 @@ public class ShopManager : MonoBehaviour
                     if (!meteorSkill.enabled)
                     {
                         meteorSkill.enabled = true;
-                        meteorSkill.meteorCount = 1;  // 처음 구매 시 1개부터 시작
-                        Debug.Log("MeteorOrbitSkill 활성화됨. MeteorCount = 1");
+                        meteorSkill.meteorCount = 1;
                     }
                     else
                     {
                         if (meteorSkill.meteorCount < 4)
-                        {
                             meteorSkill.meteorCount += 1;
-                            Debug.Log($"Meteor 수 증가! 현재 MeteorCount: {meteorSkill.meteorCount}");
-                        }
                         else
-                        {
                             meteorSkill.rotationSpeed += 20;
-                            Debug.Log($"Meteor 최대치. 대신 속도 증가! 현재 rotationSpeed: {meteorSkill.rotationSpeed}");
-                        }
-                        meteorSkill.RefreshMeteor();
 
+                        meteorSkill.RefreshMeteor();
                     }
                 }
-                else
-                {
-                    Debug.LogWarning("플레이어에 MeteorOrbitSkill 컴포넌트가 없습니다.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("씬에 Player 태그가 붙은 오브젝트가 없습니다.");
             }
         }
-
-
-
         else if (item == GameManager.Instance.itemStats5)
         {
-            Debug.Log("아이템5 효과 발동!");
             GameManager.Instance.playerStats.attack *= 1.02f;
         }
         else if (item == GameManager.Instance.itemStats6)
         {
-            Debug.Log("아이템6 효과 발동!");
-
-            GameObject gameManagerObj = GameManager.Instance.gameObject;
-
-            if (gameManagerObj != null)
+            GameObject gmObj = GameManager.Instance.gameObject;
+            BulletSpawner spawner = gmObj.GetComponent<BulletSpawner>();
+            if (spawner != null)
             {
-                BulletSpawner spawner = gameManagerObj.GetComponent<BulletSpawner>();
-
-                if (spawner != null)
-                {
-                    spawner.bulletCount += 1;
-                    Debug.Log($"BulletSpawner 총알 개수 증가! 현재: {spawner.bulletCount}개");
-                }
-                else
-                {
-                    Debug.LogWarning("GameManager에 BulletSpawner 컴포넌트가 없습니다.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("GameManager 오브젝트가 존재하지 않습니다.");
+                spawner.bulletCount += 1;
             }
         }
 
-
-
-
-
-        // 구매한 슬롯 버튼 외에 모두 비활성화
+        // 구매 후 모든 버튼 비활성화 (모두 비활성화)
         foreach (GameObject slot in itemSlots)
         {
-            TextMeshProUGUI nameText = slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>();
             Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-
-            if (nameText.text == item.itemName)
-                buyBtn.interactable = false;
-            else
-                buyBtn.interactable = false;
+            buyBtn.interactable = false;
         }
 
         UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
-
 
     List<ItemStats> GetRandomItems(int count)
     {
@@ -274,11 +222,34 @@ public class ShopManager : MonoBehaviour
 
     void UpdateBuyButtonStates()
     {
-        // 현재는 비활성화 상태이므로 빈 구현
+        // 빈 구현, 필요시 추가
     }
 
     public void OnButtonNextWaveClick()
     {
+        Debug.Log("다음 웨이브 시작");
+        Time.timeScale = 1f;
+
+        if (shopPanel != null)
+        {
+            shopPanel.DOKill();
+            CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
+            }
+            shopPanel.DOAnchorPosX(1920f, 0.7f).SetEase(Ease.InCubic).OnComplete(() =>
+            {
+                if (shopUI != null)
+                    shopUI.SetActive(false);
+            });
+        }
+        else
+        {
+            if (shopUI != null)
+                shopUI.SetActive(false);
+        }
+
         GameManager.Instance.waveManager.StartNextWave();
     }
 }

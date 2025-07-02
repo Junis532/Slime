@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 public class WindWallKnockback : MonoBehaviour
 {
-    [Header("넉백 힘")]
-    public float knockbackForce = 5f;
 
     [Header("적에게 줄 피해량 (플레이어 공격력 비례)")]
     public float damageMultiplier = 0.1f;
@@ -30,18 +28,7 @@ public class WindWallKnockback : MonoBehaviour
     {
         if (IsNotPlayer(collision.collider))
         {
-            Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-
-            Rigidbody2D enemyRb = collision.collider.GetComponent<Rigidbody2D>();
-            if (enemyRb != null)
-            {
-                enemyRb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
-            }
-            else
-            {
-                collision.transform.position += (Vector3)(knockbackDir * 1f);
-            }
-
+            
             EnemyHP hp = collision.collider.GetComponent<EnemyHP>();
             if (hp != null)
             {

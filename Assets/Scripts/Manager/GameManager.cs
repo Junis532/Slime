@@ -1,6 +1,7 @@
-using UnityEngine;
+using DG.Tweening;
 using System.Collections;
 using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoSingleTone<GameManager>
@@ -36,6 +37,10 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("UI")]
     public GameObject shopUI;
 
+    [Header("상점 패널")]
+    public RectTransform shopPanel;
+
+
     private enum GameState
     {
         Idle,
@@ -70,6 +75,14 @@ public class GameManager : MonoSingleTone<GameManager>
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
         waveManager.UpdateWaveText();
+
+        
+        if (shopUI != null)
+        {
+            CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
+            canvasGroup.alpha = 0f;
+            shopUI.SetActive(false);
+        }
     }
 
     private void Update()
@@ -231,8 +244,7 @@ public class GameManager : MonoSingleTone<GameManager>
             spawner.StartSpawning();
         }
 
-        Time.timeScale = 1f;
-        if (shopUI != null) shopUI.SetActive(false);
+        //if (shopUI != null) shopUI.SetActive(false);
     }
 
     public void ChangeStateToShop()
@@ -250,13 +262,35 @@ public class GameManager : MonoSingleTone<GameManager>
             timer.ResetTimer(60f);
         }
 
-        Time.timeScale = 0f;
-
         if (shopUI != null)
         {
             shopUI.SetActive(true);
         }
+
+        if (shopPanel != null)
+        {
+
+            CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOFade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
+            }
+            // 부드럽게 X=0으로 이동 후 타임스케일 0으로 변경
+            shopPanel.DOAnchorPosX(0f, 0.7f)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    //Time.timeScale = 0f;
+                });
+        }
+        else
+        {
+            // shopPanel이 null일 경우 타임스케일 바로 0으로 처리
+            Time.timeScale = 0f;
+        }
     }
+
+
 
     public void ChangeStateToEnd()
     {

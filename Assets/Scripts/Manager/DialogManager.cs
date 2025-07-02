@@ -1,6 +1,7 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 public class DialogManager : MonoBehaviour
@@ -12,46 +13,52 @@ public class DialogManager : MonoBehaviour
     {
         [TextArea(3, 5)]
         public string dialog;
-        // public Sprite image; // ÇÊ¿ä½Ã »ç¿ë
     }
 
     [System.Serializable]
     public class DialogPage
     {
-        public List<DialogData> dialogs;  // ÇÑ ÆäÀÌÁö¿¡ ¿©·¯ ÁÙ ´ë»ç
+        public List<DialogData> dialogs;
     }
 
-    [Header("»óÁ¡ÁÖÀÎ ´ë»ç ÆäÀÌÁöµé (1ÆäÀÌÁö = ¿©·¯ ´ë»ç)")]
+    [Header("ìƒì ì£¼ì¸ ëŒ€ì‚¬ í˜ì´ì§€ë“¤ (1í˜ì´ì§€ = ì—¬ëŸ¬ ëŒ€ì‚¬)")]
     public List<DialogPage> shopDialogPages;
 
-    public GameObject dialogPanel;
     public Image imageDialog;
     public TextMeshProUGUI textDialog;
-    public Button nextDialogButton;
 
     private int currentPageIndex = 0;
     private int currentLineIndex = 0;
 
+    private Coroutine typingCoroutine;
+    private bool isTyping = false;
+
     private void Awake()
     {
         Instance = this;
-        nextDialogButton.onClick.AddListener(NextLine);
+    }
+
+    private void Update()
+    {
+        if (GameManager.Instance.IsShop() && Input.GetMouseButtonDown(0))
+        {
+            NextLine();
+        }
     }
 
     public void StartShopDialog()
     {
         if (shopDialogPages.Count == 0)
         {
-            Debug.LogWarning("»óÁ¡ ´ë»ç ÆäÀÌÁö°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ìƒì  ëŒ€ì‚¬ í˜ì´ì§€ê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ·£´ı ÆäÀÌÁö ¼±ÅÃ
         currentPageIndex = Random.Range(0, shopDialogPages.Count);
         currentLineIndex = 0;
 
-        dialogPanel.SetActive(true);
-        nextDialogButton.gameObject.SetActive(true);
+        imageDialog.gameObject.SetActive(true);
+        textDialog.gameObject.SetActive(true);
 
         ShowCurrentLine();
     }
@@ -66,22 +73,48 @@ public class DialogManager : MonoBehaviour
             return;
         }
 
-        textDialog.text = page.dialogs[currentLineIndex].dialog;
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+
+        typingCoroutine = StartCoroutine(TypeLine(page.dialogs[currentLineIndex].dialog));
+    }
+
+    IEnumerator TypeLine(string line)
+    {
+        isTyping = true;
+        textDialog.text = "";
+
+        foreach (char c in line)
+        {
+            textDialog.text += c;
+            yield return new WaitForSeconds(0.1f);  // ê¸€ìë‹¹ ë”œë ˆì´
+        }
+
+        isTyping = false;
     }
 
     void NextLine()
     {
-        currentLineIndex++;
-        ShowCurrentLine();
+        if (isTyping)
+        {
+            StopCoroutine(typingCoroutine);
+            DialogPage page = shopDialogPages[currentPageIndex];
+            textDialog.text = page.dialogs[currentLineIndex].dialog;
+            isTyping = false;
+        }
+        else
+        {
+            currentLineIndex++;
+            ShowCurrentLine();
+        }
     }
 
     void EndDialog()
     {
-        //dialogPanel.SetActive(false);
-        nextDialogButton.gameObject.SetActive(false);
-        textDialog.text = string.Empty;
         imageDialog.gameObject.SetActive(false);
-        Debug.Log("[DialogManager] ´ëÈ­ Á¾·á");
+        textDialog.gameObject.SetActive(false);
+        Debug.Log("[DialogManager] ëŒ€í™” ì¢…ë£Œ");
     }
-
 }

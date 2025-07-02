@@ -12,8 +12,12 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
 
     public float smoothTime = 0.1f;
+    public bool canMove = true;
 
-    public bool canMove = true;  // 이동 가능 여부 변수 추가
+    [Header("조이스틱")]
+    public VariableJoystick joystick;
+
+    private Vector2 keyboardInput;
 
     void Start()
     {
@@ -23,14 +27,41 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!canMove) return; // 이동 불가 시 이동 로직 실행 안 함
+        
 
-        Vector2 input = inputVec;
+        if (GameManager.Instance.CurrentState == "Shop")
+        {
+            canMove = false;
+        }
+        else if (GameManager.Instance.CurrentState == "Game")
+        {
+            canMove = true;
+        }
 
-        currentDirection = Vector2.SmoothDamp(currentDirection, input, ref currentVelocity, smoothTime);
+        if (!canMove) return;
+
+        // ✅ 1) 키보드 입력
+        keyboardInput = new Vector2(
+                Keyboard.current.aKey.isPressed ? -1 : Keyboard.current.dKey.isPressed ? 1 : 0,
+                Keyboard.current.sKey.isPressed ? -1 : Keyboard.current.wKey.isPressed ? 1 : 0
+            );
+
+        // ✅ 2) 조이스틱 입력
+        Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
+
+        // ✅ 3) 두 입력 합치기 (둘 다 누르면 합산됨)
+        inputVec = keyboardInput + joystickInput;
+
+        // ✅ 4) Normalize해서 대각선 과속 방지
+        if (inputVec.magnitude > 1f)
+            inputVec = inputVec.normalized;
+
+        // ✅ 5) 이동
+        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
         transform.Translate(nextVec);
 
+        // ✅ 6) 캐릭터 방향 전환
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -38,14 +69,16 @@ public class PlayerController : MonoBehaviour
             transform.localScale = scale;
         }
 
+        // ✅ 7) 애니메이션
         if (currentDirection == Vector2.zero)
             playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
         else
             playerAnimation.PlayAnimation(PlayerAnimation.State.Move);
     }
 
+    // ✅ Unity New InputSystem OnMove 이벤트도 연결하고 싶으면 이거도 추가
     void OnMove(InputValue value)
     {
-        inputVec = value.Get<Vector2>();
+        // 필요시 여기에 추가적인 처리 가능
     }
 }
