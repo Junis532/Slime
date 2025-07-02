@@ -1,11 +1,14 @@
+ï»¿using DG.Tweening;
 using UnityEngine;
 
 public class EnemyHP : MonoBehaviour
 {
-    public GameObject hpBarPrefab; // EnemyHPBar ÇÁ¸®ÆÕ
+    public GameObject hpBarPrefab; // EnemyHPBar í”„ë¦¬íŒ¹
     private EnemyHPBar hpBar;
     private float currentHP;
     private float maxHP;
+
+    private SpriteRenderer spriteRenderer; // ì¶”ê°€
 
     [System.Obsolete]
     void Start()
@@ -13,12 +16,19 @@ public class EnemyHP : MonoBehaviour
         maxHP = GameManager.Instance.enemyStats.maxHP;
         currentHP = maxHP;
 
-        // HP¹Ù »ı¼º ¹× ÃÊ±âÈ­
-        Canvas worldCanvas = FindObjectOfType<Canvas>(); // ¿ùµåÄµ¹ö½º Ã£¾Æ¼­
+        // HPë°” ìƒì„± ë° ì´ˆê¸°í™”
+        Canvas worldCanvas = FindObjectOfType<Canvas>(); // ì›”ë“œìº”ë²„ìŠ¤ ì°¾ì•„ì„œ
         GameObject hpBarObj = Instantiate(hpBarPrefab, worldCanvas.transform);
         hpBar = hpBarObj.GetComponent<EnemyHPBar>();
         hpBar.Init(transform, maxHP);
-        hpBarObj.SetActive(false); // Ã³À½¿£ ¾È º¸ÀÌ°Ô
+        hpBarObj.SetActive(false); // ì²˜ìŒì—” ì•ˆ ë³´ì´ê²Œ
+
+        // ìŠ¤í”„ë¼ì´íŠ¸ë Œë”ëŸ¬ ì»´í¬ë„ŒíŠ¸ ìºì‹±
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogWarning("SpriteRenderer ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+        }
     }
 
     public void TakeDamage()
@@ -31,6 +41,8 @@ public class EnemyHP : MonoBehaviour
             hpBar.SetHP(currentHP);
             hpBar.gameObject.SetActive(true);
         }
+
+        PlayDamageEffect();
 
         if (currentHP <= 0)
         {
@@ -49,10 +61,23 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
+        PlayDamageEffect();
+
         if (currentHP <= 0)
         {
             Die();
         }
+    }
+
+    private void PlayDamageEffect()
+    {
+        if (spriteRenderer == null) return;
+
+        // ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ë³€ê²½ í›„ 0.2ì´ˆ í›„ í•˜ì–€ìƒ‰ìœ¼ë¡œ ë³µêµ¬
+        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
+        {
+            spriteRenderer.DOColor(Color.white, 0.1f);
+        });
     }
 
     private void Die()
@@ -60,43 +85,11 @@ public class EnemyHP : MonoBehaviour
         if (hpBar != null)
             Destroy(hpBar.gameObject);
 
-        // ÀÚ±â ÀÚ½Å ÅÂ±× È®ÀÎ ÈÄ ±×¿¡ ¸Â´Â Die ÇÔ¼ö È£Ãâ
-        if (CompareTag("Enemy"))
+        // ê³µí†µ EnemiesDie ìŠ¤í¬ë¦½íŠ¸ ì‹¤í–‰
+        EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
+        if (enemiesDie != null)
         {
-            Enemy enemy = GetComponent<Enemy>();
-            if (enemy != null) enemy.Die();
+            enemiesDie.Die();
         }
-        else if (CompareTag("DashEnemy"))
-        {
-            DashEnemy dashEnemy = GetComponent<DashEnemy>();
-            if (dashEnemy != null) dashEnemy.Die();
-        }
-        else if (CompareTag("LongRangeEnemy"))
-        {
-            LongRangeEnemy longRangeEnemy = GetComponent<LongRangeEnemy>();
-            if (longRangeEnemy != null) longRangeEnemy.Die();
-        }
-        else if (CompareTag("PotionEnemy"))
-        {
-            PotionEnemy potionEnemy = GetComponent<PotionEnemy>();
-            if (potionEnemy != null) potionEnemy.Die();
-        }
-
-        //if (CompareTag("Enemy"))
-        //{
-        //    if (GameManager.Instance.enemy != null) GameManager.Instance.enemy.Die();
-        //}
-        //else if (CompareTag("DashEnemy"))
-        //{
-        //    if (GameManager.Instance.dashEnemy != null) GameManager.Instance.dashEnemy.Die();
-        //}
-        //else if (CompareTag("LongRangeEnemy"))
-        //{
-        //    if (GameManager.Instance.longRangeEnemy != null) GameManager.Instance.longRangeEnemy.Die();
-        //}
-        //else if (CompareTag("PotionEnemy"))
-        //{
-        //    if (GameManager.Instance.potionEnemy != null) GameManager.Instance.potionEnemy.Die();
-        //}
     }
 }

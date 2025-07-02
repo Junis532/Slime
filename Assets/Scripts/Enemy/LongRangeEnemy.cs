@@ -1,5 +1,6 @@
-using UnityEngine;
+using DG.Tweening;
 using System.Collections;
+using UnityEngine;
 
 public class LongRangeEnemy : MonoBehaviour
 {
@@ -19,9 +20,6 @@ public class LongRangeEnemy : MonoBehaviour
     private float lastFireTime;             // 마지막 발사 시점
 
     public float bulletLifetime = 3f;       // 총알 생존 시간 (초)
-
-    [Header("죽을 때 드랍할 코인")]
-    public GameObject coinPrefab;
 
     void Start()
     {
@@ -75,20 +73,6 @@ public class LongRangeEnemy : MonoBehaviour
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
         else
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-    }
-
-    public void Die()
-    {
-        if (!isLive) return;
-
-        isLive = false;
-
-        if (coinPrefab != null)
-        {
-            Instantiate(coinPrefab, transform.position, Quaternion.identity);
-        }
-
-        Destroy(gameObject);
     }
 
     void Shoot(Vector2 dir)

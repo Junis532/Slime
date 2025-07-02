@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
 using System.Collections;
+using UnityEngine;
 
 public class DashEnemy : MonoBehaviour
 {
@@ -32,9 +33,6 @@ public class DashEnemy : MonoBehaviour
     public float previewBackOffset = 0f;
 
     private GameObject dashPreviewInstance;
-
-    [Header("죽을 때 드랍할 코인")]
-    public GameObject coinPrefab;
 
     [Header("벽 레이어 마스크")]
     public LayerMask wallLayerMask;  // 반드시 Wall 레이어 설정
@@ -171,6 +169,7 @@ public class DashEnemy : MonoBehaviour
         {
             int damage = GameManager.Instance.dashEnemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
+            GameManager.Instance.playerDamaged.PlayDamageEffect(); // 플레이어 데미지 이펙트 재생
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
@@ -189,20 +188,6 @@ public class DashEnemy : MonoBehaviour
         }
 
         transform.position += (Vector3)force;
-    }
-
-    public void Die()
-    {
-        if (!isLive) return;
-
-        isLive = false;
-
-        if (coinPrefab != null)
-        {
-            Instantiate(coinPrefab, transform.position, Quaternion.identity);
-        }
-
-        Destroy(gameObject);
     }
 
     private void FlipSprite(float directionX)

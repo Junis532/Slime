@@ -1,5 +1,6 @@
-using UnityEngine;
+using DG.Tweening;
 using System.Collections;
+using UnityEngine;
 public class PotionEnemy : MonoBehaviour
 {
     private bool isLive = true;
@@ -29,9 +30,6 @@ public class PotionEnemy : MonoBehaviour
     public float potionLifetime = 2f;
 
     private GameObject dashPreviewInstance;
-
-    [Header("죽을 때 드랍할 코인")]
-    public GameObject coinPrefab;
 
     void Start()
     {
@@ -136,23 +134,6 @@ public class PotionEnemy : MonoBehaviour
 
         if (dashPreviewInstance != null && !isStopping)
             dashPreviewInstance.SetActive(false);
-    }
-
-    public void Die()
-    {
-        if (!isLive) return;
-
-        isLive = false;
-        //enemyAnimation.PlayAnimation(EnemyAnimation.State.Die);
-
-        // 코인 생성
-        if (coinPrefab != null)
-        {
-            Instantiate(coinPrefab, transform.position, Quaternion.identity);
-        }
-
-        // 적 제거 (사망 애니메이션 시간에 맞게 딜레이)
-        Destroy(gameObject);
     }
 
     private void FlipSprite(float directionX)

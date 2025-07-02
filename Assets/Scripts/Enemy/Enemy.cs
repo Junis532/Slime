@@ -1,5 +1,6 @@
-using UnityEngine;
+using DG.Tweening;
 using System.Collections;
+using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -12,9 +13,6 @@ public class Enemy : MonoBehaviour
     private Vector2 currentDirection;
 
     public float smoothTime = 0.1f;
-
-    [Header("죽을 때 드랍할 코인")]
-    public GameObject coinPrefab;
 
     void Start()
     {
@@ -59,6 +57,7 @@ public class Enemy : MonoBehaviour
         {
             int damage = GameManager.Instance.enemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
+            GameManager.Instance.playerDamaged.PlayDamageEffect(); // 플레이어 데미지 이펙트 재생
 
             // 체력이 0 이하가 되었는지 확인하고 처리
             if (GameManager.Instance.playerStats.currentHP <= 0)
@@ -68,20 +67,5 @@ public class Enemy : MonoBehaviour
                
             }
         }
-    }
-
-    public void Die()
-    {
-        if (!isLive) return;
-
-        isLive = false;
-
-        // 코인 생성
-        if (coinPrefab != null)
-        {
-            Instantiate(coinPrefab, transform.position, Quaternion.identity);
-        }
-
-        Destroy(gameObject);
     }
 }

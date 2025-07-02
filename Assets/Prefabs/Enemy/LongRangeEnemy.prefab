@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 7309634297501502348}
   - component: {fileID: 2575544821683126937}
   - component: {fileID: 8814799677379845111}
+  - component: {fileID: 4938346176872795198}
   m_Layer: 0
   m_Name: LongRangeEnemy
   m_TagString: LongRangeEnemy
@@ -201,7 +202,6 @@ MonoBehaviour:
   bulletSpeed: 5
   fireCooldown: 1
   bulletLifetime: 3
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
 --- !u!114 &3014388244898049942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,6 +236,8 @@ MonoBehaviour:
   - {fileID: 2078964560, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: -971271808, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: 86454189, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
+  hitSprites:
+  - {fileID: 1151968089, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   frameRate: 0.15
   currentState: 0
 --- !u!50 &2575544821683126937
@@ -302,6 +304,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.7, y: 0.9}
   m_Direction: 0
+--- !u!114 &4938346176872795198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921092420799269478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
 --- !u!1 &2344402632472148388
 GameObject:
   m_ObjectHideFlags: 0

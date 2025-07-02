@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
+    public PlayerDamaged playerDamaged;
     public PlayerStats playerStats;
     public EnemyStats enemyStats;
     public DashEnemyStats dashEnemyStats;
@@ -35,9 +36,6 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("UI")]
     public GameObject shopUI;
 
-    //public int currentWave = 1;
-
-    // 게임 상태 열거형
     private enum GameState
     {
         Idle,
@@ -55,7 +53,6 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         base.Awake();
 
-        // 타이머가 할당 안 됐으면 씬에서 찾아 할당
         if (timer == null)
         {
             timer = Object.FindFirstObjectByType<Timer>();
@@ -90,7 +87,7 @@ public class GameManager : MonoSingleTone<GameManager>
                 timer.timerRunning = false;
                 timer.UpdateTimerDisplay();
 
-                // 모든 적 스포너들 멈추기
+                // 스포너 전부 정지
                 EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in enemySpawners)
                 {
@@ -115,70 +112,76 @@ public class GameManager : MonoSingleTone<GameManager>
                     spawner.StopSpawning();
                 }
 
-                string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-
-                foreach (string tag in enemyTags)
-                {
-                    GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
-                    foreach (GameObject enemyObject in enemies)
-                    {
-                        if (tag == "Enemy")
-                        {
-                            Enemy enemy = enemyObject.GetComponent<Enemy>();
-                            if (enemy != null)
-                            {
-                                enemy.Die();
-                            }
-                        }
-                        else if (tag == "DashEnemy")
-                        {
-                            DashEnemy dashEnemy = enemyObject.GetComponent<DashEnemy>();
-                            if (dashEnemy != null)
-                            {
-                                dashEnemy.Die();
-                            }
-                        }
-                        else if (tag == "LongRangeEnemy")
-                        {
-                            LongRangeEnemy longRangeEnemy = enemyObject.GetComponent<LongRangeEnemy>();
-                            if (longRangeEnemy != null)
-                            {
-                                longRangeEnemy.Die();
-                            }
-                        }
-                        else if (tag == "PotionEnemy")
-                        {
-                            PotionEnemy potionEnemy = enemyObject.GetComponent<PotionEnemy>();
-                            if (potionEnemy != null)
-                            {
-                                potionEnemy.Die();
-                            }
-                        }
-                    }
-                }
-
-                // 모든 코인 삭제
-                GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-                foreach (GameObject coin in coins)
-                {
-                    Destroy(coin);
-                }
-
-                GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
-                foreach (GameObject bullet in bullets)
-                {
-                    Destroy(bullet);
-                }
-                GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
-                foreach (GameObject skill in skills)
-                {
-                    Destroy(skill);
-                }
-
-
-                ChangeStateToShop();
+                // 적 죽음 및 상점 진입 코루틴 시작
+                StartCoroutine(WaitForEnemiesDieAndGoShop());
             }
         }
+    }
+
+    private IEnumerator WaitForEnemiesDieAndGoShop()
+    {
+        // 모든 적들에게 죽으라고 명령
+        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+
+        foreach (string tag in enemyTags)
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
+            foreach (GameObject enemyObject in enemies)
+            {
+                EnemiesDie enemiesDie = enemyObject.GetComponent<EnemiesDie>();
+                if (enemiesDie != null)
+                {
+                    enemiesDie.Die();
+                }
+            }
+        }
+
+        // 모든 코인 삭제
+        GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+        foreach (GameObject coin in coins)
+        {
+            Destroy(coin);
+        }
+
+        // 모든 총알 삭제
+        GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
+        foreach (GameObject bullet in bullets)
+        {
+            Destroy(bullet);
+        }
+
+        // 모든 스킬 삭제
+        GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
+        foreach (GameObject skill in skills)
+        {
+            Destroy(skill);
+        }
+
+        // 적들이 Destroy될 때까지 대기 (최대 2초 대기)
+        float waitTime = 0f;
+        float maxWaitTime = 2f;
+
+        while (waitTime < maxWaitTime)
+        {
+            bool anyEnemyLeft = false;
+            foreach (string tag in enemyTags)
+            {
+                if (GameObject.FindGameObjectsWithTag(tag).Length > 0)
+                {
+                    anyEnemyLeft = true;
+                    break;
+                }
+            }
+
+            if (!anyEnemyLeft)
+                break;
+
+            waitTime += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        // 적 다 죽은 후 상점으로 전환
+        ChangeStateToShop();
     }
 
     public void ChangeStateToIdle()
@@ -202,30 +205,26 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Game;
         Debug.Log("상태: Game - 웨이브 진행 중");
 
-        diceAnimation.StartRollingLoop(); // 주사위 애니메이션 시작
+        diceAnimation.StartRollingLoop();
 
-        // 모든 일반 적 스포너 시작
         EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in enemySpawners)
         {
             spawner.StartSpawning();
         }
 
-        // 모든 돌진 적 스포너 시작
         DashEnemySpawner[] dashSpawners = Object.FindObjectsByType<DashEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in dashSpawners)
         {
             spawner.StartSpawning();
         }
 
-        // 모든 원거리 적 스포너 시작
         LongRangeEnemySpawner[] longRangeSpawners = Object.FindObjectsByType<LongRangeEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in longRangeSpawners)
         {
             spawner.StartSpawning();
         }
 
-        // 모든 물약 적 스포너 시작
         PotionEnemySpawner[] potionSpawners = Object.FindObjectsByType<PotionEnemySpawner>(FindObjectsSortMode.None);
         foreach (var spawner in potionSpawners)
         {
@@ -245,10 +244,12 @@ public class GameManager : MonoSingleTone<GameManager>
         diceAnimation.StopRollingLoop();
 
         shopManager.FirstRerollItems();
+
         if (timer != null)
         {
             timer.ResetTimer(60f);
         }
+
         Time.timeScale = 0f;
 
         if (shopUI != null)
@@ -273,7 +274,6 @@ public class GameManager : MonoSingleTone<GameManager>
         if (shopUI != null) shopUI.SetActive(false);
     }
 
-    // 상태 확인용 유틸리티
     public bool IsIdle() => currentState == GameState.Idle;
     public bool IsStart() => currentState == GameState.Start;
     public bool IsGame() => currentState == GameState.Game;

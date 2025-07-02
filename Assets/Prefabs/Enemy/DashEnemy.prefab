@@ -179,6 +179,7 @@ GameObject:
   - component: {fileID: 5809478642170743082}
   - component: {fileID: 2641999406311416521}
   - component: {fileID: 7356865628656977087}
+  - component: {fileID: 9108037825583224159}
   m_Layer: 0
   m_Name: DashEnemy
   m_TagString: DashEnemy
@@ -278,7 +279,6 @@ MonoBehaviour:
   dashPreviewPrefab: {fileID: 5286278096825507868, guid: 83dbeff95386f914380685b0b379f719, type: 3}
   previewDistanceFromEnemy: 2.5
   previewBackOffset: 0
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 40
@@ -316,6 +316,8 @@ MonoBehaviour:
   - {fileID: 66914582, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
   - {fileID: 1243161592, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
   - {fileID: -1524729577, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
+  hitSprites:
+  - {fileID: 194153472, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
   frameRate: 0.15
   currentState: 0
 --- !u!50 &2641999406311416521
@@ -382,6 +384,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.7, y: 0.9}
   m_Direction: 0
+--- !u!114 &9108037825583224159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5045083376037120503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
 --- !u!1 &6507690071776579670
 GameObject:
   m_ObjectHideFlags: 0

@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 5786222916054633737}
   - component: {fileID: 3419793013817961083}
   - component: {fileID: 2835314150833180629}
+  - component: {fileID: 3984726400083157786}
   m_Layer: 0
   m_Name: PotionEnemy
   m_TagString: PotionEnemy
@@ -203,7 +204,6 @@ MonoBehaviour:
   previewBackOffset: 0
   potionPrefab: {fileID: 6950589694986560093, guid: 681df01c0e58e284488d0e7a0b837d2b, type: 3}
   potionLifetime: 5
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
 --- !u!114 &5691304153326943676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,6 +238,8 @@ MonoBehaviour:
   - {fileID: 877188646, guid: d33598d781682e049a53a0a13104ef29, type: 3}
   - {fileID: 393441404, guid: d33598d781682e049a53a0a13104ef29, type: 3}
   - {fileID: -595425931, guid: d33598d781682e049a53a0a13104ef29, type: 3}
+  hitSprites:
+  - {fileID: -1523209149, guid: d33598d781682e049a53a0a13104ef29, type: 3}
   frameRate: 0.15
   currentState: 0
 --- !u!50 &3419793013817961083
@@ -304,6 +306,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.7, y: 0.9}
   m_Direction: 0
+--- !u!114 &3984726400083157786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089936311879354214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
 --- !u!1 &2344402632472148388
 GameObject:
   m_ObjectHideFlags: 0
