@@ -240,14 +240,14 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
-        DialogManager.Instance.ShowRandomShopDialog();
+        DialogManager.Instance.StartShopDialog();
 
         diceAnimation.StopRollingLoop();
 
         shopManager.FirstRerollItems();
         if (timer != null)
         {
-            timer.ResetTimer(5f);
+            timer.ResetTimer(60f);
         }
         Time.timeScale = 0f;
 

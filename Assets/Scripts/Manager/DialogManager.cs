@@ -8,49 +8,80 @@ public class DialogManager : MonoBehaviour
     public static DialogManager Instance;
 
     [System.Serializable]
-    public class Speaker
-    {
-        public Image imageDialog;
-        public TextMeshProUGUI textDialog;
-    }
-
-    [System.Serializable]
     public struct DialogData
     {
         [TextArea(3, 5)]
         public string dialog;
-        // public Sprite image; // 필요하면 다시 활성화
+        // public Sprite image; // 필요시 사용
     }
 
-    [Header("상점주인 대사들")]
-    public List<DialogData> shopOwnerDialogs;
+    [System.Serializable]
+    public class DialogPage
+    {
+        public List<DialogData> dialogs;  // 한 페이지에 여러 줄 대사
+    }
+
+    [Header("상점주인 대사 페이지들 (1페이지 = 여러 대사)")]
+    public List<DialogPage> shopDialogPages;
 
     public GameObject dialogPanel;
-    public Speaker speakerUI;
+    public Image imageDialog;
+    public TextMeshProUGUI textDialog;
+    public Button nextDialogButton;
+
+    private int currentPageIndex = 0;
+    private int currentLineIndex = 0;
 
     private void Awake()
     {
         Instance = this;
+        nextDialogButton.onClick.AddListener(NextLine);
     }
 
-    /// <summary>
-    /// 상점 입장 시 호출
-    /// </summary>
-    public void ShowRandomShopDialog()
+    public void StartShopDialog()
     {
-        if (shopOwnerDialogs.Count == 0)
+        if (shopDialogPages.Count == 0)
         {
-            Debug.LogWarning("상점 대사 데이터가 없습니다.");
+            Debug.LogWarning("상점 대사 페이지가 없습니다.");
             return;
         }
 
-        int randomIndex = Random.Range(0, shopOwnerDialogs.Count);
-        DialogData dialog = shopOwnerDialogs[randomIndex];
-
-        Debug.Log($"[DialogManager] 선택된 대사: {dialog.dialog}");
+        // 랜덤 페이지 선택
+        currentPageIndex = Random.Range(0, shopDialogPages.Count);
+        currentLineIndex = 0;
 
         dialogPanel.SetActive(true);
-        // 한 글자씩 타자 효과 없이 한 번에 표시
-        speakerUI.textDialog.text = dialog.dialog;
+        nextDialogButton.gameObject.SetActive(true);
+
+        ShowCurrentLine();
     }
+
+    void ShowCurrentLine()
+    {
+        DialogPage page = shopDialogPages[currentPageIndex];
+
+        if (currentLineIndex >= page.dialogs.Count)
+        {
+            EndDialog();
+            return;
+        }
+
+        textDialog.text = page.dialogs[currentLineIndex].dialog;
+    }
+
+    void NextLine()
+    {
+        currentLineIndex++;
+        ShowCurrentLine();
+    }
+
+    void EndDialog()
+    {
+        //dialogPanel.SetActive(false);
+        nextDialogButton.gameObject.SetActive(false);
+        textDialog.text = string.Empty;
+        imageDialog.gameObject.SetActive(false);
+        Debug.Log("[DialogManager] 대화 종료");
+    }
+
 }
