@@ -102,8 +102,8 @@ public class ShopManager : MonoBehaviour
             ItemStats item = selectedItems[i];
 
             slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>().text = item.itemName;
+            //slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
             slot.transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>().text = item.description;
-            slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
             slot.transform.Find("ItemIcon").GetComponent<Image>().sprite = item.icon;
 
             Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
