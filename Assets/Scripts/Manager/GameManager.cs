@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -38,7 +38,7 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("UI")]
     public GameObject shopUI;
 
-    [Header("»óÁ¡ ÆĞ³Î")]
+    [Header("ìƒì  íŒ¨ë„")]
     public RectTransform shopPanel;
 
 
@@ -63,7 +63,7 @@ public class GameManager : MonoSingleTone<GameManager>
         {
             timer = Object.FindFirstObjectByType<Timer>();
             if (timer == null)
-                Debug.LogWarning("Timer ÄÄÆ÷³ÍÆ®¸¦ ¾À¿¡¼­ Ã£Áö ¸øÇß½À´Ï´Ù.");
+                Debug.LogWarning("Timer ì»´í¬ë„ŒíŠ¸ë¥¼ ì”¬ì—ì„œ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
         }
     }
 
@@ -101,7 +101,7 @@ public class GameManager : MonoSingleTone<GameManager>
                 timer.timerRunning = false;
                 timer.UpdateTimerDisplay();
 
-                // ½ºÆ÷³Ê ÀüºÎ Á¤Áö
+                // ìŠ¤í¬ë„ˆ ì „ë¶€ ì •ì§€
                 EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
                 foreach (var spawner in enemySpawners)
                 {
@@ -126,7 +126,7 @@ public class GameManager : MonoSingleTone<GameManager>
                     spawner.StopSpawning();
                 }
 
-                // Àû Á×À½ ¹× »óÁ¡ ÁøÀÔ ÄÚ·çÆ¾ ½ÃÀÛ
+                // ì  ì£½ìŒ ë° ìƒì  ì§„ì… ì½”ë£¨í‹´ ì‹œì‘
                 StartCoroutine(WaitForEnemiesDieAndGoShop());
             }
         }
@@ -134,7 +134,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
     private IEnumerator WaitForEnemiesDieAndGoShop()
     {
-        // ¸ğµç Àûµé¿¡°Ô Á×À¸¶ó°í ¸í·É
+        // ëª¨ë“  ì ë“¤ì—ê²Œ ì£½ìœ¼ë¼ê³  ëª…ë ¹
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
 
         foreach (string tag in enemyTags)
@@ -150,28 +150,28 @@ public class GameManager : MonoSingleTone<GameManager>
             }
         }
 
-        // ¸ğµç ÄÚÀÎ »èÁ¦
+        // ëª¨ë“  ì½”ì¸ ì‚­ì œ
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
         foreach (GameObject coin in coins)
         {
             Destroy(coin);
         }
 
-        // ¸ğµç ÃÑ¾Ë »èÁ¦
+        // ëª¨ë“  ì´ì•Œ ì‚­ì œ
         GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
         foreach (GameObject bullet in bullets)
         {
             Destroy(bullet);
         }
 
-        // ¸ğµç ½ºÅ³ »èÁ¦
+        // ëª¨ë“  ìŠ¤í‚¬ ì‚­ì œ
         GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
         foreach (GameObject skill in skills)
         {
             Destroy(skill);
         }
 
-        // ÀûµéÀÌ DestroyµÉ ¶§±îÁö ´ë±â (ÃÖ´ë 2ÃÊ ´ë±â)
+        // ì ë“¤ì´ Destroyë  ë•Œê¹Œì§€ ëŒ€ê¸° (ìµœëŒ€ 2ì´ˆ ëŒ€ê¸°)
         float waitTime = 0f;
         float maxWaitTime = 2f;
 
@@ -194,14 +194,14 @@ public class GameManager : MonoSingleTone<GameManager>
             yield return null;
         }
 
-        // Àû ´Ù Á×Àº ÈÄ »óÁ¡À¸·Î ÀüÈ¯
+        // ì  ë‹¤ ì£½ì€ í›„ ìƒì ìœ¼ë¡œ ì „í™˜
         ChangeStateToShop();
     }
 
     public void ChangeStateToIdle()
     {
         currentState = GameState.Idle;
-        Debug.Log("»óÅÂ: Idle - °ÔÀÓ ´ë±â Áß");
+        Debug.Log("ìƒíƒœ: Idle - ê²Œì„ ëŒ€ê¸° ì¤‘");
         Time.timeScale = 1f;
         if (shopUI != null) shopUI.SetActive(false);
     }
@@ -209,7 +209,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public void ChangeStateToStart()
     {
         currentState = GameState.Start;
-        Debug.Log("»óÅÂ: Start - °ÔÀÓ ÁØºñ Áß");
+        Debug.Log("ìƒíƒœ: Start - ê²Œì„ ì¤€ë¹„ ì¤‘");
         Time.timeScale = 1f;
         if (shopUI != null) shopUI.SetActive(false);
     }
@@ -217,7 +217,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public void ChangeStateToGame()
     {
         currentState = GameState.Game;
-        Debug.Log("»óÅÂ: Game - ¿şÀÌºê ÁøÇà Áß");
+        Debug.Log("ìƒíƒœ: Game - ì›¨ì´ë¸Œ ì§„í–‰ ì¤‘");
 
         diceAnimation.StartRollingLoop();
 
@@ -251,7 +251,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public void ChangeStateToShop()
     {
         currentState = GameState.Shop;
-        Debug.Log("»óÅÂ: Shop - »óÁ¡ »óÅÂ");
+        Debug.Log("ìƒíƒœ: Shop - ìƒì  ìƒíƒœ");
         DialogManager.Instance.StartShopDialog();
 
         diceAnimation.StopRollingLoop();
@@ -274,9 +274,9 @@ public class GameManager : MonoSingleTone<GameManager>
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
             if (canvasGroup != null)
             {
-                canvasGroup.DOFade(1f, 0.7f);  // 0f = ¿ÏÀü Åõ¸í, 0.5ÃÊ µ¿¾È
+                canvasGroup.DOFade(1f, 0.7f);  // 0f = ì™„ì „ íˆ¬ëª…, 0.5ì´ˆ ë™ì•ˆ
             }
-            // ºÎµå·´°Ô X=0À¸·Î ÀÌµ¿ ÈÄ Å¸ÀÓ½ºÄÉÀÏ 0À¸·Î º¯°æ
+            // ë¶€ë“œëŸ½ê²Œ X=0ìœ¼ë¡œ ì´ë™ í›„ íƒ€ì„ìŠ¤ì¼€ì¼ 0ìœ¼ë¡œ ë³€ê²½
             shopPanel.DOAnchorPosY(0f, 0.7f)
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
@@ -286,7 +286,7 @@ public class GameManager : MonoSingleTone<GameManager>
         }
         else
         {
-            // shopPanelÀÌ nullÀÏ °æ¿ì Å¸ÀÓ½ºÄÉÀÏ ¹Ù·Î 0À¸·Î Ã³¸®
+            // shopPanelì´ nullì¼ ê²½ìš° íƒ€ì„ìŠ¤ì¼€ì¼ ë°”ë¡œ 0ìœ¼ë¡œ ì²˜ë¦¬
             Time.timeScale = 0f;
         }
     }
@@ -296,7 +296,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public void ChangeStateToEnd()
     {
         currentState = GameState.End;
-        Debug.Log("»óÅÂ: End - °ÔÀÓ ¿À¹ö");
+        Debug.Log("ìƒíƒœ: End - ê²Œì„ ì˜¤ë²„");
         Time.timeScale = 0f;
         if (shopUI != null) shopUI.SetActive(false);
     }
@@ -304,7 +304,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public void ChangeStateToClear()
     {
         currentState = GameState.Clear;
-        Debug.Log("»óÅÂ: Clear - ¸ğµç ¿şÀÌºê Å¬¸®¾î");
+        Debug.Log("ìƒíƒœ: Clear - ëª¨ë“  ì›¨ì´ë¸Œ í´ë¦¬ì–´");
         Time.timeScale = 0f;
         if (shopUI != null) shopUI.SetActive(false);
     }

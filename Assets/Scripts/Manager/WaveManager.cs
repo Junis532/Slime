@@ -9,6 +9,13 @@ public class WaveManager : MonoBehaviour
     public TextMeshProUGUI waveText;
     public int currentWave = 1;
 
+    public void ResetWave()
+    {
+        currentWave = 1;
+        UpdateWaveText();
+    }
+
+
     public void UpdateWaveText()
     {
         if (waveText != null)
