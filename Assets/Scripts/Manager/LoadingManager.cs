@@ -31,20 +31,19 @@ public class LoadingManager : MonoBehaviour
         while (!op.isDone)
         {
             yield return null;
+            timer += Time.unscaledDeltaTime;
 
             if (op.progress < 0.9f)
             {
-                timer += Time.unscaledDeltaTime;
-                progressBar.fillAmount = Mathf.Clamp01(timer / 2f); // 2초 동안 로딩바 채우기
+                progressBar.fillAmount = Mathf.Clamp01(timer / 2.5f); // 2.5초 동안 0.9까지 증가
             }
             else
             {
-                timer += Time.unscaledDeltaTime;
-                progressBar.fillAmount = Mathf.Lerp(0.9f, 1f, timer); // 0.9~1f 구간 보정
+                progressBar.fillAmount = Mathf.Lerp(0.9f, 1f, (timer - 2.5f) / 1f); // 이후 1초 동안 1.0까지 보정
 
                 if (progressBar.fillAmount >= 1f)
                 {
-                    op.allowSceneActivation = true; // 씬 전환 허용
+                    op.allowSceneActivation = true;
                 }
             }
         }
