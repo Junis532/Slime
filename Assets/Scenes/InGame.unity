@@ -2289,7 +2289,7 @@ MonoBehaviour:
   waitTimerText: {fileID: 1213060430}
   frameRate: 0.01
   rollDuration: 0.5
-  waitInterval: 5
+  waitInterval: 20
 --- !u!114 &492544042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2659,10 +2659,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.321875
+    x: 0
     y: 0
-    width: 0.33333334
-    height: 0.43333334
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -3041,7 +3041,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &603006178
 Transform:
   m_ObjectHideFlags: 0
@@ -4328,7 +4328,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 5
+  timeRemaining: 10
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -4478,7 +4478,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &853656533
 Transform:
   m_ObjectHideFlags: 0
@@ -4506,8 +4506,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4602328817a239c408607b34dd231c85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefabs: []
-  warningEffectPrefab: {fileID: 0}
+  enemyPrefabs:
+  - {fileID: 6605092330801733792, guid: 2dbe54c14c1885c46913944259e1c920, type: 3}
+  warningEffectPrefab: {fileID: 222272227696880193, guid: 9a92aabc40526404e9993141f9973ac5, type: 3}
   spawnInterval: 7
   spawnRadius: 3
   minSpawnCount: 1
