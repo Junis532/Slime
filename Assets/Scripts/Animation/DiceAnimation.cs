@@ -49,6 +49,7 @@ public class DiceAnimation : MonoBehaviour
     void OnEnable()
     {
         StartRollingLoop();
+
     }
 
     void OnDisable()
