@@ -1,26 +1,26 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;  // TextMeshPro ³×ÀÓ½ºÆäÀÌ½º Ãß°¡
+using TMPro;  // TextMeshPro ë„¤ì„ìŠ¤í˜ì´ìŠ¤ ì¶”ê°€
 
 public class DiceAnimation : MonoBehaviour
 {
-    [Header("ÁÖ»çÀ§ ÀÌ¹ÌÁö (0~3 ÀÎµ¦½º: 1~4 ¼ıÀÚ¿¡ ´ëÀÀ)")]
+    [Header("ì£¼ì‚¬ìœ„ ì´ë¯¸ì§€ (0~3 ì¸ë±ìŠ¤: 1~4 ìˆ«ìì— ëŒ€ì‘)")]
     public List<Sprite> diceSprites;
 
-    [Header("½ºÅ³ ÀÌ¹ÌÁö (1~4¹ø ½ºÅ³)")]
-    public List<Sprite> skillSprites;  // 1~4¹ø ½ºÅ³ ÀÌ¹ÌÁöµé
+    [Header("ìŠ¤í‚¬ UI ì´ë¯¸ì§€ ìŠ¬ë¡¯ (1~4)")]
+    public List<Image> skillSlotImages;  // ê° UI ìŠ¬ë¡¯ì˜ Image ì»´í¬ë„ŒíŠ¸ì—ì„œ ìŠ¤í”„ë¼ì´íŠ¸ ê°€ì ¸ì˜´
 
-    [Header("Á¶ÀÌ½ºÆ½ °ü·Ã")]
-    public CanvasGroup joystickCanvasGroup;  // Á¶ÀÌ½ºÆ½ ¾ËÆÄ¿ë
-    public VariableJoystick joystick;        // Á¶ÀÌ½ºÆ½ ÀÔ·Â ¸·À» ¶§ »ç¿ë
+    [Header("ì¡°ì´ìŠ¤í‹± ê´€ë ¨")]
+    public CanvasGroup joystickCanvasGroup;  // ì¡°ì´ìŠ¤í‹± ì•ŒíŒŒìš©
+    public VariableJoystick joystick;        // ì¡°ì´ìŠ¤í‹± ì…ë ¥ ë§‰ì„ ë•Œ ì‚¬ìš©
 
-    [Header("½ºÅ³ ÀÌ¹ÌÁö Ç¥½Ã¿ë UI")]
-    public Image skillImage;  // °á°ú¿¡ µû¶ó ¹Ù²ğ ½ºÅ³ ÀÌ¹ÌÁö UI
+    [Header("ìŠ¤í‚¬ ì´ë¯¸ì§€ í‘œì‹œìš© UI")]
+    public Image skillImage;  // ê²°ê³¼ì— ë”°ë¼ ë°”ë€” ìŠ¤í‚¬ ì´ë¯¸ì§€ UI
 
-    [Header("´ë±â ½Ã°£ Ç¥½Ã¿ë ÅØ½ºÆ®")]
-    public TMP_Text waitTimerText;   // »õ·Î Ãß°¡: ³²Àº ´ë±â½Ã°£ Ç¥½Ã¿ë UI ÅØ½ºÆ®
+    [Header("ëŒ€ê¸° ì‹œê°„ í‘œì‹œìš© í…ìŠ¤íŠ¸")]
+    public TMP_Text waitTimerText;   // ìƒˆë¡œ ì¶”ê°€: ë‚¨ì€ ëŒ€ê¸°ì‹œê°„ í‘œì‹œìš© UI í…ìŠ¤íŠ¸
 
     public float frameRate = 0.05f;
     public float rollDuration = 3f;
@@ -30,32 +30,81 @@ public class DiceAnimation : MonoBehaviour
     private Coroutine rollCoroutine;
 
     public static bool isRolling = false;
-    public static int currentDiceResult = 0;  // ÇöÀç ÁÖ»çÀ§ °á°ú ÀúÀå (1~4)
+    public static int currentDiceResult = 0;  // í˜„ì¬ ì£¼ì‚¬ìœ„ ê²°ê³¼ ì €ì¥ (1~4)
 
     void Start()
     {
         image = GetComponent<Image>();
-        currentDiceResult = 1;
-        if (skillImage != null && skillSprites != null && skillSprites.Count >= 4)
+
+        RollOnceAtStart();
+
+        // ì´ˆê¸° ìŠ¤í‚¬ ì´ë¯¸ì§€ ì„¤ì •
+        if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
         {
-            skillImage.sprite = skillSprites[currentDiceResult - 1];
+            skillImage.sprite = skillSlotImages[currentDiceResult - 1].sprite;
             skillImage.enabled = true;
         }
 
         if (waitTimerText != null)
-            waitTimerText.text = "";  // ½ÃÀÛ ½Ã ÃÊ±âÈ­
+            waitTimerText.text = "";  // ì‹œì‘ ì‹œ ì´ˆê¸°í™”
     }
 
     void OnEnable()
     {
         StartRollingLoop();
-
     }
 
     void OnDisable()
     {
         StopRollingLoop();
     }
+
+    public void RollOnceAtStart()
+    {
+        StartCoroutine(RollOnceCoroutine());
+    }
+
+private IEnumerator RollOnceCoroutine()
+{
+    isRolling = true;
+
+    if (joystickCanvasGroup != null)
+        joystickCanvasGroup.alpha = 0.4f;
+
+    float elapsed = 0f;
+    int animFrame = 0;
+
+    // rollDurationì´ 0ì´ë©´ ì• ë‹ˆë©”ì´ì…˜ ë£¨í”„ ì—†ì´ ë°”ë¡œ ê²°ê³¼ ì¶œë ¥
+    while (elapsed < rollDuration)
+    {
+        image.sprite = diceSprites[animFrame];
+        animFrame = (animFrame + 1) % diceSprites.Count;
+        elapsed += frameRate;
+        yield return new WaitForSeconds(frameRate);
+    }
+
+    // rollDurationì´ 0ì´ë©´ ìœ„ ë£¨í”„ëŠ” ê±´ë„ˆëœ€
+
+    int result = Random.Range(1, 5);
+    currentDiceResult = result;
+    image.sprite = diceSprites[result - 1];
+    Debug.Log($"ì‹œì‘ ì‹œ ì£¼ì‚¬ìœ„ ê²°ê³¼: {result}");
+
+    if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
+    {
+        skillImage.sprite = skillSlotImages[result - 1].sprite;
+        skillImage.enabled = true;
+    }
+
+    isRolling = false;
+
+    if (joystickCanvasGroup != null)
+        joystickCanvasGroup.alpha = 1f;
+
+    if (waitTimerText != null)
+        waitTimerText.text = "";
+}
+
 
     public void StartRollingLoop()
     {
@@ -71,10 +120,10 @@ public class DiceAnimation : MonoBehaviour
         {
             StopCoroutine(rollCoroutine);
             rollCoroutine = null;
-            Debug.Log("ÁÖ»çÀ§ ·çÇÁ ¸ØÃã");
+            Debug.Log("ì£¼ì‚¬ìœ„ ë£¨í”„ ë©ˆì¶¤");
 
             if (waitTimerText != null)
-                waitTimerText.text = "";  // ·çÇÁ ¸ØÃâ ¶§ ÅØ½ºÆ® ÃÊ±âÈ­
+                waitTimerText.text = "";  // ë£¨í”„ ë©ˆì¶œ ë•Œ í…ìŠ¤íŠ¸ ì´ˆê¸°í™”
         }
     }
 
@@ -82,7 +131,7 @@ public class DiceAnimation : MonoBehaviour
     {
         while (true)
         {
-            // ¡å ´ë±â½Ã°£ Ä«¿îÆ®´Ù¿î Ç¥½Ã
+            // â–¼ ëŒ€ê¸°ì‹œê°„ ì¹´ìš´íŠ¸ë‹¤ìš´ í‘œì‹œ
             float waitTime = waitInterval;
             while (waitTime > 0f)
             {
@@ -92,7 +141,6 @@ public class DiceAnimation : MonoBehaviour
                 waitTime -= Time.deltaTime;
                 yield return null;
             }
-
 
             isRolling = true;
             if (joystickCanvasGroup != null)
@@ -112,12 +160,12 @@ public class DiceAnimation : MonoBehaviour
             int result = Random.Range(1, 5);
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
-            Debug.Log($"ÁÖ»çÀ§ °á°ú: {result}");
+            Debug.Log($"ì£¼ì‚¬ìœ„ ê²°ê³¼: {result}");
 
-            // ¡å °á°ú¿¡ ¸Â´Â ½ºÅ³ ÀÌ¹ÌÁö Ç¥½Ã
-            if (skillImage != null && skillSprites != null && skillSprites.Count >= 4)
+            // â–¼ ê²°ê³¼ì— ë§ëŠ” ìŠ¤í‚¬ ì´ë¯¸ì§€ í‘œì‹œ
+            if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
             {
-                skillImage.sprite = skillSprites[result - 1];
+                skillImage.sprite = skillSlotImages[result - 1].sprite;
                 skillImage.enabled = true;
             }
 
@@ -125,7 +173,7 @@ public class DiceAnimation : MonoBehaviour
             if (joystickCanvasGroup != null)
                 joystickCanvasGroup.alpha = 1f;
 
-            // ÁÖ»çÀ§ ¿Ï·á ÈÄ ÅØ½ºÆ® ÃÊ±âÈ­
+            // ì£¼ì‚¬ìœ„ ì™„ë£Œ í›„ í…ìŠ¤íŠ¸ ì´ˆê¸°í™”
             if (waitTimerText != null)
                 waitTimerText.text = "";
         }

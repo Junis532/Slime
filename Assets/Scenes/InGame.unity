@@ -3175,18 +3175,18 @@ MonoBehaviour:
   - {fileID: 2683438568741236275, guid: 57606cefadd49a440863b28b540e8556, type: 3}
   - {fileID: -8398574802158500008, guid: 0c58c4e6036b0ae46afc4967b0063587, type: 3}
   - {fileID: -2227478298109589208, guid: 7d6f1100930a6f246b2d9912bcf6e1da, type: 3}
-  skillSprites:
-  - {fileID: -7225551330561299540, guid: 58877592f37c55849a582903fb09b092, type: 3}
-  - {fileID: -6304437477086941891, guid: ac3edaa1e05a0bf4790b583519972a66, type: 3}
-  - {fileID: 1839031708649508230, guid: aa59d32677b563e49bb50cf1079ec692, type: 3}
-  - {fileID: -7590070660831232634, guid: f8737e059c2201b45aaa6b26105efa56, type: 3}
+  skillSlotImages:
+  - {fileID: 1368250567}
+  - {fileID: 1806734065}
+  - {fileID: 465898995}
+  - {fileID: 293381491}
   joystickCanvasGroup: {fileID: 880318244}
   joystick: {fileID: 129433694}
   skillImage: {fileID: 37500853}
   waitTimerText: {fileID: 1213060430}
   frameRate: 0.01
   rollDuration: 0.5
-  waitInterval: 20
+  waitInterval: 3
 --- !u!114 &492544042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5834,7 +5834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 10
+  timeRemaining: 100
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -5984,7 +5984,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &853656533
 Transform:
   m_ObjectHideFlags: 0
@@ -19995,7 +19995,7 @@ MonoBehaviour:
   - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
   - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
   distancesFromPlayer:
-  - 4.5
+  - 3.5
   - 3
   - 3
   - 0

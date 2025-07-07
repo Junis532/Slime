@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f14a64add87db4d9239d96d30535f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPosition: {x: 0, y: 2, z: 0}
+  targetPosition: {x: 5, y: 2, z: 0}
   fallSpeed: 27
   impactEffectPrefab: {fileID: 2571534968070971899, guid: 09512fef138398140bd878a67bcd6b90, type: 3}
   impactEffectDuration: 0.3

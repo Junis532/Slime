@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum SkillType
+{
+    None = 0,      // 스킬 없음 (기본값)
+    Fireball = 1,
+    Teleport = 2,
+    Lightning = 3,
+    Windwall = 4
+}
+
 public class JoystickDirectionIndicator3 : MonoBehaviour
 {
     [Header("조이스틱 (선택 사항)")]
@@ -80,36 +89,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     {
         bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
 
-        // 상점 → 게임 전환 시점: 입력 초기화 및 조이스틱 리셋
         if (prevBlockInputActive && !isBlockActive)
         {
-            // 입력 상태 초기화
-            isTouchingJoystick = false;
-            wasTouchingJoystickLastFrame = false;
-            lastInputDirection = Vector2.right;
-            lastInputMagnitude = 0f;
-            hasUsedSkill = false;
-            isTeleportMode = false;
-            isLightningMode = false;
-            currentIndicatorIndex = -1;
-
-            // 인디케이터 삭제
-            if (indicatorInstance != null)
-            {
-                Destroy(indicatorInstance);
-                indicatorInstance = null;
-            }
-
-            if (joystickCanvasGroup != null)
-                joystickCanvasGroup.alpha = 0f;
-
-            // **조이스틱 입력값 강제 리셋**
-            if (joystick != null)
-            {
-                joystick.ResetInput();  // VariableJoystick에 ResetInput 함수 추가 필요
-                joystick.enabled = true;
-            }
-
+            ResetInputStates();
             Debug.Log("상점 → 게임 복귀: 입력 상태 초기화 및 조이스틱 리셋 완료");
         }
 
@@ -117,24 +99,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         if (isBlockActive)
         {
-            if (joystick != null)
-                joystick.enabled = false;
-
-            SetHideImageState(true);
-
-            if (indicatorInstance != null)
-                indicatorInstance.SetActive(false);
-            currentIndicatorIndex = -1;
-
-            SetDiceImageAlpha(0f);
-
-            hasUsedSkill = false;
-            isTeleportMode = false;
-            isLightningMode = false;
-
-            if (joystickCanvasGroup != null)
-                joystickCanvasGroup.alpha = 0f;
-
+            DisableInputAndIndicators();
             return;
         }
 
@@ -145,17 +110,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         if (DiceAnimation.currentDiceResult <= 0)
         {
-            if (joystick != null)
-                joystick.enabled = false;
-
-            SetHideImageState(true);
-
-            if (indicatorInstance != null)
-                indicatorInstance.SetActive(false);
-            currentIndicatorIndex = -1;
-
-            SetDiceImageAlpha(0f);
-
+            DisableInputAndIndicators();
             return;
         }
         else
@@ -175,13 +130,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         if (hasUsedSkill)
         {
-            isTouchingJoystick = false;
-            SetHideImageState(true);
-            if (indicatorInstance != null) indicatorInstance.SetActive(false);
-            currentIndicatorIndex = -1;
-            if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
-            if (joystick != null)
-                joystick.enabled = false;
+            DisableInputAndIndicators();
             return;
         }
 
@@ -193,14 +142,16 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             lastInputDirection = input.normalized;
             lastInputMagnitude = input.magnitude;
 
-            if (currentDiceResult == 2 && isTeleportMode)
+            SkillType currentSkill = GetMappedSkillType(currentDiceResult);
+
+            if (currentSkill == SkillType.Teleport && isTeleportMode)
                 UpdateTeleportIndicator(input);
-            else if (currentDiceResult == 3 && isLightningMode)
+            else if (currentSkill == SkillType.Lightning && isLightningMode)
                 UpdateLightningIndicator(input);
             else
             {
                 OnSkillButtonPressed();
-                UpdateSkillIndicator(input, currentDiceResult);
+                UpdateSkillIndicator(input, (int)currentSkill);
             }
         }
         else
@@ -222,7 +173,52 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             joystick.enabled = !DiceAnimation.isRolling && !hasUsedSkill;
     }
 
-    // 이하 기존 함수들 그대로 유지...
+    void ResetInputStates()
+    {
+        isTouchingJoystick = false;
+        wasTouchingJoystickLastFrame = false;
+        lastInputDirection = Vector2.right;
+        lastInputMagnitude = 0f;
+        hasUsedSkill = false;
+        isTeleportMode = false;
+        isLightningMode = false;
+        currentIndicatorIndex = -1;
+
+        if (indicatorInstance != null)
+        {
+            Destroy(indicatorInstance);
+            indicatorInstance = null;
+        }
+
+        if (joystickCanvasGroup != null)
+            joystickCanvasGroup.alpha = 0f;
+
+        if (joystick != null)
+        {
+            joystick.ResetInput();
+            joystick.enabled = true;
+        }
+    }
+
+    void DisableInputAndIndicators()
+    {
+        if (joystick != null)
+            joystick.enabled = false;
+
+        SetHideImageState(true);
+
+        if (indicatorInstance != null)
+            indicatorInstance.SetActive(false);
+
+        currentIndicatorIndex = -1;
+
+
+        isTeleportMode = false;
+        isLightningMode = false;
+
+        if (joystickCanvasGroup != null)
+            joystickCanvasGroup.alpha = 0f;
+    }
 
     void SetHideImageState(bool isVisible)
     {
@@ -240,12 +236,23 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         }
     }
 
-    void UpdateSkillIndicator(Vector2 input, int currentDiceResult)
+    SkillType GetMappedSkillType(int diceResult)
     {
-        if (currentDiceResult >= 1 && currentDiceResult <= directionSpritePrefabs.Count)
-        {
-            int index = currentDiceResult - 1;
+        // SkillSelect.FinalSkillOrder는 SkillSelect.cs에서 public static List<int> FinalSkillOrder 형태로 선언되어 있어야 합니다.
+        if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceResult || diceResult <= 0)
+            return SkillType.None;
 
+        int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceResult - 1];
+
+        return (SkillType)mappedSkillNumber;
+    }
+
+    void UpdateSkillIndicator(Vector2 input, int currentSkillNumber)
+    {
+        int index = currentSkillNumber - 1;
+
+        if (index >= 0 && index < directionSpritePrefabs.Count)
+        {
             if (currentIndicatorIndex != index)
             {
                 if (indicatorInstance != null) Destroy(indicatorInstance);
@@ -278,7 +285,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     void UpdateTeleportIndicator(Vector2 input)
     {
-        float maxDist = distancesFromPlayer.Count > 1 ? distancesFromPlayer[1] : 5f;
+        int index = (int)SkillType.Teleport - 1;
+
+        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
         float inputMagnitudeClamped = Mathf.Clamp01(input.magnitude);
         Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
         Vector3 basePos = transform.position + direction * maxDist * inputMagnitudeClamped;
@@ -288,18 +297,20 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         if (indicatorInstance != null)
         {
             indicatorInstance.SetActive(true);
-            float backOffset = spriteBackOffsets.Count > 1 ? spriteBackOffsets[1] : 0f;
+            float backOffset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
             indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * backOffset;
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            float offsetAngle = skillAngleOffsets.Count > 1 ? skillAngleOffsets[1] : 0f;
+            float offsetAngle = skillAngleOffsets.Count > index ? skillAngleOffsets[index] : 0f;
             indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + offsetAngle);
         }
     }
 
     void UpdateLightningIndicator(Vector2 input)
     {
-        float maxDist = distancesFromPlayer.Count > 2 ? distancesFromPlayer[2] : 5f;
+        int index = (int)SkillType.Lightning - 1;
+
+        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
         float inputMagnitudeClamped = Mathf.Clamp01(input.magnitude);
         Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
         Vector3 basePos = transform.position + direction * maxDist * inputMagnitudeClamped;
@@ -309,11 +320,11 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         if (indicatorInstance != null)
         {
             indicatorInstance.SetActive(true);
-            float backOffset = spriteBackOffsets.Count > 2 ? spriteBackOffsets[2] : 0f;
+            float backOffset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
             indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * backOffset;
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            float offsetAngle = skillAngleOffsets.Count > 2 ? skillAngleOffsets[2] : 0f;
+            float offsetAngle = skillAngleOffsets.Count > index ? skillAngleOffsets[index] : 0f;
             indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + offsetAngle);
         }
     }
@@ -332,12 +343,14 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             currentIndicatorIndex = -1;
         }
 
-        int prefabIndex = currentDiceResult - 1;
+        SkillType currentSkill = GetMappedSkillType(currentDiceResult);
+
+        int prefabIndex = (int)currentSkill - 1;
         if (prefabIndex >= 0 && prefabIndex < directionSpritePrefabs.Count)
             SetupIndicator(prefabIndex);
 
-        isTeleportMode = (currentDiceResult == 2);
-        isLightningMode = (currentDiceResult == 3);
+        isTeleportMode = (currentSkill == SkillType.Teleport);
+        isLightningMode = (currentSkill == SkillType.Lightning);
     }
 
     void SetupIndicator(int prefabIndex)
@@ -356,18 +369,39 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     public void OnSkillButtonReleased()
     {
+        if (hasUsedSkill) return;
+
         if (joystickCanvasGroup != null)
             joystickCanvasGroup.alpha = 0f;
 
-        int currentDiceResult = DiceAnimation.currentDiceResult;
+        SkillType currentSkill = GetMappedSkillType(DiceAnimation.currentDiceResult);
 
-        switch (currentDiceResult)
+        switch (currentSkill)
         {
-            case 1: ShootFireball(); break;
-            case 2: if (isTeleportMode) { TeleportPlayer(teleportTargetPosition); isTeleportMode = false; } break;
-            case 3: if (isLightningMode) { lightningCastDirection = lastInputDirection; CastLightning(lightningTargetPosition); isLightningMode = false; } break;
-            case 4: SpawnWindWall(); break;
-            default: Debug.Log("해당 스킬은 아직 구현되지 않았습니다."); break;
+            case SkillType.Fireball:
+                ShootFireball();
+                break;
+            case SkillType.Teleport:
+                if (isTeleportMode)
+                {
+                    TeleportPlayer(teleportTargetPosition);
+                    isTeleportMode = false;
+                }
+                break;
+            case SkillType.Lightning:
+                if (isLightningMode)
+                {
+                    lightningCastDirection = lastInputDirection;
+                    CastLightning(lightningTargetPosition);
+                    isLightningMode = false;
+                }
+                break;
+            case SkillType.Windwall:
+                SpawnWindWall();
+                break;
+            default:
+                Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
+                break;
         }
 
         if (diceImage != null)
@@ -376,6 +410,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         }
 
         Debug.Log("스킬 발사!!");
+
+        hasUsedSkill = true;
     }
 
     private IEnumerator BlinkDiceImage()
