@@ -34,6 +34,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public DiceAnimation diceAnimation;
     public FireballProjectile fireballProjectile;
     public LightningDamage lightningDamage;
+    public ZacSkill zacSkill;
 
     [Header("UI")]
     public GameObject shopUI;
