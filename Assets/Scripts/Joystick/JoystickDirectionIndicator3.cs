@@ -323,9 +323,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 break;
         }
 
-        // 주사위 알파 깜빡임
-        if (diceImage != null)
-            StartCoroutine(BlinkDiceImage());
+        //// 주사위 알파 깜빡임
+        //if (diceImage != null)
+        //    StartCoroutine(BlinkDiceImage());
 
         Debug.Log("🎲 스킬 발사!!");
 
@@ -339,12 +339,12 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     }
 
 
-    private IEnumerator BlinkDiceImage()
-    {
-        diceImage.gameObject.SetActive(false);
-        yield return new WaitForSeconds(0.1f);
-        diceImage.gameObject.SetActive(true);
-    }
+    //private IEnumerator BlinkDiceImage()
+    //{
+    //    diceImage.gameObject.SetActive(false);
+    //    yield return new WaitForSeconds(0.1f);
+    //    diceImage.gameObject.SetActive(true);
+    //}
 
     private void ShootFireball()
     {
