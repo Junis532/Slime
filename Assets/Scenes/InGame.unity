@@ -3192,6 +3192,7 @@ MonoBehaviour:
   joystickCanvasGroup: {fileID: 880318244}
   joystick: {fileID: 129433694}
   skillImage: {fileID: 37500853}
+  skillSaveButton: {fileID: 1183603404}
   waitTimerText: {fileID: 1213060430}
   frameRate: 0.01
   rollDuration: 0.5
@@ -20343,6 +20344,9 @@ MonoBehaviour:
   joystick: {fileID: 129433694}
   joystickCanvasGroup: {fileID: 880318244}
   imageToHideWhenTouching: {fileID: 37500851}
+  diceImage: {fileID: 492544042}
+  blockInputCanvas: {fileID: 764383708}
+  skillSaveButton: {fileID: 1183603404}
   directionSpritePrefabs:
   - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
@@ -20375,10 +20379,6 @@ MonoBehaviour:
   teleportEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
   teleportEffectDuration: 0.3
   bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
-  bombSpawnPoint: {fileID: 273251364}
-  diceImage: {fileID: 492544042}
-  blockInputCanvas: {fileID: 764383708}
-  skillSaveButton: {fileID: 1183603404}
 --- !u!114 &1919898575
 MonoBehaviour:
   m_ObjectHideFlags: 0
