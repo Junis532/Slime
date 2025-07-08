@@ -52,6 +52,14 @@ public class FootprinterSkill : MonoBehaviour
         GameObject footprint = Instantiate(footprinterPrefab, transform.position, Quaternion.identity);
         SpriteRenderer footprintRenderer = footprint.GetComponent<SpriteRenderer>();
 
+
+        PoisonDamage poison = footprint.GetComponent<PoisonDamage>();
+        if (poison != null)
+        {
+            poison.Init(); 
+        }
+
+
         if (footprintRenderer != null)
         {
             footprintRenderer.color = initialColor;

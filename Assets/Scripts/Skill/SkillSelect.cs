@@ -14,7 +14,7 @@ public class SkillSelect : MonoBehaviour
     private List<int> selectedIndices = new(); // 선택된 하단 슬롯 인덱스
     private int currentIndex = 0;
 
-    // 최종 스킬 순서(하단 슬롯 인덱스, 1-based) 저장
+    // 최종 스킬 순서(상단 슬롯 인덱스, 1-based) 저장
     public static List<int> FinalSkillOrder = new List<int>() { 1, 2, 3, 4 };
     // 최종 스킬 이미지 저장용 추가
     public static List<Sprite> FinalSkillSprites = new List<Sprite>();

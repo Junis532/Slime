@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
         //    scale.x = Mathf.Abs(scale.x) * (currentDirection.x < 0 ? -1 : 1);
         //    transform.localScale = scale;
         //}
-        Debug.Log($"JoystickX: {joystick.Horizontal}, InputVecX: {inputVec.x}, CurrentDirX: {currentDirection.x}");
+        //Debug.Log($"JoystickX: {joystick.Horizontal}, InputVecX: {inputVec.x}, CurrentDirX: {currentDirection.x}");
 
         // ✅ 강제 방향 전환 (조이스틱 or 이동 방향 기준)
         float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;

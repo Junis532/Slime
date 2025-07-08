@@ -9,7 +9,8 @@ public enum SkillType
     Fireball = 1,
     Teleport = 2,
     Lightning = 3,
-    Windwall = 4
+    Windwall = 4,
+    Boom = 5,
 }
 
 public class JoystickDirectionIndicator3 : MonoBehaviour
@@ -48,11 +49,18 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     public GameObject teleportEffectPrefab;
     public float teleportEffectDuration = 1f;
 
+    [Header("폭탄 관련")]
+    public GameObject bombPrefab;
+    public Transform bombSpawnPoint;
+
     [Header("주사위 Image (알파 조절용)")]
     public Image diceImage;
 
     [Header("입력 차단 캔버스")]
     public GameObject blockInputCanvas;
+
+    [Header("스킬 저장 버튼")]
+    public Button skillSaveButton;
 
     private GameObject indicatorInstance;
     private int currentIndicatorIndex = -1;
@@ -89,6 +97,19 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     {
         bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
 
+        // 스킬 버튼 활성/비활성 관리
+        if (skillSaveButton != null)
+        {
+            if (hasUsedSkill || DiceAnimation.isRolling)
+            {
+                skillSaveButton.interactable = false;
+            }
+            else
+            {
+                skillSaveButton.interactable = true;
+            }
+        }
+
         if (prevBlockInputActive && !isBlockActive)
         {
             ResetInputStates();
@@ -123,6 +144,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             hasUsedSkill = false;
             isTeleportMode = false;
             isLightningMode = false;
+            DiceAnimation.hasUsedSkill = false;
         }
         prevIsRolling = DiceAnimation.isRolling;
 
@@ -351,6 +373,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         isTeleportMode = (currentSkill == SkillType.Teleport);
         isLightningMode = (currentSkill == SkillType.Lightning);
+
     }
 
     void SetupIndicator(int prefabIndex)
@@ -399,6 +422,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             case SkillType.Windwall:
                 SpawnWindWall();
                 break;
+            case SkillType.Boom:
+                ShootBomb();
+                break;
             default:
                 Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
                 break;
@@ -412,6 +438,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         Debug.Log("스킬 발사!!");
 
         hasUsedSkill = true;
+
+        GameManager.Instance.diceAnimation.OnSkillUsed();
     }
 
     private IEnumerator BlinkDiceImage()
@@ -520,4 +548,25 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         float angle = Mathf.Atan2(spawnDir.y, spawnDir.x) * Mathf.Rad2Deg;
         wall.transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
+
+    private void ShootBomb()
+    {
+        if (bombPrefab == null || firePoint == null) return;
+
+        Vector2 shootDir = lastInputDirection;
+        if (shootDir == Vector2.zero)
+            shootDir = Vector2.right;
+
+        GameObject bombObj = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
+
+        float angle = Mathf.Atan2(shootDir.y, shootDir.x) * Mathf.Rad2Deg;
+        bombObj.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        BombProjectile bomb = bombObj.GetComponent<BombProjectile>();
+        if (bomb != null)
+        {
+            bomb.Init(shootDir);
+        }
+    }
+
 }

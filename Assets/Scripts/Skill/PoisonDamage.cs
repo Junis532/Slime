@@ -10,7 +10,7 @@ public class PoisonDamage : MonoBehaviour
 
     public void Init()
     {
-        damage = Mathf.FloorToInt(GameManager.Instance.playerStats.attack * 1f);
+        damage = Mathf.FloorToInt(GameManager.Instance.playerStats.attack * 0.1f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

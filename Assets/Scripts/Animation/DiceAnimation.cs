@@ -2,25 +2,31 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;  // TextMeshPro 네임스페이스 추가
+using TMPro;
 
 public class DiceAnimation : MonoBehaviour
 {
     [Header("주사위 이미지 (0~3 인덱스: 1~4 숫자에 대응)")]
     public List<Sprite> diceSprites;
 
+    [Header("저장용 주사위 이미지 (noSkillUseCount에 대응)")]
+    public List<Sprite> saveDiceSpritesByNoSkillCount;
+
+    [Header("저장용 주사위 이미지 표시 UI")]
+    public Image saveDiceImage;
+
     [Header("스킬 UI 이미지 슬롯 (1~4)")]
-    public List<Image> skillSlotImages;  // 각 UI 슬롯의 Image 컴포넌트에서 스프라이트 가져옴
+    public List<Image> skillSlotImages;
 
     [Header("조이스틱 관련")]
-    public CanvasGroup joystickCanvasGroup;  // 조이스틱 알파용
-    public VariableJoystick joystick;        // 조이스틱 입력 막을 때 사용
+    public CanvasGroup joystickCanvasGroup;
+    public VariableJoystick joystick;
 
     [Header("스킬 이미지 표시용 UI")]
-    public Image skillImage;  // 결과에 따라 바뀔 스킬 이미지 UI
+    public Image skillImage;
 
     [Header("대기 시간 표시용 텍스트")]
-    public TMP_Text waitTimerText;   // 새로 추가: 남은 대기시간 표시용 UI 텍스트
+    public TMP_Text waitTimerText;
 
     public float frameRate = 0.05f;
     public float rollDuration = 3f;
@@ -30,23 +36,25 @@ public class DiceAnimation : MonoBehaviour
     private Coroutine rollCoroutine;
 
     public static bool isRolling = false;
-    public static int currentDiceResult = 0;  // 현재 주사위 결과 저장 (1~4)
+    public static int currentDiceResult = 0;
+
+    public static bool hasUsedSkill = false; // 스킬 사용 여부 (공유용)
+    public static int noSkillUseCount = 1;   // 리롤 중 스킬 미사용 카운트
 
     void Start()
     {
         image = GetComponent<Image>();
+        // 시작 시 주사위 이미지 활성화
+        if (image != null)
+            image.gameObject.SetActive(true);
 
         RollOnceAtStart();
 
-        // 초기 스킬 이미지 설정
-        if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
-        {
-            skillImage.sprite = skillSlotImages[currentDiceResult - 1].sprite;
-            skillImage.enabled = true;
-        }
+        UpdateSkillImage();
+        UpdateSaveDiceImageByNoSkillCount();
 
         if (waitTimerText != null)
-            waitTimerText.text = "";  // 시작 시 초기화
+            waitTimerText.text = "";
     }
 
     void OnEnable()
@@ -64,53 +72,80 @@ public class DiceAnimation : MonoBehaviour
         StartCoroutine(RollOnceCoroutine());
     }
 
-private IEnumerator RollOnceCoroutine()
-{
-    isRolling = true;
-
-    if (joystickCanvasGroup != null)
-        joystickCanvasGroup.alpha = 0.4f;
-
-    float elapsed = 0f;
-    int animFrame = 0;
-
-    // rollDuration이 0이면 애니메이션 루프 없이 바로 결과 출력
-    while (elapsed < rollDuration)
+    private IEnumerator RollOnceCoroutine()
     {
-        image.sprite = diceSprites[animFrame];
-        animFrame = (animFrame + 1) % diceSprites.Count;
-        elapsed += frameRate;
-        yield return new WaitForSeconds(frameRate);
+        isRolling = true;
+
+        // 조이스틱 비활성화
+        if (joystick != null)
+            joystick.gameObject.SetActive(false);
+        if (joystickCanvasGroup != null)
+            joystickCanvasGroup.gameObject.SetActive(false);
+
+        // 이미지 활성화
+        if (image != null)
+            image.gameObject.SetActive(true);
+
+        float elapsed = 0f;
+        int animFrame = 0;
+
+        while (elapsed < rollDuration)
+        {
+            image.sprite = diceSprites[animFrame];
+            animFrame = (animFrame + 1) % diceSprites.Count;
+            elapsed += frameRate;
+            yield return new WaitForSeconds(frameRate);
+        }
+
+        int result = Random.Range(1, 2); // 1~4 범위로 수정
+        currentDiceResult = result;
+        image.sprite = diceSprites[result - 1];
+        Debug.Log($"시작 시 주사위 결과: {result}");
+
+        UpdateSkillImage();
+        UpdateSaveDiceImageByNoSkillCount();
+
+        isRolling = false;
+
+        // 조이스틱 활성화
+        if (joystick != null)
+            joystick.gameObject.SetActive(true);
+        if (joystickCanvasGroup != null)
+            joystickCanvasGroup.gameObject.SetActive(true);
+
+        if (waitTimerText != null)
+            waitTimerText.text = "";
     }
 
-    // rollDuration이 0이면 위 루프는 건너뜀
-
-    int result = Random.Range(1, 5);
-    currentDiceResult = result;
-    image.sprite = diceSprites[result - 1];
-    Debug.Log($"시작 시 주사위 결과: {result}");
-
-    if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
+    void UpdateSkillImage()
     {
-        skillImage.sprite = skillSlotImages[result - 1].sprite;
-        skillImage.enabled = true;
+        if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= currentDiceResult && currentDiceResult > 0)
+        {
+            skillImage.sprite = skillSlotImages[currentDiceResult - 1].sprite;
+            skillImage.enabled = true;
+        }
     }
 
-    isRolling = false;
-
-    if (joystickCanvasGroup != null)
-        joystickCanvasGroup.alpha = 1f;
-
-    if (waitTimerText != null)
-        waitTimerText.text = "";
-}
-
+    void UpdateSaveDiceImageByNoSkillCount()
+    {
+        if (saveDiceImage != null && saveDiceSpritesByNoSkillCount != null &&
+            noSkillUseCount > 0 && noSkillUseCount <= saveDiceSpritesByNoSkillCount.Count)
+        {
+            saveDiceImage.sprite = saveDiceSpritesByNoSkillCount[noSkillUseCount - 1];
+            saveDiceImage.enabled = true;
+        }
+        else if (saveDiceImage != null)
+        {
+            saveDiceImage.enabled = false;
+        }
+    }
 
     public void StartRollingLoop()
     {
         if (rollCoroutine == null)
         {
             rollCoroutine = StartCoroutine(RollingLoopRoutine());
+            Debug.Log("리롤 루프 시작");
         }
     }
 
@@ -122,8 +157,12 @@ private IEnumerator RollOnceCoroutine()
             rollCoroutine = null;
             Debug.Log("주사위 루프 멈춤");
 
+            // 이미지 비활성화
+            if (image != null)
+                image.gameObject.SetActive(false);
+
             if (waitTimerText != null)
-                waitTimerText.text = "";  // 루프 멈출 때 텍스트 초기화
+                waitTimerText.text = "";
         }
     }
 
@@ -131,7 +170,7 @@ private IEnumerator RollOnceCoroutine()
     {
         while (true)
         {
-            // ▼ 대기시간 카운트다운 표시
+            Debug.Log("리롤 루프 대기 시작...");
             float waitTime = waitInterval;
             while (waitTime > 0f)
             {
@@ -142,9 +181,19 @@ private IEnumerator RollOnceCoroutine()
                 yield return null;
             }
 
+            Debug.Log("리롤 루프 실행 중...");
+
             isRolling = true;
+
+            // 조이스틱 비활성화
+            if (joystick != null)
+                joystick.gameObject.SetActive(false);
             if (joystickCanvasGroup != null)
-                joystickCanvasGroup.alpha = 0.4f;
+                joystickCanvasGroup.gameObject.SetActive(false);
+
+            // 이미지 활성화
+            if (image != null)
+                image.gameObject.SetActive(true);
 
             float elapsed = 0f;
             int animFrame = 0;
@@ -157,25 +206,86 @@ private IEnumerator RollOnceCoroutine()
                 yield return new WaitForSeconds(frameRate);
             }
 
-            int result = Random.Range(1, 5);
+            int result = Random.Range(1, 2); // 1~4 범위로 수정
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
             Debug.Log($"주사위 결과: {result}");
+            Debug.Log($"{hasUsedSkill}");
 
-            // ▼ 결과에 맞는 스킬 이미지 표시
-            if (skillImage != null && skillSlotImages != null && skillSlotImages.Count >= 4)
+            UpdateSkillImage();
+
+            // 스킬 미사용 시 카운트 +1 (최대 4)
+            if (!hasUsedSkill)
             {
-                skillImage.sprite = skillSlotImages[result - 1].sprite;
-                skillImage.enabled = true;
+                noSkillUseCount = Mathf.Min(noSkillUseCount + 1, 4);
+                Debug.Log($"스킬 미사용 noSkillUseCount: {noSkillUseCount}"); // 로그 추가
+            }
+            else
+            {
+                noSkillUseCount = 1;
+                Debug.Log("스킬 사용, noSkillUseCount 초기화 1");
             }
 
-            isRolling = false;
-            if (joystickCanvasGroup != null)
-                joystickCanvasGroup.alpha = 1f;
+            UpdateSaveDiceImageByNoSkillCount();
 
-            // 주사위 완료 후 텍스트 초기화
+            isRolling = false;
+
+            // 조이스틱 활성화
+            if (joystick != null)
+                joystick.gameObject.SetActive(true);
+            if (joystickCanvasGroup != null)
+                joystickCanvasGroup.gameObject.SetActive(true);
+
             if (waitTimerText != null)
                 waitTimerText.text = "";
+        }
+    }
+
+    // 저장 버튼에서 호출
+    public void OnSaveButtonPressed()
+    {
+        // 저장 시 현재 noSkillUseCount 값 유지하며 로그만 출력
+        Debug.Log($"저장 버튼 누름, noSkillUseCount: {noSkillUseCount}");
+    }
+
+    // 외부에서 강제 리롤 정지
+    public void ForceStopRolling()
+    {
+        if (rollCoroutine != null)
+        {
+            StopCoroutine(rollCoroutine);
+            rollCoroutine = null;
+
+            isRolling = false;
+
+            // 조이스틱 활성화
+            if (joystick != null)
+                joystick.gameObject.SetActive(true);
+            if (joystickCanvasGroup != null)
+                joystickCanvasGroup.gameObject.SetActive(true);
+
+            // 이미지 비활성화
+            if (image != null)
+                image.gameObject.SetActive(false);
+
+            if (waitTimerText != null)
+                waitTimerText.text = "";
+
+            Debug.Log("버튼으로 리롤 강제 정지됨");
+        }
+    }
+
+    // 스킬 사용 시 외부에서 호출해 주세요.
+    public void OnSkillUsed()
+    {
+        hasUsedSkill = true;
+        Debug.Log("스킬 사용 플래그 설정됨");
+
+        // 코루틴이 멈췄다면 다시 시작
+        if (rollCoroutine == null)
+        {
+            StartRollingLoop();
+            Debug.Log("리롤 루프 재시작");
         }
     }
 }
