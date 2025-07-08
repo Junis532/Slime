@@ -2,7 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : EnemyBase
 {
     private bool isLive = true;
 
@@ -14,10 +14,18 @@ public class Enemy : MonoBehaviour
 
     public float smoothTime = 0.1f;
 
+    // 개별 속도 관리 필드 추가
+    //public float originalSpeed; // 기본 속도
+    //public float speed;         // 현재 속도
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+
+        // 초기 속도를 GameManager 기본 속도로 세팅
+        originalSpeed = GameManager.Instance.enemyStats.speed;
+        speed = originalSpeed;
     }
 
     void Update()
@@ -31,7 +39,7 @@ public class Enemy : MonoBehaviour
         Vector2 inputVec = dirVec.normalized;
 
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * GameManager.Instance.enemyStats.speed * Time.deltaTime;
+        Vector2 nextVec = currentDirection * speed * Time.deltaTime;  // 여기서 speed 사용!
         transform.Translate(nextVec);
 
         // 방향 반전 및 애니메이션 처리
@@ -59,12 +67,10 @@ public class Enemy : MonoBehaviour
             GameManager.Instance.playerStats.currentHP -= damage;
             GameManager.Instance.playerDamaged.PlayDamageEffect(); // 플레이어 데미지 이펙트 재생
 
-            // 체력이 0 이하가 되었는지 확인하고 처리
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // 죽음 처리 함수가 있다면 호출 (예: GameManager.Instance.PlayerDie();)
-               
+                // 죽음 처리 함수 호출 가능
             }
         }
     }

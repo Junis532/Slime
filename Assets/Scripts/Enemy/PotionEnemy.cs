@@ -1,13 +1,13 @@
 using DG.Tweening;
 using System.Collections;
 using UnityEngine;
-public class PotionEnemy : MonoBehaviour
+
+public class PotionEnemy : EnemyBase
 {
     private bool isLive = true;
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
-    private Rigidbody2D rb;
 
     private Vector2 currentVelocity;
     private Vector2 currentDirection;
@@ -35,13 +35,15 @@ public class PotionEnemy : MonoBehaviour
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
-        rb = GetComponent<Rigidbody2D>();
 
         if (dashPreviewPrefab != null)
         {
             dashPreviewInstance = Instantiate(dashPreviewPrefab, transform.position, Quaternion.identity);
             dashPreviewInstance.SetActive(false);
         }
+
+        originalSpeed = GameManager.Instance.potionEnemyStats.speed;
+        speed = originalSpeed;
     }
 
     void Update()
@@ -86,12 +88,6 @@ public class PotionEnemy : MonoBehaviour
                     Destroy(potion, potionLifetime);
                 }
 
-                // 이동 잠금 해제
-                if (rb != null)
-                {
-                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                }
-
                 if (dashPreviewInstance != null)
                     dashPreviewInstance.SetActive(false);
             }
@@ -106,19 +102,13 @@ public class PotionEnemy : MonoBehaviour
             isStopping = true;
             pauseTimer = 0f;
 
-            // 이동 잠금
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-            }
-
+            // 이동 멈춤 상태이므로 transform 이동도 하지 않음
             return;
         }
 
-        // 추적 이동
+        // 추적 이동, transform.Translate 사용
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * GameManager.Instance.potionEnemyStats.speed * Time.deltaTime;
+        Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
         // 애니메이션 및 방향 전환

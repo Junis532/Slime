@@ -1,460 +1,427 @@
-﻿//using system.collections;
-//using system.collections.generic;
-//using unityengine;
+﻿//using System.Collections;
+//using System.Collections.Generic;
+//using UnityEngine;
+//using UnityEngine.UI;
 
-//public class joystickdirectionindicator3 : monobehaviour
+//public enum SkillType
 //{
-//    [header("조이스틱 (선택 사항)")]
-//    public variablejoystick joystick;
-
-//    [header("조이스틱 투명도 조절용")]
-//    public canvasgroup joystickcanvasgroup;
-
-//    [header("조이스틱 조작 중 숨길 이미지")]
-//    public gameobject imagetohidewhentouching;
-
-//    [header("스킬 범위 스프라이트 (1~4)")]
-//    public list<gameobject> directionspriteprefabs;
-
-//    [header("스킬 범위 중앙값 설정 (1~4)")]
-//    public list<float> distancesfromplayer;
-//    public list<float> spritebackoffsets;
-
-//    [header("스킬별 범위 회전 오프셋 (각도, 1~4)")]
-//    public list<float> skillangleoffsets;
-
-//    [header("파이어볼 관련")]
-//    public gameobject fireballprefab;
-//    public transform firepoint;
-
-//    [header("번개 관련")]
-//    public gameobject lightningprefab;
-//    public gameobject lightningeffectprefab;
-
-//    [header("바람막 관련")]
-//    public gameobject windwallprefab;
-
-//    private gameobject indicatorinstance;
-//    private int currentindicatorindex = -1;
-
-//    private playercontroller playercontroller;
-
-//    private bool istouchingjoystick = false;
-//    private bool wastouchingjoysticklastframe = false;
-//    private vector2 lastinputdirection = vector2.right;
-//    private float lastinputmagnitude = 0f;
-
-//    private bool hasusedskill = false;
-//    private bool previsrolling = false;
-
-//    private bool isteleportmode = false;
-//    private vector3 teleporttargetposition;
-
-//    private bool islightningmode = false;
-//    private vector3 lightningtargetposition;
-
-//    private vector2 lightningcastdirection;
-
-
-//    void start()
-//    {
-//        playercontroller = getcomponent<playercontroller>();
-//        if (joystickcanvasgroup != null)
-//            joystickcanvasgroup.alpha = 0f;
-//    }
-
-//    void update()
-//    {
-//        if (diceanimation.currentdiceresult <= 0)
-//        {
-//            joystick.enabled = false;
-//            if (joystickcanvasgroup != null) joystickcanvasgroup.alpha = 0f;
-//            if (imagetohidewhentouching != null) imagetohidewhentouching.setactive(true);
-//            if (indicatorinstance != null) indicatorinstance.setactive(false);
-//            currentindicatorindex = -1;
-//            return;
-//        }
-
-//        if (previsrolling && !diceanimation.isrolling)
-//        {
-//            hasusedskill = false;
-//            isteleportmode = false;
-//            islightningmode = false;
-//        }
-//        previsrolling = diceanimation.isrolling;
-
-//        int currentdiceresult = diceanimation.currentdiceresult;
-
-//        if (hasusedskill)
-//        {
-//            istouchingjoystick = false;
-//            if (imagetohidewhentouching != null) imagetohidewhentouching.setactive(true);
-//            if (indicatorinstance != null) indicatorinstance.setactive(false);
-//            currentindicatorindex = -1;
-//            if (joystickcanvasgroup != null) joystickcanvasgroup.alpha = 0f;
-//            joystick.enabled = false;
-//            return;
-//        }
-
-//        vector2 input = (joystick != null) ? new vector2(joystick.horizontal, joystick.vertical) : playercontroller.inputvector;
-//        istouchingjoystick = input.magnitude > 0.2f;
-
-//        if (joystickcanvasgroup != null)
-//            joystickcanvasgroup.alpha = istouchingjoystick ? 1f : 0f;
-
-//        if (istouchingjoystick)
-//        {
-//            lastinputdirection = input.normalized;
-//            lastinputmagnitude = input.magnitude;
-
-//            if (currentdiceresult == 2 && isteleportmode)
-//            {
-//                updateteleportindicator(input);
-//            }
-//            else if (currentdiceresult == 3 && islightningmode)
-//            {
-//                updatelightningindicator(input);
-//            }
-//            else
-//            {
-//                onskillbuttonpressed();
-//                updateskillindicator(input, currentdiceresult);
-//            }
-//        }
-//        else
-//        {
-//            if (wastouchingjoysticklastframe && !hasusedskill && lastinputmagnitude > 0.3f)
-//            {
-//                onskillbuttonreleased();
-//                hasusedskill = true;
-//            }
-
-//            if (imagetohidewhentouching != null) imagetohidewhentouching.setactive(true);
-//            if (indicatorinstance != null) indicatorinstance.setactive(false);
-//            currentindicatorindex = -1;
-//        }
-
-//        wastouchingjoysticklastframe = istouchingjoystick;
-//        joystick.enabled = !diceanimation.isrolling && !hasusedskill;
-//    }
-
-//    void updateskillindicator(vector2 input, int currentdiceresult)
-//    {
-//        if (imagetohidewhentouching != null)
-//            imagetohidewhentouching.setactive(false);
-
-//        if (currentdiceresult >= 1 && currentdiceresult <= directionspriteprefabs.count)
-//        {
-//            int index = currentdiceresult - 1;
-
-//            if (currentindicatorindex != index)
-//            {
-//                if (indicatorinstance != null) destroy(indicatorinstance);
-//                indicatorinstance = instantiate(directionspriteprefabs[index], transform.position, quaternion.identity);
-//                currentindicatorindex = index;
-//            }
-
-//            if (!indicatorinstance.activeself)
-//                indicatorinstance.setactive(true);
-
-//            vector3 direction = new vector3(input.x, input.y, 0f).normalized;
-//            float angle = mathf.atan2(direction.y, direction.x) * mathf.rad2deg;
-//            float offsetangle = (skillangleoffsets != null && skillangleoffsets.count > index) ? skillangleoffsets[index] : 0f;
-//            indicatorinstance.transform.rotation = quaternion.euler(0f, 0f, angle + offsetangle);
-
-//            float dist = (distancesfromplayer != null && distancesfromplayer.count > index) ? distancesfromplayer[index] : 0f;
-//            float backoffset = (spritebackoffsets != null && spritebackoffsets.count > index) ? spritebackoffsets[index] : 0f;
-
-//            vector3 basepos = transform.position + direction * dist;
-//            vector3 offset = -indicatorinstance.transform.up * backoffset;
-//            indicatorinstance.transform.position = basepos + offset;
-//        }
-//        else
-//        {
-//            if (indicatorinstance != null)
-//                indicatorinstance.setactive(false);
-//            currentindicatorindex = -1;
-//        }
-//    }
-
-//    void updateteleportindicator(vector2 input)
-//    {
-//        float maxdist = (distancesfromplayer != null && distancesfromplayer.count > 1) ? distancesfromplayer[1] : 5f;
-//        float inputmagnitudeclamped = mathf.clamp01(input.magnitude);
-//        vector3 direction = new vector3(input.x, input.y, 0f).normalized;
-//        vector3 basepos = transform.position + direction * maxdist * inputmagnitudeclamped;
-
-//        teleporttargetposition = basepos;
-
-//        if (indicatorinstance != null)
-//        {
-//            indicatorinstance.setactive(true);
-//            float backoffset = (spritebackoffsets != null && spritebackoffsets.count > 1) ? spritebackoffsets[1] : 0f;
-//            indicatorinstance.transform.position = basepos - indicatorinstance.transform.up * backoffset;
-
-//            float angle = mathf.atan2(direction.y, direction.x) * mathf.rad2deg;
-//            float offsetangle = (skillangleoffsets != null && skillangleoffsets.count > 1) ? skillangleoffsets[1] : 0f;
-//            indicatorinstance.transform.rotation = quaternion.euler(0f, 0f, angle + offsetangle);
-//        }
-//    }
-
-//    void updatelightningindicator(vector2 input)
-//    {
-//        float maxdist = (distancesfromplayer != null && distancesfromplayer.count > 2) ? distancesfromplayer[2] : 5f;
-//        float inputmagnitudeclamped = mathf.clamp01(input.magnitude);
-//        vector3 direction = new vector3(input.x, input.y, 0f).normalized;
-//        vector3 basepos = transform.position + direction * maxdist * inputmagnitudeclamped;
-
-//        lightningtargetposition = basepos;
-
-//        if (indicatorinstance != null)
-//        {
-//            indicatorinstance.setactive(true);
-//            float backoffset = (spritebackoffsets != null && spritebackoffsets.count > 2) ? spritebackoffsets[2] : 0f;
-//            indicatorinstance.transform.position = basepos - indicatorinstance.transform.up * backoffset;
-
-//            float angle = mathf.atan2(direction.y, direction.x) * mathf.rad2deg;
-//            float offsetangle = (skillangleoffsets != null && skillangleoffsets.count > 2) ? skillangleoffsets[2] : 0f;
-//            indicatorinstance.transform.rotation = quaternion.euler(0f, 0f, angle + offsetangle);
-//        }
-//    }
-
-//    public void onskillbuttonpressed()
-//    {
-//        if (joystickcanvasgroup != null)
-//            joystickcanvasgroup.alpha = 1f;
-
-//        int currentdiceresult = diceanimation.currentdiceresult;
-
-//        if (currentdiceresult == 2)
-//        {
-//            isteleportmode = true;
-//            setupindicator(1);
-//        }
-//        else if (currentdiceresult == 3)
-//        {
-//            islightningmode = true;
-//            setupindicator(2);
-//        }
-//    }
-
-//    void setupindicator(int prefabindex)
-//    {
-//        if (currentindicatorindex != prefabindex)
-//        {
-//            if (indicatorinstance != null) destroy(indicatorinstance);
-
-//            if (directionspriteprefabs.count > prefabindex)
-//            {
-//                indicatorinstance = instantiate(directionspriteprefabs[prefabindex], transform.position, quaternion.identity);
-//                currentindicatorindex = prefabindex;
-//            }
-//        }
-//    }
-
-//    public void onskillbuttonreleased()
-//    {
-//        if (joystickcanvasgroup != null)
-//            joystickcanvasgroup.alpha = 0f;
-
-//        int currentdiceresult = diceanimation.currentdiceresult;
-
-//        switch (currentdiceresult)
-//        {
-//            case 1:
-//                shootfireball();
-//                break;
-//            case 2:
-//                if (isteleportmode)
-//                {
-//                    teleportplayer(teleporttargetposition);
-//                    isteleportmode = false;
-//                }
-//                break;
-//            case 3:
-//                if (islightningmode)
-//                {
-//                    lightningcastdirection = lastinputdirection;  // <<< 시전 방향 저장
-//                    castlightning(lightningtargetposition);
-//                    islightningmode = false;
-//                }
-//                break;
-
-//            case 4:
-//                spawnwindwall();
-//                break;
-//            default:
-//                debug.log("해당 스킬은 아직 구현되지 않았습니다.");
-//                break;
-//        }
-
-//        debug.log("스킬 발사!!");
-//    }
-
-//    private void shootfireball()
-//    {
-//        if (fireballprefab == null || firepoint == null)
-//        {
-//            debug.logwarning("fireball prefab or firepoint not assigned.");
-//            return;
-//        }
-
-//        gameobject fireballobj = instantiate(fireballprefab, firepoint.position, quaternion.identity);
-//        vector2 shootdir = lastinputdirection;
-//        float angle = mathf.atan2(shootdir.y, shootdir.x) * mathf.rad2deg;
-//        fireballobj.transform.rotation = quaternion.euler(0f, 0f, angle);
-
-//        fireballprojectile fireball = fireballobj.getcomponent<fireballprojectile>();
-//        if (fireball != null)
-//        {
-//            fireball.init(shootdir);
-//        }
-//    }
-
-//    private void teleportplayer(vector3 targetpos)
-//    {
-//        transform.position = targetpos;
-//        debug.log($"플레이어 텔레포트: {targetpos}");
-//    }
-
-//    private void castlightning(vector3 targetpos)
-//    {
-//        startcoroutine(lightningstrikesequence(targetpos));
-//    }
-
-//    private ienumerator lightningstrikesequence(vector3 targetpos)
-//    {
-//        int strikecount = 3;
-//        float strikeonduration = 0.2f;   // 켜져 있는 시간
-//        float strikeoffduration = 0.1f;  // 꺼져 있는 시간
-
-//        vector2 direction = lightningcastdirection.normalized;
-//        float angle = mathf.atan2(direction.y, direction.x) * mathf.rad2deg;
-
-//        gameobject lightning = null;
-//        lightningdamage ld = null;
-
-//        gameobject lightningeffect = null;
-
-//        for (int i = 0; i < strikecount; i++)
-//        {
-//            // lightningprefab 깜빡임
-//            if (lightning == null && lightningprefab != null)
-//            {
-//                lightning = instantiate(lightningprefab, targetpos, quaternion.euler(0f, 0f, angle));
-//                ld = lightning.getcomponent<lightningdamage>();
-//            }
-//            else if (lightning != null)
-//            {
-//                lightning.transform.position = targetpos;
-//                lightning.transform.rotation = quaternion.euler(0f, 0f, angle);
-//                lightning.setactive(true);
-//            }
-
-//            if (ld != null)
-//                ld.init();
-
-//            // lightningeffectprefab 깜빡임
-//            if (lightningeffect == null && lightningeffectprefab != null)
-//            {
-//                vector3 effectpos = targetpos + vector3.up * 2f;
-//                lightningeffect = instantiate(lightningeffectprefab, effectpos, quaternion.identity);
-//            }
-//            else if (lightningeffect != null)
-//            {
-//                lightningeffect.transform.position = targetpos + vector3.up * 2f;
-//                lightningeffect.setactive(true);
-//            }
-
-//            yield return new waitforseconds(strikeonduration);
-
-//            if (lightning != null)
-//                lightning.setactive(false);
-
-//            if (lightningeffect != null)
-//                lightningeffect.setactive(false);
-
-//            yield return new waitforseconds(strikeoffduration);
-//        }
-
-//        if (lightning != null)
-//            destroy(lightning);
-
-//        if (lightningeffect != null)
-//            destroy(lightningeffect);
-//    }
-
-
-//    private void spawnwindwall()
-//    {
-//        if (windwallprefab == null)
-//        {
-//            debug.logwarning("windwall prefab not assigned.");
-//            return;
-//        }
-
-//        gameobject wall = instantiate(windwallprefab, transform.position, quaternion.identity);
-
-//        vector2 spawndir = lastinputdirection;
-//        if (spawndir == vector2.zero)
-//            spawndir = vector2.right;
-
-//        float angle = mathf.atan2(spawndir.y, spawndir.x) * mathf.rad2deg;
-//        wall.transform.rotation = quaternion.euler(0f, 0f, angle);
-
-//        debug.log($"바람막 생성 at {transform.position}, angle {angle}");
-//    }
+//    None = 0,
+//    Fireball = 1,
+//    Teleport = 2,
+//    Lightning = 3,
+//    Windwall = 4,
+//    Boom = 5,
 //}
 
-
-
-//using UnityEngine;
-
-//private IEnumerator LightningStrikeSequence()
+//public class JoystickDirectionIndicator3 : MonoBehaviour
 //{
-//    int skillCase = 3;
-//    float dist = (skillSelect != null) ? skillSelect.GetDistanceForSkillCase(skillCase) : 5f;
+//    [Header("조이스틱 및 UI 요소")]
+//    public VariableJoystick joystick;
+//    public CanvasGroup joystickCanvasGroup;
+//    public GameObject imageToHideWhenTouching;
+//    public Image diceImage;
+//    public GameObject blockInputCanvas;
+//    public Button skillSaveButton;
 
-//    Vector3 direction = lastInputDirection.normalized;
-//    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+//    [Header("스킬 관련 프리팹 및 위치")]
+//    public List<GameObject> directionSpritePrefabs;
+//    public List<float> distancesFromPlayer;
+//    public List<float> spriteBackOffsets;
+//    public List<float> skillAngleOffsets;
 
-//    // 고정 위치로 한 번만 계산!
-//    Vector3 fixedTargetPos = transform.position + direction * dist;
+//    public GameObject fireballPrefab;
+//    public Transform firePoint;
 
-//    int strikeCount = 3;
-//    float strikeOnDuration = 0.2f;
-//    float strikeOffDuration = 0.1f;
+//    public GameObject lightningPrefab;
+//    public GameObject LightningEffectPrefab;
 
-//    for (int i = 0; i < strikeCount; i++)
+//    public GameObject windWallPrefab;
+
+//    public GameObject teleportEffectPrefab;
+//    public float teleportEffectDuration = 1f;
+
+//    public GameObject bombPrefab;
+
+//    private GameObject indicatorInstance;
+//    private int currentIndicatorIndex = -1;
+
+//    private PlayerController playerController;
+//    private bool isTouchingJoystick, wasTouchingJoystickLastFrame;
+//    private Vector2 lastInputDirection = Vector2.right;
+//    private float lastInputMagnitude = 0f;
+
+//    private bool hasUsedSkill = false, prevIsRolling = false;
+//    private bool isTeleportMode = false, isLightningMode = false;
+//    private Vector3 teleportTargetPosition, lightningTargetPosition;
+//    private Vector2 lightningCastDirection;
+//    private bool prevBlockInputActive = false;
+
+//    void Start()
 //    {
+//        playerController = GetComponent<PlayerController>();
+//        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+//    }
+
+//    void Update()
+//    {
+//        bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
+
+//        skillSaveButton.interactable = !(hasUsedSkill || DiceAnimation.isRolling);
+
+//        if (prevBlockInputActive && !isBlockActive)
+//        {
+//            ResetInputStates();
+//        }
+//        prevBlockInputActive = isBlockActive;
+
+//        if (isBlockActive || DiceAnimation.currentDiceResult <= 0)
+//        {
+//            DisableInputAndIndicators();
+//            return;
+//        }
+
+//        SetDiceImageAlpha(1f);
+//        Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
+//        isTouchingJoystick = input.magnitude > 0.2f;
+//        SetHideImageState(!isTouchingJoystick);
+
+//        if (prevIsRolling && !DiceAnimation.isRolling)
+//        {
+//            hasUsedSkill = false;
+//            isTeleportMode = false;
+//            isLightningMode = false;
+//            DiceAnimation.hasUsedSkill = false;
+//        }
+//        prevIsRolling = DiceAnimation.isRolling;
+
+//        if (hasUsedSkill)
+//        {
+//            DisableInputAndIndicators();
+//            return;
+//        }
+
+//        if (joystickCanvasGroup != null)
+//            joystickCanvasGroup.alpha = isTouchingJoystick ? 1f : 0f;
+
+//        if (isTouchingJoystick)
+//        {
+//            lastInputDirection = input.normalized;
+//            lastInputMagnitude = input.magnitude;
+//            SkillType currentSkill = GetMappedSkillType(DiceAnimation.currentDiceResult);
+
+//            if (currentSkill == SkillType.Teleport && isTeleportMode)
+//                UpdateTeleportIndicator(input);
+//            else if (currentSkill == SkillType.Lightning && isLightningMode)
+//                UpdateLightningIndicator(input);
+//            else
+//            {
+//                OnSkillButtonPressed();
+//                UpdateSkillIndicator(input, (int)currentSkill);
+//            }
+//        }
+//        else
+//        {
+//            if (wasTouchingJoystickLastFrame && !hasUsedSkill && lastInputMagnitude > 0.3f)
+//            {
+//                OnSkillButtonReleased();
+//                hasUsedSkill = true;
+//            }
+
+//            if (indicatorInstance != null)
+//                indicatorInstance.SetActive(false);
+//            currentIndicatorIndex = -1;
+//        }
+
+//        wasTouchingJoystickLastFrame = isTouchingJoystick;
+//        if (joystick != null)
+//            joystick.enabled = !DiceAnimation.isRolling && !hasUsedSkill;
+//    }
+
+//    void ResetInputStates()
+//    {
+//        isTouchingJoystick = false;
+//        wasTouchingJoystickLastFrame = false;
+//        lastInputDirection = Vector2.right;
+//        lastInputMagnitude = 0f;
+//        hasUsedSkill = false;
+//        isTeleportMode = false;
+//        isLightningMode = false;
+//        currentIndicatorIndex = -1;
+
+//        if (indicatorInstance != null) Destroy(indicatorInstance);
+//        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+//        if (joystick != null) { joystick.ResetInput(); joystick.enabled = true; }
+//    }
+
+//    void DisableInputAndIndicators()
+//    {
+//        if (joystick != null) joystick.enabled = false;
+//        SetHideImageState(true);
+//        if (indicatorInstance != null) indicatorInstance.SetActive(false);
+//        currentIndicatorIndex = -1;
+//        isTeleportMode = false;
+//        isLightningMode = false;
+//        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+//    }
+
+//    void SetHideImageState(bool isVisible) => imageToHideWhenTouching?.SetActive(isVisible);
+
+//    void SetDiceImageAlpha(float alpha)
+//    {
+//        if (diceImage != null)
+//        {
+//            Color c = diceImage.color;
+//            c.a = alpha;
+//            diceImage.color = c;
+//        }
+//    }
+
+//    SkillType GetMappedSkillType(int diceResult)
+//    {
+//        if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceResult || diceResult <= 0)
+//            return SkillType.None;
+//        int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceResult - 1];
+//        return (SkillType)mappedSkillNumber;
+//    }
+
+//    void UpdateSkillIndicator(Vector2 input, int skillIndex)
+//    {
+//        int index = skillIndex - 1;
+//        if (index < 0 || index >= directionSpritePrefabs.Count) { indicatorInstance?.SetActive(false); currentIndicatorIndex = -1; return; }
+
+//        if (currentIndicatorIndex != index)
+//        {
+//            if (indicatorInstance != null) Destroy(indicatorInstance);
+//            indicatorInstance = Instantiate(directionSpritePrefabs[index], transform.position, Quaternion.identity);
+//            currentIndicatorIndex = index;
+//        }
+
+//        indicatorInstance.SetActive(true);
+//        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+//        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+//        float offsetAngle = skillAngleOffsets.Count > index ? skillAngleOffsets[index] : 0f;
+//        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + offsetAngle);
+
+//        float dist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 0f;
+//        float backOffset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+//        Vector3 basePos = transform.position + direction * dist;
+//        Vector3 offset = -indicatorInstance.transform.up * backOffset;
+//        indicatorInstance.transform.position = basePos + offset;
+//    }
+
+//    void UpdateTeleportIndicator(Vector2 input)
+//    {
+//        int index = (int)SkillType.Teleport - 1;
+//        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
+//        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+//        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
+//        teleportTargetPosition = basePos;
+//        if (indicatorInstance == null) return;
+//        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+//        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
+//        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+//        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
+//        indicatorInstance.SetActive(true);
+//    }
+
+//    void UpdateLightningIndicator(Vector2 input)
+//    {
+//        int index = (int)SkillType.Lightning - 1;
+//        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
+//        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+//        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
+//        lightningTargetPosition = basePos;
+//        if (indicatorInstance == null) return;
+//        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+//        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
+//        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+//        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
+//        indicatorInstance.SetActive(true);
+//    }
+
+//    public void OnSkillButtonPressed()
+//    {
+//        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 1f;
+//        int currentDiceResult = DiceAnimation.currentDiceResult;
+
+//        if (indicatorInstance != null) Destroy(indicatorInstance);
+//        currentIndicatorIndex = -1;
+
+//        SkillType currentSkill = GetMappedSkillType(currentDiceResult);
+//        int prefabIndex = (int)currentSkill - 1;
+//        if (prefabIndex >= 0 && prefabIndex < directionSpritePrefabs.Count)
+//            SetupIndicator(prefabIndex);
+
+//        isTeleportMode = currentSkill == SkillType.Teleport;
+//        isLightningMode = currentSkill == SkillType.Lightning;
+//    }
+
+//    void SetupIndicator(int prefabIndex)
+//    {
+//        if (indicatorInstance != null) Destroy(indicatorInstance);
+//        if (directionSpritePrefabs.Count > prefabIndex)
+//        {
+//            indicatorInstance = Instantiate(directionSpritePrefabs[prefabIndex], transform.position, Quaternion.identity);
+//            currentIndicatorIndex = prefabIndex;
+//        }
+//    }
+
+//    public void OnSkillButtonReleased()
+//    {
+//        if (hasUsedSkill) return;
+
+//        if (joystickCanvasGroup != null)
+//            joystickCanvasGroup.alpha = 0f;
+
+//        int skillDiceValue = DiceAnimation.currentDiceResult;
+//        int effectDiceValue;
+
+//        // 세이브 주사위 사용 여부 판단
+//        if (!DiceAnimation.isRolling && DiceAnimation.hasUsedSkill)
+//        {
+//            effectDiceValue = DiceAnimation.noSkillUseCount;
+//            Debug.Log($"[세이브 주사위 사용] 부가 효과 주사위 눈금: {effectDiceValue}");
+//        }
+//        else
+//        {
+//            effectDiceValue = skillDiceValue;
+//            Debug.Log($"[일반 주사위 사용] 눈금: {effectDiceValue}");
+//        }
+
+//        // 스킬 발동은 무조건 일반 주사위 기준
+//        SkillType skill = GetMappedSkillType(skillDiceValue);
+
+//        // 실제 스킬 발동
+//        switch (skill)
+//        {
+//            case SkillType.Fireball:
+//                ShootFireball();
+//                break;
+//            case SkillType.Teleport:
+//                if (isTeleportMode)
+//                {
+//                    TeleportPlayer(teleportTargetPosition);
+//                    isTeleportMode = false;
+//                }
+//                break;
+//            case SkillType.Lightning:
+//                if (isLightningMode)
+//                {
+//                    lightningCastDirection = lastInputDirection;
+//                    CastLightning(lightningTargetPosition);
+//                    isLightningMode = false;
+//                }
+//                break;
+//            case SkillType.Windwall:
+//                SpawnWindWall();
+//                break;
+//            case SkillType.Boom:
+//                ShootBomb();
+//                break;
+//            default:
+//                Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
+//                break;
+//        }
+
+//        //// 주사위 알파 깜빡임
+//        //if (diceImage != null)
+//        //    StartCoroutine(BlinkDiceImage());
+
+//        Debug.Log("🎲 스킬 발사!!");
+
+//        hasUsedSkill = true;
+
+//        // 주사위 시각 효과 처리 (effectDiceValue 사용)
+//        GameManager.Instance.diceAnimation.ExecuteSkillEffect(effectDiceValue);
+
+//        // 주사위 정지 및 초기화
+//        GameManager.Instance.diceAnimation.OnSkillUsed();
+//    }
+
+
+//    //private IEnumerator BlinkDiceImage()
+//    //{
+//    //    diceImage.gameObject.SetActive(false);
+//    //    yield return new WaitForSeconds(0.1f);
+//    //    diceImage.gameObject.SetActive(true);
+//    //}
+
+//    private void ShootFireball()
+//    {
+//        if (fireballPrefab == null || firePoint == null) return;
+//        GameObject obj = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
+//        obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
+//        obj.GetComponent<FireballProjectile>()?.Init(lastInputDirection);
+//    }
+
+//    private void TeleportPlayer(Vector3 targetPos)
+//    {
+//        if (teleportEffectPrefab != null)
+//        {
+//            GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
+//            Destroy(effect, teleportEffectDuration);
+//        }
+//        transform.position = targetPos;
+//    }
+
+//    private void CastLightning(Vector3 targetPos)
+//    {
+//        StartCoroutine(LightningStrikeSequence(targetPos));
+//    }
+
+//    private IEnumerator LightningStrikeSequence(Vector3 targetPos)
+//    {
+//        int count = 3;
+//        float onTime = 0.2f, offTime = 0.23f;
+//        float angle = Mathf.Atan2(lightningCastDirection.y, lightningCastDirection.x) * Mathf.Rad2Deg;
 //        GameObject lightning = null;
 //        LightningDamage ld = null;
 
-//        if (lightningPrefab != null)
+//        for (int i = 0; i < count; i++)
 //        {
-//            lightning = Instantiate(lightningPrefab, fixedTargetPos, Quaternion.Euler(0f, 0f, angle));
-//            ld = lightning.GetComponent<LightningDamage>();
-//            if (ld != null) ld.Init();
-//        }
-
-//        GameObject lightningEffect = null;
-//        if (LightningEffectPrefab != null)
-//        {
-//            Vector3 startPos = fixedTargetPos + Vector3.up * 5f;
-//            lightningEffect = Instantiate(LightningEffectPrefab, startPos, Quaternion.identity);
-
-//            FallingLightningEffect fle = lightningEffect.GetComponent<FallingLightningEffect>();
-//            if (fle != null)
+//            float fallDelay = 0f;
+//            if (LightningEffectPrefab != null)
 //            {
-//                fle.targetPosition = fixedTargetPos;
+//                Vector3 start = targetPos + Vector3.up * 5f;
+//                GameObject effect = Instantiate(LightningEffectPrefab, start, Quaternion.identity);
+//                var fallScript = effect.GetComponent<FallingLightningEffect>();
+//                if (fallScript != null)
+//                {
+//                    fallScript.targetPosition = targetPos;
+//                    fallDelay = Vector3.Distance(start, targetPos) / fallScript.fallSpeed;
+//                }
 //            }
+//            yield return new WaitForSeconds(fallDelay);
+//            if (lightning == null)
+//            {
+//                lightning = Instantiate(lightningPrefab, targetPos, Quaternion.Euler(0f, 0f, angle));
+//                ld = lightning.GetComponent<LightningDamage>();
+//            }
+//            else
+//            {
+//                lightning.transform.SetPositionAndRotation(targetPos, Quaternion.Euler(0f, 0f, angle));
+//                lightning.SetActive(true);
+//            }
+//            ld?.Init();
+//            yield return new WaitForSeconds(onTime);
+//            lightning?.SetActive(false);
+//            yield return new WaitForSeconds(offTime);
 //        }
-
-//        yield return new WaitForSeconds(strikeOnDuration);
-
 //        if (lightning != null) Destroy(lightning);
-//        if (lightningEffect != null) Destroy(lightningEffect);
+//    }
 
-//        yield return new WaitForSeconds(strikeOffDuration);
+//    private void SpawnWindWall()
+//    {
+//        if (windWallPrefab == null) return;
+//        GameObject wall = Instantiate(windWallPrefab, transform.position, Quaternion.identity);
+//        wall.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
+//    }
+
+//    private void ShootBomb()
+//    {
+//        if (bombPrefab == null || firePoint == null) return;
+//        GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
+//        bomb.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
+//        bomb.GetComponent<BombProjectile>()?.Init(lastInputDirection);
 //    }
 //}

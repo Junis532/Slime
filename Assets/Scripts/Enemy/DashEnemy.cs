@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class DashEnemy : MonoBehaviour
+public class DashEnemy : EnemyBase
 {
     private bool isLive = true;
 
@@ -41,6 +41,9 @@ public class DashEnemy : MonoBehaviour
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+
+        originalSpeed = GameManager.Instance.dashEnemyStats.speed;
+        speed = originalSpeed;
 
         if (dashPreviewPrefab != null)
         {
@@ -105,10 +108,10 @@ public class DashEnemy : MonoBehaviour
                     dashPreviewInstance.SetActive(false);
             }
 
-            return;  // ← 여기서 일반 이동 안 하게 함
+            return;
         }
 
-        // 일반 이동
+        // 일반 이동에서 속도는 개별 speed 사용
         dashTimer += Time.deltaTime;
         if (dashTimer >= dashCooldown)
         {
@@ -119,7 +122,7 @@ public class DashEnemy : MonoBehaviour
         }
 
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * GameManager.Instance.dashEnemyStats.speed * Time.deltaTime;
+        Vector2 nextVec = currentDirection * speed * Time.deltaTime;  // 여기 speed 사용
         transform.Translate(nextVec);
 
         if (currentDirection.magnitude > 0.01f)
@@ -169,7 +172,7 @@ public class DashEnemy : MonoBehaviour
         {
             int damage = GameManager.Instance.dashEnemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // 플레이어 데미지 이펙트 재생
+            GameManager.Instance.playerDamaged.PlayDamageEffect();
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {

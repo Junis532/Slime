@@ -2,7 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 
-public class LongRangeEnemy : MonoBehaviour
+public class LongRangeEnemy : EnemyBase
 {
     private bool isLive = true;
     private SpriteRenderer spriter;
@@ -25,6 +25,9 @@ public class LongRangeEnemy : MonoBehaviour
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+
+        originalSpeed = GameManager.Instance.longRangeEnemyStats.speed;
+        speed = originalSpeed;
     }
 
     void Update()
@@ -55,9 +58,9 @@ public class LongRangeEnemy : MonoBehaviour
             inputVec = toPlayer.normalized;
         }
 
-        // 방향 보간 이동
+        // 방향 보간 이동, 속도는 개별 speed 사용
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * GameManager.Instance.longRangeEnemyStats.speed * Time.deltaTime;
+        Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
         // 좌우 반전
@@ -96,7 +99,6 @@ public class BulletBehavior : MonoBehaviour
     private float speed;
     private float lifeTime;
 
-    private Rigidbody2D rb;
     private float timer = 0f;
 
     public void Initialize(Vector2 dir, float spd, float lifetime)
@@ -108,19 +110,14 @@ public class BulletBehavior : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        if (rb == null)
-        {
-            rb = gameObject.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 0;
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        }
-
-        rb.linearVelocity = direction * speed;
+        // Rigidbody2D 컴포넌트 없어도 됨, 필요하면 제거 가능
     }
 
     void Update()
     {
+        // 위치 이동 (transform.Translate)
+        transform.Translate(direction * speed * Time.deltaTime);
+
         timer += Time.deltaTime;
         if (timer >= lifeTime)
         {

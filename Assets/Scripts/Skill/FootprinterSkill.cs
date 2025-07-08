@@ -1,22 +1,38 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class FootprinterSkill : MonoBehaviour
 {
-    public GameObject footprinterPrefab; // Prefab for the footprinter skill
-    public float skillDuration = 3f; // Duration for which the footprinter skill is active
-    public float fadeSpeed = 0.5f; // Speed at which the footprinter fades out
-    public float footprinterInterval = 0.3f; // Interval between footprinter placements
+    public GameObject footprinterPrefab;
+    public float skillDuration = 3f;
+    public float fadeSpeed = 0.5f;
+    public float footprinterInterval = 0.3f;
 
-    private float lastFootprinterTime = 0f; // Time when the next footprinter should be placed
-    private SpriteRenderer spriteRenderer; // Renderer for the footprinter sprite
+    private float lastFootprinterTime = 0f;
+    private SpriteRenderer spriteRenderer;
     private Color initialColor;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    // 발자국 리스트
+    private static List<GameObject> footprintList = new List<GameObject>();
+
+    // 외부 접근용: 가장 오래된 발자국 위치
+    public static Vector3 OldestFootprintPosition
+    {
+        get
+        {
+            if (footprintList.Count > 0 && footprintList[0] != null)
+                return footprintList[0].transform.position;
+            return Vector3.zero;
+        }
+    }
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            initialColor = spriteRenderer.color; // Store the initial color of the sprite
+            initialColor = spriteRenderer.color;
         }
         else
         {
@@ -24,7 +40,6 @@ public class FootprinterSkill : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Time.time - lastFootprinterTime >= footprinterInterval)
@@ -42,7 +57,7 @@ public class FootprinterSkill : MonoBehaviour
             }
             else
             {
-                Destroy(gameObject); // Destroy the GameObject when the alpha reaches 0
+                Destroy(gameObject);
             }
         }
     }
@@ -50,21 +65,25 @@ public class FootprinterSkill : MonoBehaviour
     void CreateFootprint()
     {
         GameObject footprint = Instantiate(footprinterPrefab, transform.position, Quaternion.identity);
+
+        // 리스트에 추가
+        footprintList.Add(footprint);
+
         SpriteRenderer footprintRenderer = footprint.GetComponent<SpriteRenderer>();
-
-
         PoisonDamage poison = footprint.GetComponent<PoisonDamage>();
-        if (poison != null)
-        {
-            poison.Init(); 
-        }
+        if (poison != null) poison.Init();
+        if (footprintRenderer != null) footprintRenderer.color = initialColor;
 
+        StartCoroutine(DestroyFootprintAfterDelay(footprint, skillDuration));
+    }
 
-        if (footprintRenderer != null)
-        {
-            footprintRenderer.color = initialColor;
-        }
+    IEnumerator DestroyFootprintAfterDelay(GameObject footprint, float delay)
+    {
+        yield return new WaitForSeconds(delay);
 
-        Destroy(footprint, skillDuration); // Destroy the footprint after the specified duration
+        // 리스트에서 제거
+        footprintList.Remove(footprint);
+
+        Destroy(footprint);
     }
 }

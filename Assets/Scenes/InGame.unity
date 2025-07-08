@@ -3055,6 +3055,8 @@ MonoBehaviour:
   - {fileID: 1839031708649508230, guid: aa59d32677b563e49bb50cf1079ec692, type: 3}
   - {fileID: -7590070660831232634, guid: f8737e059c2201b45aaa6b26105efa56, type: 3}
   - {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: -3253428629430836345, guid: f617990383515fb4cbd1d986504bdd76, type: 3}
+  - {fileID: 368543389579951487, guid: 51c61068380471049a070cc3180ca246, type: 3}
   resetSlots:
   - {fileID: 1864168256}
   - {fileID: 1129145708}
@@ -3377,7 +3379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &501773416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3948,7 +3950,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &603006178
 Transform:
   m_ObjectHideFlags: 0
@@ -5415,7 +5417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &774235770
 Transform:
   m_ObjectHideFlags: 0
@@ -13764,8 +13766,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 125772fa577f22c42971097edbeefae9, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 368543389579951487, guid: 51c61068380471049a070cc3180ca246, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -17296,8 +17298,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 125772fa577f22c42971097edbeefae9, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: -3253428629430836345, guid: f617990383515fb4cbd1d986504bdd76, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -20353,19 +20355,27 @@ MonoBehaviour:
   - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
   - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
   - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
   distancesFromPlayer:
   - 3.5
   - 3
   - 3
   - 0
   - 4
+  - 0
+  - 3
   spriteBackOffsets:
   - 0
   - 0
   - 0
   - 0
   - 0
+  - 0
+  - 0
   skillAngleOffsets:
+  - 0
+  - 0
   - 0
   - 0
   - 0
@@ -20379,6 +20389,7 @@ MonoBehaviour:
   teleportEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
   teleportEffectDuration: 0.3
   bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
+  mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
 --- !u!114 &1919898575
 MonoBehaviour:
   m_ObjectHideFlags: 0

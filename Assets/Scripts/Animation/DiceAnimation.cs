@@ -76,7 +76,7 @@ public class DiceAnimation : MonoBehaviour
             yield return new WaitForSeconds(frameRate);
         }
 
-        int result = Random.Range(1, 5);
+        int result = Random.Range(1, 2);
         currentDiceResult = result;
         image.sprite = diceSprites[result - 1];
 
@@ -154,7 +154,7 @@ public class DiceAnimation : MonoBehaviour
                 yield return new WaitForSeconds(frameRate);
             }
 
-            int result = Random.Range(1, 5);
+            int result = Random.Range(1, 2);
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
 

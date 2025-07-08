@@ -11,6 +11,8 @@ public enum SkillType
     Lightning = 3,
     Windwall = 4,
     Boom = 5,
+    FootprintTeleport = 6,
+    Mucus = 7,
 }
 
 public class JoystickDirectionIndicator3 : MonoBehaviour
@@ -42,6 +44,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     public GameObject bombPrefab;
 
+    public GameObject mucusProjectilePrefab;
+
     private GameObject indicatorInstance;
     private int currentIndicatorIndex = -1;
 
@@ -51,8 +55,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     private float lastInputMagnitude = 0f;
 
     private bool hasUsedSkill = false, prevIsRolling = false;
-    private bool isTeleportMode = false, isLightningMode = false;
-    private Vector3 teleportTargetPosition, lightningTargetPosition;
+    private bool isTeleportMode = false, isLightningMode = false, isMucusMode = false;
+    private Vector3 teleportTargetPosition, lightningTargetPosition, mucusTargetPosition;
     private Vector2 lightningCastDirection;
     private bool prevBlockInputActive = false;
 
@@ -90,6 +94,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             hasUsedSkill = false;
             isTeleportMode = false;
             isLightningMode = false;
+            isMucusMode = false;
             DiceAnimation.hasUsedSkill = false;
         }
         prevIsRolling = DiceAnimation.isRolling;
@@ -113,6 +118,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 UpdateTeleportIndicator(input);
             else if (currentSkill == SkillType.Lightning && isLightningMode)
                 UpdateLightningIndicator(input);
+            else if (currentSkill == SkillType.Mucus && isMucusMode)
+                UpdateMucusIndicator(input);
             else
             {
                 OnSkillButtonPressed();
@@ -146,6 +153,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         hasUsedSkill = false;
         isTeleportMode = false;
         isLightningMode = false;
+        isMucusMode = false;
         currentIndicatorIndex = -1;
 
         if (indicatorInstance != null) Destroy(indicatorInstance);
@@ -161,6 +169,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         currentIndicatorIndex = -1;
         isTeleportMode = false;
         isLightningMode = false;
+        isMucusMode = false;
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
     }
 
@@ -239,6 +248,25 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         indicatorInstance.SetActive(true);
     }
 
+    // 새로 추가한 mucus 범위 표시 및 위치 갱신 함수
+    void UpdateMucusIndicator(Vector2 input)
+    {
+        int index = (int)SkillType.Mucus - 1;
+        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
+        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
+        mucusTargetPosition = basePos;
+
+        if (indicatorInstance == null) return;
+
+        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
+        indicatorInstance.SetActive(true);
+    }
+
     public void OnSkillButtonPressed()
     {
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 1f;
@@ -254,6 +282,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         isTeleportMode = currentSkill == SkillType.Teleport;
         isLightningMode = currentSkill == SkillType.Lightning;
+        isMucusMode = currentSkill == SkillType.Mucus;
     }
 
     void SetupIndicator(int prefabIndex)
@@ -276,7 +305,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         int skillDiceValue = DiceAnimation.currentDiceResult;
         int effectDiceValue;
 
-        // 세이브 주사위 사용 여부 판단
         if (!DiceAnimation.isRolling && DiceAnimation.hasUsedSkill)
         {
             effectDiceValue = DiceAnimation.noSkillUseCount;
@@ -288,10 +316,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             Debug.Log($"[일반 주사위 사용] 눈금: {effectDiceValue}");
         }
 
-        // 스킬 발동은 무조건 일반 주사위 기준
         SkillType skill = GetMappedSkillType(skillDiceValue);
 
-        // 실제 스킬 발동
         switch (skill)
         {
             case SkillType.Fireball:
@@ -318,33 +344,27 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             case SkillType.Boom:
                 ShootBomb();
                 break;
+            case SkillType.FootprintTeleport:
+                FootprintTeleport();
+                break;
+            case SkillType.Mucus:
+                if (isMucusMode)
+                {
+                    Mucus();
+                    isMucusMode = false;
+                }
+                break;
             default:
                 Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
                 break;
         }
 
-        //// 주사위 알파 깜빡임
-        //if (diceImage != null)
-        //    StartCoroutine(BlinkDiceImage());
-
-        Debug.Log("🎲 스킬 발사!!");
-
         hasUsedSkill = true;
 
-        // 주사위 시각 효과 처리 (effectDiceValue 사용)
         GameManager.Instance.diceAnimation.ExecuteSkillEffect(effectDiceValue);
 
-        // 주사위 정지 및 초기화
         GameManager.Instance.diceAnimation.OnSkillUsed();
     }
-
-
-    //private IEnumerator BlinkDiceImage()
-    //{
-    //    diceImage.gameObject.SetActive(false);
-    //    yield return new WaitForSeconds(0.1f);
-    //    diceImage.gameObject.SetActive(true);
-    //}
 
     private void ShootFireball()
     {
@@ -424,4 +444,33 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         bomb.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
         bomb.GetComponent<BombProjectile>()?.Init(lastInputDirection);
     }
-} 
+
+    private void FootprintTeleport()
+    {
+        Vector3 targetPos = FootprinterSkill.OldestFootprintPosition;
+
+        if (targetPos == Vector3.zero)
+        {
+            Debug.LogWarning("⚠ 가장 오래된 발자국이 없어 순간이동 불가");
+            return;
+        }
+
+        if (teleportEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
+            Destroy(effect, teleportEffectDuration);
+        }
+
+        transform.position = targetPos;
+        Debug.Log($"[발자국 순간이동] 위치: {targetPos}");
+    }
+
+    private void Mucus()
+    {
+        if (mucusProjectilePrefab == null || firePoint == null) return;
+
+        GameObject obj = Instantiate(mucusProjectilePrefab, firePoint.position, Quaternion.identity);
+        obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
+        obj.GetComponent<MucusProjectile>()?.Init(mucusTargetPosition);
+    }
+}
