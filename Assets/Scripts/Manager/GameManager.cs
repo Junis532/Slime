@@ -261,7 +261,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (timer != null)
         {
-            timer.ResetTimer(10f);
+            timer.ResetTimer(60f);
         }
 
         if (shopUI != null)

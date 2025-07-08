@@ -3198,7 +3198,7 @@ MonoBehaviour:
   waitTimerText: {fileID: 1213060430}
   frameRate: 0.01
   rollDuration: 0.5
-  waitInterval: 3
+  waitInterval: 20
 --- !u!114 &492544042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3568,10 +3568,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: -0.25
     y: 0
-    width: 1
-    height: 1
+    width: 0.5
+    height: 0
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -5847,7 +5847,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 100
+  timeRemaining: 60
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -5856,7 +5856,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 846765394}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00860211c61d8cd46afd5cfffcf661f7, type: 3}
   m_Name: 
@@ -20458,7 +20458,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1919898548}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11c3e4fb8b37d7a40b0a0e14f5aa7535, type: 3}
   m_Name: 
