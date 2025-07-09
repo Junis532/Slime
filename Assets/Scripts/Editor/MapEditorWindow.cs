@@ -10,14 +10,13 @@ public class LayeredMapEditorWindow : EditorWindow
     private List<GameObject> groundPrefabs = new List<GameObject>();
     private GameObject selectedPrefab;
 
-    private int defaultPrefabIndex = 0;  // 인덱스로 기본 프리팹 관리
+    private int defaultPrefabIndex = 0;
     private string mapName = "NewMap";
     private int gridWidth = 20;
     private int gridHeight = 20;
     private float tileSize = 1f;
     private Vector2 scrollPos;
-
-    private Vector2 gridScrollPos = Vector2.zero;
+    private Vector2 fullScroll = Vector2.zero;
 
     private Dictionary<Vector2Int, Dictionary<string, GameObject>> virtualMap = new();
     private string[] layers = new[] { "Ground", "Structure", "Decoration" };
@@ -28,6 +27,8 @@ public class LayeredMapEditorWindow : EditorWindow
         { "Structure", Color.cyan },
         { "Decoration", Color.magenta }
     };
+
+    private bool isMouseDragging = false;
 
     [MenuItem("Tools/Layered Map Editor")]
     public static void ShowWindow()
@@ -55,7 +56,6 @@ public class LayeredMapEditorWindow : EditorWindow
         virtualMap.Clear();
 
         if (groundPrefabs.Count == 0) return;
-
         GameObject defaultPrefab = groundPrefabs[defaultPrefabIndex];
 
         for (int y = 0; y < gridHeight; y++)
@@ -71,6 +71,8 @@ public class LayeredMapEditorWindow : EditorWindow
 
     private void OnGUI()
     {
+        fullScroll = EditorGUILayout.BeginScrollView(fullScroll);
+
         GUILayout.Label("맵 설정", EditorStyles.boldLabel);
 
         mapName = EditorGUILayout.TextField("맵 이름", mapName);
@@ -87,8 +89,8 @@ public class LayeredMapEditorWindow : EditorWindow
         }
 
         GUILayout.Space(10);
+        GUILayout.Label("기본 프리팹 선택", EditorStyles.boldLabel);
 
-        GUILayout.Label("Default Prefab (기본 프리팹 선택)", EditorStyles.boldLabel);
         if (groundPrefabs.Count == 0)
         {
             EditorGUILayout.HelpBox("Resources/GROUND 폴더에 프리팹이 없습니다.", MessageType.Warning);
@@ -97,9 +99,7 @@ public class LayeredMapEditorWindow : EditorWindow
         {
             string[] prefabNames = new string[groundPrefabs.Count];
             for (int i = 0; i < groundPrefabs.Count; i++)
-            {
                 prefabNames[i] = groundPrefabs[i].name;
-            }
 
             int newDefaultIndex = EditorGUILayout.Popup(defaultPrefabIndex, prefabNames);
             if (newDefaultIndex != defaultPrefabIndex)
@@ -133,23 +133,22 @@ public class LayeredMapEditorWindow : EditorWindow
         {
             ApplyToSceneAndSave();
         }
-    }
 
-    // DrawGridUI, ApplyToSceneAndSave 등 나머지 함수는 그대로 유지
-    // ... (생략, 위에서 작성한 그대로 사용)
+        EditorGUILayout.EndScrollView();
+    }
 
     private void DrawGridUI()
     {
-        float cellSize = 32f;
+        float cellSize = 48f;
         float totalGridHeight = gridHeight * cellSize;
         float totalGridWidth = gridWidth * cellSize;
-
-        float viewHeight = 300f;
-        gridScrollPos = GUILayout.BeginScrollView(gridScrollPos, GUILayout.Height(viewHeight));
 
         Rect gridRect = GUILayoutUtility.GetRect(totalGridWidth, totalGridHeight);
         Vector2 start = gridRect.position;
         Vector2 mousePos = Event.current.mousePosition;
+        Event e = Event.current;
+
+        if (e.type == EventType.MouseUp) isMouseDragging = false;
 
         for (int y = gridHeight - 1; y >= 0; y--)
         {
@@ -203,34 +202,41 @@ public class LayeredMapEditorWindow : EditorWindow
 
                 GUI.Box(cellRect, GUIContent.none);
 
-                Event e = Event.current;
                 if (e.type == EventType.MouseDown && cellRect.Contains(mousePos))
                 {
-                    if (e.button == 0 && selectedPrefab != null)
+                    isMouseDragging = true;
+                    PlaceTile(pos);
+                    e.Use();
+                }
+                else if (e.type == EventType.MouseDrag && isMouseDragging && cellRect.Contains(mousePos))
+                {
+                    PlaceTile(pos);
+                    e.Use();
+                }
+                else if (e.type == EventType.MouseDown && e.button == 1 && cellRect.Contains(mousePos))
+                {
+                    if (virtualMap.ContainsKey(pos) && virtualMap[pos].ContainsKey(layers[selectedLayerIndex]))
                     {
-                        if (!virtualMap.ContainsKey(pos))
-                            virtualMap[pos] = new Dictionary<string, GameObject>();
-
-                        virtualMap[pos][layers[selectedLayerIndex]] = selectedPrefab;
+                        virtualMap[pos].Remove(layers[selectedLayerIndex]);
+                        if (virtualMap[pos].Count == 0)
+                            virtualMap.Remove(pos);
                         Repaint();
                         e.Use();
-                    }
-                    else if (e.button == 1)
-                    {
-                        if (virtualMap.ContainsKey(pos) && virtualMap[pos].ContainsKey(layers[selectedLayerIndex]))
-                        {
-                            virtualMap[pos].Remove(layers[selectedLayerIndex]);
-                            if (virtualMap[pos].Count == 0)
-                                virtualMap.Remove(pos);
-                            Repaint();
-                            e.Use();
-                        }
                     }
                 }
             }
         }
+    }
 
-        GUILayout.EndScrollView();
+    private void PlaceTile(Vector2Int pos)
+    {
+        if (selectedPrefab == null) return;
+
+        if (!virtualMap.ContainsKey(pos))
+            virtualMap[pos] = new Dictionary<string, GameObject>();
+
+        virtualMap[pos][layers[selectedLayerIndex]] = selectedPrefab;
+        Repaint();
     }
 
     private void ApplyToSceneAndSave()
@@ -258,14 +264,16 @@ public class LayeredMapEditorWindow : EditorWindow
                 instance.transform.position = new Vector3(pos.x * tileSize, pos.y * tileSize, GetZFromLayer(layer));
                 instance.name = $"{layer}_{prefab.name}_{pos.x}_{pos.y}";
 
+                // 콜라이더에 isTrigger 적용
+                foreach (var col in instance.GetComponents<Collider2D>())
+                {
+                    col.isTrigger = true;
+                }
+
                 if (layerParents.TryGetValue(layer, out GameObject parentObj))
-                {
                     instance.transform.parent = parentObj.transform;
-                }
                 else
-                {
                     instance.transform.parent = mapRoot.transform;
-                }
             }
         }
 

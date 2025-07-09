@@ -12,7 +12,7 @@ public class PlayerWall : MonoBehaviour
         wallCollider = GetComponent<Collider2D>();
         if (playerCollider == null)
         {
-            Debug.LogError("Player collider not assigned!");
+            playerCollider = GameObject.Find("Player").GetComponent<Collider2D>();
         }
     }
 
