@@ -1,44 +1,31 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("½ºÆù °¡´ÉÇÑ Àû Á¾·ù")]
+    [Header("ìŠ¤í° ê°€ëŠ¥í•œ ì  ì¢…ë¥˜")]
     public List<GameObject> enemyPrefabs = new List<GameObject>();
 
-    [Header("°æ°í ÀÌÆåÆ®")]
+    [Header("ê²½ê³  ì´í™íŠ¸")]
     public GameObject warningEffectPrefab;
 
-    [Header("½ºÆù ÁÖ±â")]
-    public float spawnInterval = 3f;
-
-    [Header("½ºÆù ¹üÀ§ (¿øÇü ¹İ°æ)")]
+    [Header("ìŠ¤í° ë²”ìœ„ (ì›í˜• ë°˜ê²½)")]
     public float spawnRadius = 3f;
 
-    [Header("ÇÑ ±×·ì´ç ½ºÆù °³¼ö")]
+    [Header("í•œ ê·¸ë£¹ë‹¹ ìŠ¤í° ê°œìˆ˜")]
     public int minSpawnCount = 3;
     public int maxSpawnCount = 6;
 
-    [Header("½ºÆù µô·¹ÀÌ")]
-    public float warningDuration = 1.5f; // °æ°í ÀÌ¹ÌÁö°¡ ±ôºıÀÌ´Â ½Ã°£
+    [Header("ìŠ¤í° ë”œë ˆì´")]
+    public float warningDuration = 1.5f; // ê²½ê³  ì´ë¯¸ì§€ê°€ ê¹œë¹¡ì´ëŠ” ì‹œê°„
 
     private Coroutine spawnCoroutine;
-
-    IEnumerator SpawnEnemyRoutine()
-    {
-        while (true)
-        {
-            yield return SpawnEnemyGroupWithWarning();
-            yield return new WaitForSeconds(spawnInterval);
-        }
-    }
 
     IEnumerator SpawnEnemyGroupWithWarning()
     {
         int spawnCount = Random.Range(minSpawnCount, maxSpawnCount + 1);
-
         List<Vector2> spawnPositions = new List<Vector2>();
 
         for (int i = 0; i < spawnCount; i++)
@@ -48,32 +35,34 @@ public class EnemySpawner : MonoBehaviour
 
             GameObject warning = Instantiate(warningEffectPrefab, randomPos, Quaternion.identity);
             SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-            sr.color = new Color(1, 0, 0, 0); // Åõ¸íÇÏ°Ô ½ÃÀÛ
+            sr.color = new Color(1, 0, 0, 0); // íˆ¬ëª…í•˜ê²Œ ì‹œì‘
 
-            // DOTween ¾ËÆÄ ¹İº¹ ¾Ö´Ï¸ŞÀÌ¼Ç
             sr.DOFade(1f, 0.3f)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutQuad);
 
-            // ÀÏÁ¤ ½Ã°£ ÈÄ »èÁ¦
             Destroy(warning, warningDuration);
         }
 
         yield return new WaitForSeconds(warningDuration);
 
-        // °æ°í ÈÄ ½ÇÁ¦ Àû ½ºÆù
         foreach (Vector2 pos in spawnPositions)
         {
             GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
             Instantiate(enemyPrefab, pos, Quaternion.identity);
         }
+
+        spawnCoroutine = null;
+
+        // âœ… ìŠ¤í° í›„ ìŠ¤í¬ë„ˆ ì˜¤ë¸Œì íŠ¸ ì‚­ì œ
+        Destroy(gameObject);
     }
 
     public void StartSpawning()
     {
         if (spawnCoroutine == null)
         {
-            spawnCoroutine = StartCoroutine(SpawnEnemyRoutine());
+            spawnCoroutine = StartCoroutine(SpawnEnemyGroupWithWarning());
         }
     }
 

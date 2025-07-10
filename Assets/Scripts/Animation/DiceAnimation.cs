@@ -9,11 +9,11 @@ public class DiceAnimation : MonoBehaviour
     [Header("주사위 이미지 (0~3 인덱스: 1~4 숫자에 대응)")]
     public List<Sprite> diceSprites;
 
-    [Header("저장용 주사위 이미지 (noSkillUseCount에 대응)")]
-    public List<Sprite> saveDiceSpritesByNoSkillCount;
+    //[Header("저장용 주사위 이미지 (noSkillUseCount에 대응)")]
+    //public List<Sprite> saveDiceSpritesByNoSkillCount;
 
-    [Header("저장용 주사위 이미지 표시 UI")]
-    public Image saveDiceImage;
+    //[Header("저장용 주사위 이미지 표시 UI")]
+    //public Image saveDiceImage;
 
     [Header("스킬 UI 이미지 슬롯 (1~4)")]
     public List<Image> skillSlotImages;
@@ -25,8 +25,8 @@ public class DiceAnimation : MonoBehaviour
     [Header("스킬 이미지 표시용 UI")]
     public Image skillImage;
 
-    [Header("스킬 저장 버튼")]
-    public Button skillSaveButton;
+    //[Header("스킬 저장 버튼")]
+    //public Button skillSaveButton;
 
     [Header("대기 시간 표시용 텍스트")]
     public TMP_Text waitTimerText;
@@ -49,7 +49,7 @@ public class DiceAnimation : MonoBehaviour
         image = GetComponent<Image>();
         RollOnceAtStart();
         UpdateSkillImage();
-        UpdateSaveDiceImageByNoSkillCount();
+        //UpdateSaveDiceImageByNoSkillCount();
         if (waitTimerText != null)
             waitTimerText.text = "";
     }
@@ -76,12 +76,12 @@ public class DiceAnimation : MonoBehaviour
             yield return new WaitForSeconds(frameRate);
         }
 
-        int result = Random.Range(1, 2);
+        int result = Random.Range(1, 5);
         currentDiceResult = result;
         image.sprite = diceSprites[result - 1];
 
         UpdateSkillImage();
-        UpdateSaveDiceImageByNoSkillCount();
+        //UpdateSaveDiceImageByNoSkillCount();
         isRolling = false;
         if (waitTimerText != null)
             waitTimerText.text = "";
@@ -96,18 +96,18 @@ public class DiceAnimation : MonoBehaviour
         }
     }
 
-    void UpdateSaveDiceImageByNoSkillCount()
-    {
-        if (saveDiceImage != null && noSkillUseCount > 0 && noSkillUseCount <= saveDiceSpritesByNoSkillCount.Count)
-        {
-            saveDiceImage.sprite = saveDiceSpritesByNoSkillCount[noSkillUseCount - 1];
-            saveDiceImage.enabled = true;
-        }
-        else if (saveDiceImage != null)
-        {
-            saveDiceImage.enabled = false;
-        }
-    }
+    //void UpdateSaveDiceImageByNoSkillCount()
+    //{
+    //    if (saveDiceImage != null && noSkillUseCount > 0 && noSkillUseCount <= saveDiceSpritesByNoSkillCount.Count)
+    //    {
+    //        saveDiceImage.sprite = saveDiceSpritesByNoSkillCount[noSkillUseCount - 1];
+    //        saveDiceImage.enabled = true;
+    //    }
+    //    else if (saveDiceImage != null)
+    //    {
+    //        saveDiceImage.enabled = false;
+    //    }
+    //}
 
     public void StartRollingLoop()
     {
@@ -154,7 +154,7 @@ public class DiceAnimation : MonoBehaviour
                 yield return new WaitForSeconds(frameRate);
             }
 
-            int result = Random.Range(1, 2);
+            int result = Random.Range(1, 5);
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
 
@@ -165,7 +165,7 @@ public class DiceAnimation : MonoBehaviour
                 noSkillUseCount = Mathf.Min(noSkillUseCount + 1, 4);
             }
 
-            UpdateSaveDiceImageByNoSkillCount();
+            //UpdateSaveDiceImageByNoSkillCount();
             isRolling = false;
 
             if (waitTimerText != null)
@@ -180,6 +180,7 @@ public class DiceAnimation : MonoBehaviour
         {
             case 1:
                 Debug.Log("⭐ 효과: 약한 이펙트 발동");
+                waitInterval = 5f;
                 break;
             case 2:
                 Debug.Log("⭐ 효과: 중간 강도의 이펙트 발동");
@@ -202,8 +203,8 @@ public class DiceAnimation : MonoBehaviour
     {
         hasUsedSkill = true;
 
-        if (skillSaveButton != null)
-            skillSaveButton.gameObject.SetActive(false);
+        //if (skillSaveButton != null)
+        //    skillSaveButton.gameObject.SetActive(false);
 
         if (rollCoroutine != null)
         {
@@ -220,17 +221,22 @@ public class DiceAnimation : MonoBehaviour
     {
         hasUsedSkill = false;
 
-        if (skillSaveButton != null && !skillSaveButton.gameObject.activeSelf)
+        //if (skillSaveButton != null && !skillSaveButton.gameObject.activeSelf)
+        //{
+        //    noSkillUseCount = 0;
+        //}
+
+        //if (skillSaveButton != null)
+        //    skillSaveButton.gameObject.SetActive(true);
+
+        // 주사위 쿨타임 초기화를 위해 기존 코루틴을 정지하고 새로 시작
+        if (rollCoroutine != null)
         {
-            noSkillUseCount = 0;
+            StopCoroutine(rollCoroutine);
+            rollCoroutine = null;
         }
 
-        if (skillSaveButton != null)
-            skillSaveButton.gameObject.SetActive(true);
-
-        if (rollCoroutine == null)
-        {
-            StartRollingLoop();
-        }
+        rollCoroutine = StartCoroutine(RollingLoopRoutine()); // 쿨타임 즉시 재시작
     }
+
 }
