@@ -3198,7 +3198,7 @@ MonoBehaviour:
   waitTimerText: {fileID: 1213060430}
   frameRate: 0.01
   rollDuration: 0.5
-  waitInterval: 20
+  waitInterval: 3
 --- !u!114 &492544042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5847,7 +5847,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 60
+  timeRemaining: 100
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -5856,7 +5856,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 846765394}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00860211c61d8cd46afd5cfffcf661f7, type: 3}
   m_Name: 
@@ -20458,7 +20458,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1919898548}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11c3e4fb8b37d7a40b0a0e14f5aa7535, type: 3}
   m_Name: 

@@ -76,7 +76,7 @@ public class DiceAnimation : MonoBehaviour
             yield return new WaitForSeconds(frameRate);
         }
 
-        int result = Random.Range(1, 5);
+        int result = Random.Range(1, 2);
         currentDiceResult = result;
         image.sprite = diceSprites[result - 1];
 
@@ -154,7 +154,7 @@ public class DiceAnimation : MonoBehaviour
                 yield return new WaitForSeconds(frameRate);
             }
 
-            int result = Random.Range(1, 5);
+            int result = Random.Range(1, 2);
             currentDiceResult = result;
             image.sprite = diceSprites[result - 1];
 
@@ -228,14 +228,9 @@ public class DiceAnimation : MonoBehaviour
         if (skillSaveButton != null)
             skillSaveButton.gameObject.SetActive(true);
 
-        // 주사위 쿨타임 초기화를 위해 기존 코루틴을 정지하고 새로 시작
-        if (rollCoroutine != null)
+        if (rollCoroutine == null)
         {
-            StopCoroutine(rollCoroutine);
-            rollCoroutine = null;
+            StartRollingLoop();
         }
-
-        rollCoroutine = StartCoroutine(RollingLoopRoutine()); // 쿨타임 즉시 재시작
     }
-
 }
