@@ -15,9 +15,15 @@ GameObject:
   - component: {fileID: 1713953795467074080}
   - component: {fileID: 5340294572256895649}
   - component: {fileID: 5888740913974979812}
+  - component: {fileID: 596596526947038125}
   - component: {fileID: 1736361453566371062}
   - component: {fileID: 8846341094312032618}
-  - component: {fileID: 2694747701404958588}
+  - component: {fileID: 977684244640882011}
+  - component: {fileID: 5541766964541958170}
+  - component: {fileID: 6045572874715174237}
+  - component: {fileID: 2574320177181981338}
+  - component: {fileID: 3569891383239720541}
+  - component: {fileID: 7348652413250357216}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -35,7 +41,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,8 +89,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
-  m_Sprite: {fileID: -7078261816480267791, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
+  m_SortingOrder: 4
+  m_Sprite: {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -137,9 +143,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e4fc2bd8432a948b791f570854d414, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joystick: {fileID: 0}
   inputVec: {x: 0, y: 0}
   smoothTime: 0.1
+  canMove: 1
+  joystick: {fileID: 0}
 --- !u!114 &1713953795467074080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +221,21 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 4.005
+  m_Radius: 0.13
+--- !u!114 &596596526947038125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27745e7bfefdb6c45bd5c1f4005d44c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hpSlider: {fileID: 0}
+  hpText: {fileID: 0}
 --- !u!114 &1736361453566371062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,28 +261,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleSprites:
-  - {fileID: -7078261816480267791, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: -3938910030919452613, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: -99518741711876278, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: 2186122089364987773, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: -8839626087033448230, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: 8474644945731991183, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
-  - {fileID: -3195334159281410377, guid: bfeede70efd14484683f5956b4f1194b, type: 3}
+  - {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: -6015076115631128014, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: -3126225356833462703, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: 4757211523733148363, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: 4169622859758817906, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: -1130083785902081503, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: 4096342191472955793, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: 5847738791911658271, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: -3080028064676090369, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
   moveSprites:
-  - {fileID: -312629749974274740, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -6604357783511395730, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: 5135555786090190422, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -5984103662035008511, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: 3922437313417285677, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: 4949370408667167521, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: 1666675360449750814, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -2200570046973972164, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -4833481169714461501, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -5853888887820446031, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  - {fileID: -90551785473829027, guid: 8f368c76f206e9d419a367e6293a9061, type: 3}
-  frameRate: 0.1
+  - {fileID: -9095196822728518287, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: 2270236354037247264, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: 7751722143754526998, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: -243147324809725674, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: -4882477217233123295, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: 31893863579762109, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: -8022918409455177333, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: -3233113612691947321, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: -204673466843399005, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: 1921087515718519626, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  frameRate: 0.05
   currentState: 0
---- !u!114 &2694747701404958588
+--- !u!114 &977684244640882011
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -270,10 +292,128 @@ MonoBehaviour:
   m_GameObject: {fileID: 7565043655989499910}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39f071fed74a18545a31546f71a03c64, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d702d46179dd7c468ef9b10e6062bc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   joystick: {fileID: 0}
-  directionSpritePrefab: {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
-  distanceFromPlayer: 0
-  spriteBackOffset: 0
+  joystickCanvasGroup: {fileID: 0}
+  imageToHideWhenTouching: {fileID: 0}
+  diceImage: {fileID: 0}
+  blockInputCanvas: {fileID: 0}
+  skillSaveButton: {fileID: 0}
+  directionSpritePrefabs:
+  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
+  - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
+  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  distancesFromPlayer:
+  - 3.5
+  - 3
+  - 3
+  - 0
+  - 4
+  - 0
+  - 3
+  spriteBackOffsets:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  skillAngleOffsets:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  fireballPrefab: {fileID: 4385281220721116477, guid: 863ef348d239128419786a5d6959f4d0, type: 3}
+  firePoint: {fileID: 8740702165785062773}
+  lightningPrefab: {fileID: 5656251726587522849, guid: aac6e8907f75be642b794a01b6c0cc95, type: 3}
+  LightningEffectPrefab: {fileID: 1740983629059790656, guid: 9d52fa2380601d1428d642d0633462bf, type: 3}
+  windWallPrefab: {fileID: 4984258308688839241, guid: 7bbdd67a7ae301646b15b6ca3545a2ea, type: 3}
+  teleportEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
+  teleportEffectDuration: 0.3
+  bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
+  mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
+--- !u!114 &5541766964541958170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619829d60de9f4747b7102aadf18b04c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meteorPrefab: {fileID: 5283290416322402650, guid: 3dbd5412926796948bf177b39392e5b6, type: 3}
+  meteorCount: 1
+  baseOrbitRadius: 1
+  rotationSpeed: 100
+--- !u!114 &6045572874715174237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68ef21ade7aef75499e3571045be0e1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2574320177181981338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24ef6bdd1af440e4a905f52edfd26343, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathPanel: {fileID: 0}
+  deathCanvasGroup: {fileID: 0}
+--- !u!114 &3569891383239720541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11c3e4fb8b37d7a40b0a0e14f5aa7535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footprinterPrefab: {fileID: 2485792175993486139, guid: e18122252be164b49bf366d949aded8e, type: 3}
+  skillDuration: 3
+  fadeSpeed: 0.5
+  footprinterInterval: 0.1
+--- !u!114 &7348652413250357216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0fc4a399b7511542b344f1e23db4996, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  piecePrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
+  pieceCount: 1
+  radius: 2
+  jumpPower: 0.5
+  jumpDuration: 0.5

@@ -11,7 +11,7 @@ public class ShopManager : MonoBehaviour
     [Header("아이템 데이터")]
     public List<ItemStats> allItems;
 
-    [Header("UI 슬롯 (6개)")]
+    [Header("UI 슬롯 (3개)")]
     public List<GameObject> itemSlots;
 
     [Header("버튼")]
@@ -188,13 +188,49 @@ public class ShopManager : MonoBehaviour
                 spawner.bulletCount += 1;
             }
         }
+        else if (item == GameManager.Instance.itemStats7)
+        {
+            Debug.Log("[Shop] FootprinterSkill 활성화 시도");
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                Debug.Log("[Shop] 플레이어 오브젝트 찾음");
+
+                var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
+                if (footprinterSkill != null)
+                {
+                    Debug.Log("[Shop] FootprinterSkill 컴포넌트 찾음. 활성화 시도");
+
+                    if (!footprinterSkill.enabled)
+                    {
+                        footprinterSkill.enabled = true;
+                        Debug.Log("[Shop] FootprinterSkill 활성화 완료");
+                    }
+                    else
+                    {
+                        Debug.Log("[Shop] 이미 활성화됨");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[Shop] FootprinterSkill 컴포넌트를 Player에서 찾지 못했어요");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[Shop] Player 오브젝트를 못 찾음");
+            }
+        }
+
+
+
 
         // 구매 후 모든 버튼 비활성화 (모두 비활성화)
         foreach (GameObject slot in itemSlots)
-        {
-            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-            buyBtn.interactable = false;
-        }
+            {
+                Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+                buyBtn.interactable = false;
+            }
 
         UpdateRerollButtonState();
         UpdateBuyButtonStates();

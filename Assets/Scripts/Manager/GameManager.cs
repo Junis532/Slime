@@ -22,6 +22,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats itemStats4;
     public ItemStats itemStats5;
     public ItemStats itemStats6;
+    public ItemStats itemStats7;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -46,19 +47,25 @@ public class GameManager : MonoSingleTone<GameManager>
 
     private enum GameState
     {
-        Idle,
-        Start,
+        Lobby,
         Game,
         Shop,
         End,
         Clear
     }
 
-    private GameState currentState = GameState.Idle;
+    private GameState currentState = GameState.Lobby;
     public string CurrentState => currentState.ToString();
 
     protected new void Awake()
     {
+        // 중복 GameManager 방지
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         base.Awake();
 
         if (timer == null)
@@ -71,7 +78,18 @@ public class GameManager : MonoSingleTone<GameManager>
 
     private void Start()
     {
-        ChangeStateToGame();
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "Lobby") // 로비 씬일 경우
+        {
+            ChangeStateToIdle();
+            return;
+        }
+        else if (sceneName == "InGame") // 게임 씬일 경우
+        {
+            ChangeStateToGame();
+        }
+
         playerStats.ResetStats();
         enemyStats.ResetStats();
         dashEnemyStats.ResetStats();
@@ -202,16 +220,8 @@ public class GameManager : MonoSingleTone<GameManager>
 
     public void ChangeStateToIdle()
     {
-        currentState = GameState.Idle;
-        Debug.Log("상태: Idle - 게임 대기 중");
-        Time.timeScale = 1f;
-        if (shopUI != null) shopUI.SetActive(false);
-    }
-
-    public void ChangeStateToStart()
-    {
-        currentState = GameState.Start;
-        Debug.Log("상태: Start - 게임 준비 중");
+        currentState = GameState.Lobby;
+        Debug.Log("상태: Lobby - 게임 대기 중");
         Time.timeScale = 1f;
         if (shopUI != null) shopUI.SetActive(false);
     }
@@ -325,8 +335,7 @@ public class GameManager : MonoSingleTone<GameManager>
         if (shopUI != null) shopUI.SetActive(false);
     }
 
-    public bool IsIdle() => currentState == GameState.Idle;
-    public bool IsStart() => currentState == GameState.Start;
+    public bool IsIdle() => currentState == GameState.Lobby;
     public bool IsGame() => currentState == GameState.Game;
     public bool IsShop() => currentState == GameState.Shop;
     public bool IsEnd() => currentState == GameState.End;

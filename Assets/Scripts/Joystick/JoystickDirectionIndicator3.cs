@@ -13,6 +13,7 @@ public enum SkillType
     Boom = 5,
     FootprintTeleport = 6,
     Mucus = 7,
+    PoisonGas = 8
 }
 
 public class JoystickDirectionIndicator3 : MonoBehaviour
@@ -354,6 +355,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                     isMucusMode = false;
                 }
                 break;
+            case SkillType.PoisonGas:
+                PoisonGas();
+            break;
             default:
                 Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
                 break;
@@ -473,4 +477,33 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
         obj.GetComponent<MucusProjectile>()?.Init(mucusTargetPosition);
     }
+
+    private void PoisonGas()
+    {
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null) return;
+
+
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+        {
+            var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
+            if (footprinterSkill != null)
+            {
+                if (footprinterSkill.enabled == false)
+                {
+                    Debug.LogWarning("⚠ FootprinterSkill이 비활성화되어 있어 Poison Gas 모드 활성화 불가");
+                    return;
+                }
+            }
+        }
+
+        FootprinterSkill fp = player.GetComponent<FootprinterSkill>();
+        if (fp != null)
+        {
+            fp.ActivatePoisonGasMode(10f);
+            
+        }
+    }
+
 }
