@@ -74,15 +74,6 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        // 여기서는 현재 WaveData가 가진 spawnerGroupPrefabs 리스트를
-        // spawnerCount만큼 플레이어 주변에 생성하는 작업으로 변경
-
-        //// 기존에 있는 스포너들은 모두 삭제하거나 관리 필요 (간단하게 삭제)
-        //foreach (var existingSpawner in GameObject.FindGameObjectsWithTag("EnemySpawner"))
-        //{
-        //    Destroy(existingSpawner);
-        //}
-
         // spawnerCount 수만큼 생성
         for (int i = 0; i < spawnerCount; i++)
         {
@@ -95,12 +86,23 @@ public class WaveManager : MonoBehaviour
             GameObject selectedPrefab = currentWaveData.spawnerGroupPrefabs[Random.Range(0, currentWaveData.spawnerGroupPrefabs.Count)];
             GameObject spawnerObj = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
 
-            // EnemySpawner 컴포넌트 찾아서 스폰 시작
-            EnemySpawner spawner = spawnerObj.GetComponent<EnemySpawner>();
-            if (spawner != null)
-                spawner.StartSpawning();
+            // 자식 포함하여 EnemySpawner 전부 찾기
+            EnemySpawner[] spawners = spawnerObj.GetComponentsInChildren<EnemySpawner>();
+            if (spawners.Length > 0)
+            {
+                foreach (var spawner in spawners)
+                {
+                    spawner.StartSpawning();
+                    Debug.Log($"[WaveManager] EnemySpawner 시작됨: {spawner.name}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[WaveManager] EnemySpawner를 찾을 수 없음. 프리팹 이름: {spawnerObj.name}");
+            }
         }
     }
+
 
     void UpdateEnemyHP()
     {
@@ -137,7 +139,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    void StartSpawnLoop()
+    public void StartSpawnLoop()
     {
         if (spawnCoroutine == null)
         {
@@ -145,7 +147,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    void StopSpawnLoop()
+    public void StopSpawnLoop()
     {
         if (spawnCoroutine != null)
         {

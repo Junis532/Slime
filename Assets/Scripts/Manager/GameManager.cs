@@ -223,14 +223,16 @@ public class GameManager : MonoSingleTone<GameManager>
 
         diceAnimation.StartRollingLoop();
 
-        if (spawnerManager != null)
-        {
-            // 코루틴으로 자동 반복 스폰 시작
-            // SpawnSpawnersAroundPlayer()를 일정 주기로 반복 호출
-            // 이미 SpawnerManager 내부에서 StartCoroutine이 Start()에서 자동 실행되므로 따로 호출 안해도 됨
-            // 만약 수동 시작 필요하면 아래 주석 해제:
-            spawnerManager.StartCoroutine("SpawnerLoopRoutine");
-        }
+        //if (spawnerManager != null)
+        //{
+        //    // 코루틴으로 자동 반복 스폰 시작
+        //    // SpawnSpawnersAroundPlayer()를 일정 주기로 반복 호출
+        //    // 이미 SpawnerManager 내부에서 StartCoroutine이 Start()에서 자동 실행되므로 따로 호출 안해도 됨
+        //    // 만약 수동 시작 필요하면 아래 주석 해제:
+        //    spawnerManager.StartCoroutine("SpawnerLoopRoutine");
+        //}
+
+        waveManager.StartSpawnLoop();
 
 
         //EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
@@ -267,6 +269,8 @@ public class GameManager : MonoSingleTone<GameManager>
         DialogManager.Instance.StartShopDialog();
 
         diceAnimation.StopRollingLoop();
+
+        waveManager.StopSpawnLoop();
 
         shopManager.FirstRerollItems();
 
