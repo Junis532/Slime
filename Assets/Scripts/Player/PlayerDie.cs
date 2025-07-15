@@ -19,7 +19,7 @@ public class PlayerDie : MonoBehaviour
         }
     }
 
-    void PlayDeathSequence()
+    public void PlayDeathSequence()
     {
         Sequence deathSequence = DOTween.Sequence();
 

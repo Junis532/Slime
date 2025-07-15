@@ -70,12 +70,17 @@ public class GroundPrefabCreator : EditorWindow
         GameObject go = new GameObject(sprite.name);
         SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
+        renderer.drawMode = SpriteDrawMode.Simple;
 
+        // 스프라이트 고유 크기 적용
+        float widthInUnits = sprite.rect.width / sprite.pixelsPerUnit;
+        float heightInUnits = sprite.rect.height / sprite.pixelsPerUnit;
+        go.transform.localScale = new Vector3(widthInUnits, heightInUnits, 1f);
+
+        // Collider & Rigidbody2D
         BoxCollider2D bx = go.AddComponent<BoxCollider2D>();
         bx.isTrigger = true;
-        
 
-        // Rigidbody2D 추가 및 isTrigger 설정
         Rigidbody2D rb = go.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Static;
         rb.simulated = true;
@@ -86,6 +91,7 @@ public class GroundPrefabCreator : EditorWindow
         rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
+        // 스크립트 추가
         foreach (var script in scripts)
         {
             if (script == null) continue;
@@ -96,6 +102,7 @@ public class GroundPrefabCreator : EditorWindow
 
         if (!string.IsNullOrEmpty(tag)) go.tag = tag;
 
+        // 저장
         string path = "Assets/Resources/GROUND/";
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 

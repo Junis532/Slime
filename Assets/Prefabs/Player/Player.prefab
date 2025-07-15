@@ -19,9 +19,9 @@ GameObject:
   - component: {fileID: 1736361453566371062}
   - component: {fileID: 8846341094312032618}
   - component: {fileID: 977684244640882011}
-  - component: {fileID: 5541766964541958170}
   - component: {fileID: 6045572874715174237}
   - component: {fileID: 2574320177181981338}
+  - component: {fileID: 5541766964541958170}
   - component: {fileID: 3569891383239720541}
   - component: {fileID: 7348652413250357216}
   m_Layer: 0
@@ -309,6 +309,7 @@ MonoBehaviour:
   - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
   distancesFromPlayer:
   - 3.5
   - 3
@@ -317,6 +318,7 @@ MonoBehaviour:
   - 4
   - 0
   - 3
+  - 0
   spriteBackOffsets:
   - 0
   - 0
@@ -325,7 +327,9 @@ MonoBehaviour:
   - 0
   - 0
   - 0
+  - 0
   skillAngleOffsets:
+  - 0
   - 0
   - 0
   - 0
@@ -342,22 +346,6 @@ MonoBehaviour:
   teleportEffectDuration: 0.3
   bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
   mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
---- !u!114 &5541766964541958170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7565043655989499910}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 619829d60de9f4747b7102aadf18b04c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meteorPrefab: {fileID: 5283290416322402650, guid: 3dbd5412926796948bf177b39392e5b6, type: 3}
-  meteorCount: 1
-  baseOrbitRadius: 1
-  rotationSpeed: 100
 --- !u!114 &6045572874715174237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,6 +372,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathPanel: {fileID: 0}
   deathCanvasGroup: {fileID: 0}
+--- !u!114 &5541766964541958170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619829d60de9f4747b7102aadf18b04c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meteorPrefab: {fileID: 5283290416322402650, guid: 3dbd5412926796948bf177b39392e5b6, type: 3}
+  meteorCount: 1
+  baseOrbitRadius: 1
+  rotationSpeed: 100
 --- !u!114 &3569891383239720541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,9 +401,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   footprinterPrefab: {fileID: 2485792175993486139, guid: e18122252be164b49bf366d949aded8e, type: 3}
+  poisonEffectPrefab: {fileID: 5988627149002087349, guid: 3da7db377f9ea9446bf8e77948e1416e, type: 3}
   skillDuration: 3
   fadeSpeed: 0.5
   footprinterInterval: 0.1
+  isFootprint: 0
 --- !u!114 &7348652413250357216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,7 +413,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7565043655989499910}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0fc4a399b7511542b344f1e23db4996, type: 3}
   m_Name: 

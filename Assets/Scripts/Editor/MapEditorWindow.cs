@@ -5,7 +5,7 @@ using System.IO;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 
-public class LayeredMapEditorWindow : EditorWindow
+public class MapEditorWindow : EditorWindow
 {
     private List<GameObject> groundPrefabs = new List<GameObject>();
     private GameObject selectedPrefab;
@@ -33,7 +33,7 @@ public class LayeredMapEditorWindow : EditorWindow
     [MenuItem("Tools/Layered Map Editor")]
     public static void ShowWindow()
     {
-        GetWindow<LayeredMapEditorWindow>("Map Editor");
+        GetWindow<MapEditorWindow>("Map Editor");
     }
 
     private void OnEnable()

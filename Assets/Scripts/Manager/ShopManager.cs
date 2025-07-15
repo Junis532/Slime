@@ -190,43 +190,50 @@ public class ShopManager : MonoBehaviour
         }
         else if (item == GameManager.Instance.itemStats7)
         {
-            Debug.Log("[Shop] FootprinterSkill 활성화 시도");
+            
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj != null)
             {
-                Debug.Log("[Shop] 플레이어 오브젝트 찾음");
-
                 var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
                 if (footprinterSkill != null)
                 {
-                    Debug.Log("[Shop] FootprinterSkill 컴포넌트 찾음. 활성화 시도");
-
                     if (!footprinterSkill.enabled)
                     {
                         footprinterSkill.enabled = true;
-                        Debug.Log("[Shop] FootprinterSkill 활성화 완료");
+
                     }
                     else
                     {
                         Debug.Log("[Shop] 이미 활성화됨");
                     }
                 }
-                else
-                {
-                    Debug.LogWarning("[Shop] FootprinterSkill 컴포넌트를 Player에서 찾지 못했어요");
-                }
             }
-            else
+        }
+        else if (item == GameManager.Instance.itemStats8)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
             {
-                Debug.LogWarning("[Shop] Player 오브젝트를 못 찾음");
+                var zacSkill = playerObj.GetComponent<ZacSkill>();
+                if (zacSkill != null)
+                {
+                    if (!zacSkill.enabled)
+                    {
+                        zacSkill.enabled = true;
+
+                    }
+                    else
+                    {
+                        Debug.Log("[Shop] 이미 활성화됨");
+                    }
+                }
             }
         }
 
 
 
-
-        // 구매 후 모든 버튼 비활성화 (모두 비활성화)
-        foreach (GameObject slot in itemSlots)
+            // 구매 후 모든 버튼 비활성화 (모두 비활성화)
+            foreach (GameObject slot in itemSlots)
             {
                 Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
                 buyBtn.interactable = false;

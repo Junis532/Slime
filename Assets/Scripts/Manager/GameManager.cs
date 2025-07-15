@@ -7,15 +7,13 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoSingleTone<GameManager>
 {
     public PlayerDamaged playerDamaged;
+    public PlayerDie playerDie;
     public PlayerStats playerStats;
     public EnemyStats enemyStats;
     public DashEnemyStats dashEnemyStats;
     public LongRangeEnemyStats longRangeEnemyStats;
     public PotionEnemyStats potionEnemyStats;
     public EnemySpawner enemySpawner;
-    public DashEnemySpawner dashEnemySpawner;
-    public LongRangeEnemySpawner longRangeEnemySpawner;
-    public PotionEnemySpawner potionEnemySpawner;
     public ItemStats itemStats1;
     public ItemStats itemStats2;
     public ItemStats itemStats3;
@@ -23,6 +21,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats itemStats5;
     public ItemStats itemStats6;
     public ItemStats itemStats7;
+    public ItemStats itemStats8;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -31,11 +30,10 @@ public class GameManager : MonoSingleTone<GameManager>
     public ShopManager shopManager;
     public WaveManager waveManager;
     public DialogManager dialogManager;
-    public SpawnerManager spawnerManager;
     public EnemyHP enemyHP;
     public DiceAnimation diceAnimation;
-    public FireballProjectile fireballProjectile;
-    public LightningDamage lightningDamage;
+    //public FireballProjectile fireballProjectile;
+    //public LightningDamage lightningDamage;
     public ZacSkill zacSkill;
 
     [Header("UI")]
@@ -120,31 +118,6 @@ public class GameManager : MonoSingleTone<GameManager>
                 timer.timeRemaining = 0;
                 timer.timerRunning = false;
                 timer.UpdateTimerDisplay();
-
-                // 스포너 전부 정지
-                EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
-                foreach (var spawner in enemySpawners)
-                {
-                    spawner.StopSpawning();
-                }
-
-                DashEnemySpawner[] dashSpawners = Object.FindObjectsByType<DashEnemySpawner>(FindObjectsSortMode.None);
-                foreach (var spawner in dashSpawners)
-                {
-                    spawner.StopSpawning();
-                }
-
-                LongRangeEnemySpawner[] longRangeSpawners = Object.FindObjectsByType<LongRangeEnemySpawner>(FindObjectsSortMode.None);
-                foreach (var spawner in longRangeSpawners)
-                {
-                    spawner.StopSpawning();
-                }
-
-                PotionEnemySpawner[] potionSpawners = Object.FindObjectsByType<PotionEnemySpawner>(FindObjectsSortMode.None);
-                foreach (var spawner in potionSpawners)
-                {
-                    spawner.StopSpawning();
-                }
 
                 // 적 죽음 및 상점 진입 코루틴 시작
                 StartCoroutine(WaitForEnemiesDieAndGoShop());
@@ -233,43 +206,8 @@ public class GameManager : MonoSingleTone<GameManager>
 
         diceAnimation.StartRollingLoop();
 
-        //if (spawnerManager != null)
-        //{
-        //    // 코루틴으로 자동 반복 스폰 시작
-        //    // SpawnSpawnersAroundPlayer()를 일정 주기로 반복 호출
-        //    // 이미 SpawnerManager 내부에서 StartCoroutine이 Start()에서 자동 실행되므로 따로 호출 안해도 됨
-        //    // 만약 수동 시작 필요하면 아래 주석 해제:
-        //    spawnerManager.StartCoroutine("SpawnerLoopRoutine");
-        //}
-
         waveManager.StartSpawnLoop();
 
-
-        //EnemySpawner[] enemySpawners = Object.FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
-        //foreach (var spawner in enemySpawners)
-        //{
-        //    spawner.StartSpawning();
-        //}
-
-        //DashEnemySpawner[] dashSpawners = Object.FindObjectsByType<DashEnemySpawner>(FindObjectsSortMode.None);
-        //foreach (var spawner in dashSpawners)
-        //{
-        //    spawner.StartSpawning();
-        //}
-
-        //LongRangeEnemySpawner[] longRangeSpawners = Object.FindObjectsByType<LongRangeEnemySpawner>(FindObjectsSortMode.None);
-        //foreach (var spawner in longRangeSpawners)
-        //{
-        //    spawner.StartSpawning();
-        //}
-
-        //PotionEnemySpawner[] potionSpawners = Object.FindObjectsByType<PotionEnemySpawner>(FindObjectsSortMode.None);
-        //foreach (var spawner in potionSpawners)
-        //{
-        //    spawner.StartSpawning();
-        //}
-
-        //if (shopUI != null) shopUI.SetActive(false);
     }
 
     public void ChangeStateToShop()

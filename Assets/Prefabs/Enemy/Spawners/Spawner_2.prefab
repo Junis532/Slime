@@ -51,3 +51,9 @@ MonoBehaviour:
   minSpawnCount: 1
   maxSpawnCount: 3
   warningDuration: 1.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8

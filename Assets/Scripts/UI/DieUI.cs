@@ -10,6 +10,7 @@ public class DieUI : MonoBehaviour
     void Start()
     {
         leaveButton.onClick.AddListener(OnLeaveClicked);
+        retryButton.onClick.AddListener(OnRetryClicked);
     }
 
     void OnLeaveClicked()
@@ -17,4 +18,8 @@ public class DieUI : MonoBehaviour
         Application.Quit();
     }
 
+    void OnRetryClicked()
+    {
+        LoadingManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 }
