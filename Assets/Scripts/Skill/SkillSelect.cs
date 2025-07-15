@@ -75,6 +75,13 @@ public class SkillSelect : MonoBehaviour
 
     void ConfirmSelection()
     {
+        // 선택된 스킬이 4개가 아니면 리턴
+        if (selectedIndices.Count < topSlots.Length)
+        {
+            Debug.LogWarning("스킬 4개를 모두 선택해야 합니다.");
+            return;
+        }
+
         Debug.Log("저장된 스킬 인덱스(하단 슬롯 번호):");
         foreach (var idx in selectedIndices)
         {
@@ -93,6 +100,7 @@ public class SkillSelect : MonoBehaviour
 
         gameObject.SetActive(false);
     }
+
 
     void SetupBottomSlots()
     {

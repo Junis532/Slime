@@ -69,6 +69,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     void Update()
     {
+        SetDiceImageAlpha(1f);
+
         bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
 
         skillSaveButton.interactable = !(hasUsedSkill || DiceAnimation.isRolling);
@@ -85,7 +87,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             return;
         }
 
-        SetDiceImageAlpha(1f);
+        
         Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
         isTouchingJoystick = input.magnitude > 0.2f;
         SetHideImageState(!isTouchingJoystick);

@@ -6,8 +6,11 @@ using TMPro;
 
 public class DiceAnimation : MonoBehaviour
 {
-    [Header("주사위 이미지 (0~3 인덱스: 1~4 숫자에 대응)")]
+    [Header("사용 가능 주사위 이미지 (0~3 인덱스: 1~4 숫자에 대응)")]
     public List<Sprite> diceSprites;
+
+    [Header("스킬 사용된 주사위 이미지 (0~3 인덱스: 1~4 숫자에 대응)")]
+    public List<Sprite> usedDiceSprites;
 
     //[Header("저장용 주사위 이미지 (noSkillUseCount에 대응)")]
     //public List<Sprite> saveDiceSpritesByNoSkillCount;
@@ -28,12 +31,13 @@ public class DiceAnimation : MonoBehaviour
     //[Header("스킬 저장 버튼")]
     //public Button skillSaveButton;
 
-    [Header("대기 시간 표시용 텍스트")]
+    [Header("대기 시간 표시용 텍스트 이미지")]
     public TMP_Text waitTimerText;
+    public Image CooltimeImange;
 
     public float frameRate = 0.05f;
     public float rollDuration = 3f;
-    public float waitInterval = 10f;
+    public int waitInterval = 10;
 
     private Image image;
     private Coroutine rollCoroutine;
@@ -48,7 +52,7 @@ public class DiceAnimation : MonoBehaviour
     {
         image = GetComponent<Image>();
         RollOnceAtStart();
-        UpdateSkillImage();
+        //UpdateSkillImage();
         //UpdateSaveDiceImageByNoSkillCount();
         if (waitTimerText != null)
             waitTimerText.text = "";
@@ -81,52 +85,9 @@ public class DiceAnimation : MonoBehaviour
         image.sprite = diceSprites[result - 1];
 
         UpdateSkillImage();
-        //UpdateSaveDiceImageByNoSkillCount();
         isRolling = false;
         if (waitTimerText != null)
             waitTimerText.text = "";
-    }
-
-    void UpdateSkillImage()
-    {
-        if (skillImage != null && skillSlotImages.Count >= currentDiceResult && currentDiceResult > 0)
-        {
-            skillImage.sprite = skillSlotImages[currentDiceResult - 1].sprite;
-            skillImage.enabled = true;
-        }
-    }
-
-    //void UpdateSaveDiceImageByNoSkillCount()
-    //{
-    //    if (saveDiceImage != null && noSkillUseCount > 0 && noSkillUseCount <= saveDiceSpritesByNoSkillCount.Count)
-    //    {
-    //        saveDiceImage.sprite = saveDiceSpritesByNoSkillCount[noSkillUseCount - 1];
-    //        saveDiceImage.enabled = true;
-    //    }
-    //    else if (saveDiceImage != null)
-    //    {
-    //        saveDiceImage.enabled = false;
-    //    }
-    //}
-
-    public void StartRollingLoop()
-    {
-        if (rollCoroutine == null)
-        {
-            rollCoroutine = StartCoroutine(RollingLoopRoutine());
-        }
-    }
-
-    public void StopRollingLoop()
-    {
-        if (rollCoroutine != null)
-        {
-            StopCoroutine(rollCoroutine);
-            rollCoroutine = null;
-
-            if (waitTimerText != null)
-                waitTimerText.text = "";
-        }
     }
 
     IEnumerator RollingLoopRoutine()
@@ -137,8 +98,11 @@ public class DiceAnimation : MonoBehaviour
             while (waitTime > 0f)
             {
                 if (waitTimerText != null)
-                    waitTimerText.text = $"{waitTime:F1}";
+                    waitTimerText.text = $"{Mathf.CeilToInt(waitTime)}";
                 waitTime -= Time.deltaTime;
+
+                CooltimeImange.fillAmount = waitTime / waitInterval;
+
                 yield return null;
             }
 
@@ -173,6 +137,57 @@ public class DiceAnimation : MonoBehaviour
         }
     }
 
+    void UpdateSkillImage()
+    {
+        if (skillImage != null && skillSlotImages.Count >= currentDiceResult && currentDiceResult > 0)
+        {
+            skillImage.sprite = skillSlotImages[currentDiceResult - 1].sprite;
+            skillImage.enabled = true;
+        }
+    }
+
+    //void UpdateSaveDiceImageByNoSkillCount()
+    //{
+    //    if (saveDiceImage != null && noSkillUseCount > 0 && noSkillUseCount <= saveDiceSpritesByNoSkillCount.Count)
+    //    {
+    //        saveDiceImage.sprite = saveDiceSpritesByNoSkillCount[noSkillUseCount - 1];
+    //        saveDiceImage.enabled = true;
+    //    }
+    //    else if (saveDiceImage != null)
+    //    {
+    //        saveDiceImage.enabled = false;
+    //    }
+    //}
+
+    public void StartRollingLoop()
+    {
+        RollOnceAtStart();
+
+        if (rollCoroutine == null)
+        {
+            rollCoroutine = StartCoroutine(RollingLoopRoutine());
+
+            if (currentDiceResult > 0 && currentDiceResult <= diceSprites.Count)
+            {
+                image.sprite = diceSprites[currentDiceResult - 1];
+            }
+        }
+    }
+
+    public void StopRollingLoop()
+    {
+        if (rollCoroutine != null)
+        {
+            StopCoroutine(rollCoroutine);
+            rollCoroutine = null;
+
+            if (waitTimerText != null)
+                waitTimerText.text = "";
+        }
+    }
+
+    
+
     // 외부에서 "세이브 주사위 또는 일반 주사위"에 따라 효과만 발생시킴 (스킬과는 무관)
     public void ExecuteSkillEffect(int effectDiceValue)
     {
@@ -180,7 +195,6 @@ public class DiceAnimation : MonoBehaviour
         {
             case 1:
                 Debug.Log("⭐ 효과: 약한 이펙트 발동");
-                waitInterval = 5f;
                 break;
             case 2:
                 Debug.Log("⭐ 효과: 중간 강도의 이펙트 발동");
@@ -221,15 +235,13 @@ public class DiceAnimation : MonoBehaviour
     {
         hasUsedSkill = false;
 
-        //if (skillSaveButton != null && !skillSaveButton.gameObject.activeSelf)
-        //{
-        //    noSkillUseCount = 0;
-        //}
+        // 현재 눈금에 해당하는 사용된 주사위 이미지로 변경
+        if (currentDiceResult > 0 && currentDiceResult <= usedDiceSprites.Count)
+        {
+            image.sprite = usedDiceSprites[currentDiceResult - 1];
+        }
 
-        //if (skillSaveButton != null)
-        //    skillSaveButton.gameObject.SetActive(true);
-
-        // 주사위 쿨타임 초기화를 위해 기존 코루틴을 정지하고 새로 시작
+        // 기존 코루틴 정지 및 재시작
         if (rollCoroutine != null)
         {
             StopCoroutine(rollCoroutine);
@@ -238,5 +250,6 @@ public class DiceAnimation : MonoBehaviour
 
         rollCoroutine = StartCoroutine(RollingLoopRoutine()); // 쿨타임 즉시 재시작
     }
+
 
 }

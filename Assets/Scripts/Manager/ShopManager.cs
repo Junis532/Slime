@@ -123,33 +123,38 @@ public class ShopManager : MonoBehaviour
     {
         Debug.Log($"[구매] {item.itemName} - 돈 차감 없음");
 
-        // 아이템 효과 발동 (기존 코드 유지)
+        //----------------------------------------------------------------------------------------- 1
         if (item == GameManager.Instance.itemStats1)
         {
             GameManager.Instance.playerStats.maxHP += 5;
             GameManager.Instance.playerStats.currentHP += 5;
         }
+        //----------------------------------------------------------------------------------------- 2
         else if (item == GameManager.Instance.itemStats2)
         {
-            GameObject gmObj = GameManager.Instance.gameObject;
-            PoisonSpawner poisonSpawner = gmObj.GetComponent<PoisonSpawner>();
-
-            if (poisonSpawner != null)
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
             {
-                if (!poisonSpawner.enabled)
+                var poisonSkill = playerObj.GetComponent<PoisonSkill>();
+                if (poisonSkill != null)
                 {
-                    poisonSpawner.enabled = true;
-                }
-                else
-                {
-                    poisonSpawner.poisonLifetime += 1;
+                    if (!poisonSkill.enabled)
+                    {
+                        poisonSkill.enabled = true;
+                    }
+                    else
+                    {
+                        poisonSkill.poisonLifetime += 1; // 독 지속 시간 증가
+                    }
                 }
             }
         }
+        //----------------------------------------------------------------------------------------- 3
         else if (item == GameManager.Instance.itemStats3)
         {
             GameManager.Instance.playerStats.speed *= 1.03f;
         }
+        //----------------------------------------------------------------------------------------- 4
         else if (item == GameManager.Instance.itemStats4)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
@@ -175,10 +180,12 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
+        //----------------------------------------------------------------------------------------- 5
         else if (item == GameManager.Instance.itemStats5)
         {
             GameManager.Instance.playerStats.attack *= 1.02f;
         }
+        //----------------------------------------------------------------------------------------- 6
         else if (item == GameManager.Instance.itemStats6)
         {
             GameObject gmObj = GameManager.Instance.gameObject;
@@ -188,9 +195,9 @@ public class ShopManager : MonoBehaviour
                 spawner.bulletCount += 1;
             }
         }
+        //----------------------------------------------------------------------------------------- 7
         else if (item == GameManager.Instance.itemStats7)
         {
-            
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj != null)
             {
@@ -209,6 +216,7 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
+        //----------------------------------------------------------------------------------------- 8
         else if (item == GameManager.Instance.itemStats8)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
@@ -229,11 +237,11 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
+        //-----------------------------------------------------------------------------------------
 
 
-
-            // 구매 후 모든 버튼 비활성화 (모두 비활성화)
-            foreach (GameObject slot in itemSlots)
+        // 구매 후 모든 버튼 비활성화 (모두 비활성화)
+        foreach (GameObject slot in itemSlots)
             {
                 Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
                 buyBtn.interactable = false;

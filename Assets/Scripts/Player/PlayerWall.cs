@@ -49,7 +49,6 @@ public class PlayerWall : MonoBehaviour
                     playerCtrl.canMove = false;
                 }
 
-                // 체력 0 처리
                 GameManager.Instance.playerStats.currentHP = 0;
             }
         }
