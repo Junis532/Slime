@@ -16,4 +16,4 @@ MonoBehaviour:
   itemName: "\uBBF8\uB04C\uAC70\uB9BC \uC99D\uAC00"
   price: 0
   description: "\uB370\uBBF8\uC9C0\uAC00 \uC62C\uB77C\uAC11\uB2C8\uB2E4."
-  icon: {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  icon: {fileID: 1329060588, guid: b631ed305dfd43c488e0f8edf5c829bc, type: 3}

@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public enum SkillType
 {
     None = 0,
-    Fireball = 1,
-    Teleport = 2,
-    Lightning = 3,
-    Windwall = 4,
-    Boom = 5,
-    FootprintTeleport = 6,
-    Mucus = 7,
-    PoisonGas = 8
+    Boom = 1,
+    FootprintTeleport = 2,
+    Mucus = 3,
+    PoisonGas = 4,
+    Fireball = 5,
+    Teleport = 6,
+    Lightning = 7,
+    Windwall = 8
 }
 
 public class JoystickDirectionIndicator3 : MonoBehaviour
