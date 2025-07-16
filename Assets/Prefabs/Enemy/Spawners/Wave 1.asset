@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefabs:
   - {fileID: 4239411433450844928, guid: fea83eaaa367ea04b955e206ce2dd29d, type: 3}
-  - {fileID: 5045083376037120503, guid: 2c9fef6bc4f9d004b9ad63a1f3992951, type: 3}
+  - {fileID: 5146421425971238944, guid: 18a468bd81f75154f895d60ef1c997e2, type: 3}
   minSpawnCount: 2
   maxSpawnCount: 2

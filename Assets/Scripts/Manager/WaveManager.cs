@@ -65,6 +65,11 @@ public class WaveManager : MonoBehaviour
         RestartSpawnLoop();
     }
 
+    bool IsEnemyTag(string tag)
+    {
+        return tag == "Enemy" || tag == "DashEnemy" || tag == "LongRangeEnemy" || tag == "PotionEnemy";
+    }
+
     IEnumerator SpawnWithWarning()
     {
         WaveData currentWaveData = waveDataList[currentWave - 1];
@@ -86,7 +91,7 @@ public class WaveManager : MonoBehaviour
             GameObject prefab = currentWaveData.enemyPrefabs[
                 Random.Range(0, currentWaveData.enemyPrefabs.Count)];
 
-            //  경고 이펙트 프리뷰 생성 대상 수집
+            // 경고 이펙트 프리뷰 생성 대상 수집
             spawnDataList.Add((spawnPosition, prefab));
         }
 
@@ -105,38 +110,43 @@ public class WaveManager : MonoBehaviour
             {
                 if (t == tempObj.transform) continue;
 
-                if (warningEffectPrefab != null)
+                if (IsEnemyTag(t.gameObject.tag))
                 {
-                    GameObject warning = Instantiate(warningEffectPrefab, t.position, Quaternion.identity);
-                    SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-                    sr.color = new Color(1, 0, 0, 0);
+                    if (warningEffectPrefab != null)
+                    {
+                        GameObject warning = Instantiate(warningEffectPrefab, t.position, Quaternion.identity);
+                        SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+                        sr.color = new Color(1, 0, 0, 0);
 
-                    sr.DOFade(1f, 0.3f)
-                        .SetLoops(-1, LoopType.Yoyo)
-                        .SetEase(Ease.InOutQuad);
+                        sr.DOFade(1f, 0.3f)
+                            .SetLoops(-1, LoopType.Yoyo)
+                            .SetEase(Ease.InOutQuad);
 
-                    Destroy(warning, warningDuration);
+                        Destroy(warning, warningDuration);
+                    }
                 }
             }
 
             // 자식이 없는 일반 몬스터일 경우
             if (!isGroup)
             {
-                if (warningEffectPrefab != null)
+                if (IsEnemyTag(tempObj.tag))
                 {
-                    GameObject warning = Instantiate(warningEffectPrefab, spawnPos, Quaternion.identity);
-                    SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-                    sr.color = new Color(1, 0, 0, 0);
+                    if (warningEffectPrefab != null)
+                    {
+                        GameObject warning = Instantiate(warningEffectPrefab, spawnPos, Quaternion.identity);
+                        SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+                        sr.color = new Color(1, 0, 0, 0);
 
-                    sr.DOFade(1f, 0.3f)
-                        .SetLoops(-1, LoopType.Yoyo)
-                        .SetEase(Ease.InOutQuad);
+                        sr.DOFade(1f, 0.3f)
+                            .SetLoops(-1, LoopType.Yoyo)
+                            .SetEase(Ease.InOutQuad);
 
-                    Destroy(warning, warningDuration);
+                        Destroy(warning, warningDuration);
+                    }
                 }
             }
 
-            // 경고 후 제거
             Destroy(tempObj);
         }
 
@@ -148,7 +158,6 @@ public class WaveManager : MonoBehaviour
             Instantiate(prefab, spawnPos, Quaternion.identity);
         }
     }
-
 
     void UpdateEnemyHP()
     {
