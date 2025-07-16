@@ -19,18 +19,27 @@ public class EnemySpawner : MonoBehaviour
     public int maxSpawnCount = 6;
 
     [Header("스폰 딜레이")]
-    public float warningDuration = 1.5f; // 경고 이미지가 깜빡이는 시간
+    private float warningDuration = 1f; // 경고 이미지가 깜빡이는 시간
 
     private Coroutine spawnCoroutine;
 
     IEnumerator SpawnEnemyGroupWithWarning()
     {
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogWarning("Player 오브젝트를 찾을 수 없습니다!");
+            yield break;
+        }
+
+        Vector2 centerPos = player.transform.position;
+
         int spawnCount = Random.Range(minSpawnCount, maxSpawnCount + 1);
         List<Vector2> spawnPositions = new List<Vector2>();
 
         for (int i = 0; i < spawnCount; i++)
         {
-            Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle * spawnRadius;
+            Vector2 randomPos = centerPos + Random.insideUnitCircle * spawnRadius;
             spawnPositions.Add(randomPos);
 
             GameObject warning = Instantiate(warningEffectPrefab, randomPos, Quaternion.identity);
@@ -54,9 +63,9 @@ public class EnemySpawner : MonoBehaviour
 
         spawnCoroutine = null;
 
-        // ✅ 스폰 후 스포너 오브젝트 삭제
         Destroy(gameObject);
     }
+
 
     public void StartSpawning()
     {

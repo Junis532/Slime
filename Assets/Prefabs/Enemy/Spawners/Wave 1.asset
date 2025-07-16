@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0370b8350af9074ebad45cccee60eaf, type: 3}
   m_Name: Wave 1
   m_EditorClassIdentifier: 
-  spawnerGroupPrefabs:
-  - {fileID: 4507315215274098654, guid: 8dc862011c8df57498755d25c2eafcbc, type: 3}
-  - {fileID: 2212132671910812416, guid: 0f0307ffd92570043b80e32f6c4836b1, type: 3}
+  enemyPrefabs:
+  - {fileID: 4239411433450844928, guid: fea83eaaa367ea04b955e206ce2dd29d, type: 3}
+  - {fileID: 5045083376037120503, guid: 2c9fef6bc4f9d004b9ad63a1f3992951, type: 3}
+  minSpawnCount: 2
+  maxSpawnCount: 2

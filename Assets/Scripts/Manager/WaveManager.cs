@@ -1,18 +1,20 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using DG.Tweening;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("WaveData ¸®½ºÆ® (1 ¿şÀÌºê = 1 WaveData)")]
+    [Header("WaveData ë¦¬ìŠ¤íŠ¸ (1 ì›¨ì´ë¸Œ = 1 WaveData)")]
     public List<WaveData> waveDataList;
 
-    [Header("¿şÀÌºê ½ºÆ÷³Ê »ı¼º °ü·Ã")]
+    [Header("ì›¨ì´ë¸Œ ìŠ¤í° ì„¤ì •")]
     public Transform playerTransform;
     public float spawnInterval = 5f;
-    public float spawnerRadius = 6f;
-    public int spawnerCount = 3;
+    public float spawnRadius = 5f;
+    public GameObject warningEffectPrefab;
+    public float warningDuration = 1f;
 
     public TextMeshProUGUI waveText;
     public int currentWave = 1;
@@ -43,7 +45,7 @@ public class WaveManager : MonoBehaviour
     {
         if (currentWave >= waveDataList.Count)
         {
-            Debug.LogWarning("´õ ÀÌ»ó ¿şÀÌºê°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ë” ì´ìƒ ì›¨ì´ë¸Œê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -51,7 +53,7 @@ public class WaveManager : MonoBehaviour
         UpdateWaveText();
         UpdateEnemyHP();
 
-        ActivateWaveSpawnerGroups();
+        StartCoroutine(SpawnWithWarning());
 
         if (ShopManager.Instance != null)
         {
@@ -63,43 +65,87 @@ public class WaveManager : MonoBehaviour
         RestartSpawnLoop();
     }
 
-    void ActivateWaveSpawnerGroups()
+    IEnumerator SpawnWithWarning()
     {
-        // ÇöÀç ¿şÀÌºê¿¡ ÇØ´çÇÏ´Â WaveData °¡Á®¿À±â
-        WaveData currentWaveData = waveDataList[currentWave - 1]; // 0-based ÀÎµ¦½º
+        WaveData currentWaveData = waveDataList[currentWave - 1];
 
-        if (currentWaveData == null)
+        if (currentWaveData == null || currentWaveData.enemyPrefabs.Count == 0)
         {
-            Debug.LogWarning($"[WaveManager] WaveData°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù. currentWave = {currentWave}");
-            return;
+            Debug.LogWarning($"[WaveManager] ìœ íš¨í•œ WaveDataê°€ ì—†ìŠµë‹ˆë‹¤. currentWave = {currentWave}");
+            yield break;
         }
 
-        // spawnerCount ¼ö¸¸Å­ »ı¼º
-        for (int i = 0; i < spawnerCount; i++)
+        int spawnCount = Random.Range(currentWaveData.minSpawnCount, currentWaveData.maxSpawnCount + 1);
+        List<(Vector2, GameObject)> spawnDataList = new List<(Vector2, GameObject)>();
+
+        for (int i = 0; i < spawnCount; i++)
         {
-            if (currentWaveData.spawnerGroupPrefabs.Count == 0) break;
+            Vector2 spawnOffset = Random.insideUnitCircle.normalized * spawnRadius;
+            Vector2 spawnPosition = (Vector2)playerTransform.position + spawnOffset;
 
-            Vector2 randomOffset = Random.insideUnitCircle.normalized * spawnerRadius;
-            Vector2 spawnPos = (Vector2)playerTransform.position + randomOffset;
+            GameObject prefab = currentWaveData.enemyPrefabs[
+                Random.Range(0, currentWaveData.enemyPrefabs.Count)];
 
-            // spawnerGroupPrefabs Áß ·£´ıÀ¸·Î ÇÏ³ª ¼±ÅÃ
-            GameObject selectedPrefab = currentWaveData.spawnerGroupPrefabs[Random.Range(0, currentWaveData.spawnerGroupPrefabs.Count)];
-            GameObject spawnerObj = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
+            //  ê²½ê³  ì´í™íŠ¸ í”„ë¦¬ë·° ìƒì„± ëŒ€ìƒ ìˆ˜ì§‘
+            spawnDataList.Add((spawnPosition, prefab));
+        }
 
-            // ÀÚ½Ä Æ÷ÇÔÇÏ¿© EnemySpawner ÀüºÎ Ã£±â
-            EnemySpawner[] spawners = spawnerObj.GetComponentsInChildren<EnemySpawner>();
-            if (spawners.Length > 0)
+        // ê²½ê³  ì´í™íŠ¸ ë³´ì—¬ì£¼ê¸°
+        foreach (var (spawnPos, prefab) in spawnDataList)
+        {
+            // ì¼ë‹¨ í”„ë¦¬íŒ¹ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë¹„í™œì„±í™” ìƒíƒœë¡œ ë§Œë“ ë‹¤ (ê²½ê³  ìœ„ì¹˜ í™•ì¸ìš©)
+            GameObject tempObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+            tempObj.SetActive(false);
+
+            // í•˜ìœ„ì— ëª¬ìŠ¤í„°ê°€ ìˆëŠ” ê²½ìš° (ê·¸ë£¹ í”„ë¦¬íŒ¹)
+            var allMonsters = tempObj.GetComponentsInChildren<Transform>();
+            bool isGroup = allMonsters.Length > 1;
+
+            foreach (var t in allMonsters)
             {
-                foreach (var spawner in spawners)
+                if (t == tempObj.transform) continue;
+
+                if (warningEffectPrefab != null)
                 {
-                    spawner.StartSpawning();
-                    Debug.Log($"[WaveManager] EnemySpawner ½ÃÀÛµÊ: {spawner.name}");
+                    GameObject warning = Instantiate(warningEffectPrefab, t.position, Quaternion.identity);
+                    SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+                    sr.color = new Color(1, 0, 0, 0);
+
+                    sr.DOFade(1f, 0.3f)
+                        .SetLoops(-1, LoopType.Yoyo)
+                        .SetEase(Ease.InOutQuad);
+
+                    Destroy(warning, warningDuration);
                 }
             }
-            else
+
+            // ìì‹ì´ ì—†ëŠ” ì¼ë°˜ ëª¬ìŠ¤í„°ì¼ ê²½ìš°
+            if (!isGroup)
             {
-                Debug.LogWarning($"[WaveManager] EnemySpawner¸¦ Ã£À» ¼ö ¾øÀ½. ÇÁ¸®ÆÕ ÀÌ¸§: {spawnerObj.name}");
+                if (warningEffectPrefab != null)
+                {
+                    GameObject warning = Instantiate(warningEffectPrefab, spawnPos, Quaternion.identity);
+                    SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+                    sr.color = new Color(1, 0, 0, 0);
+
+                    sr.DOFade(1f, 0.3f)
+                        .SetLoops(-1, LoopType.Yoyo)
+                        .SetEase(Ease.InOutQuad);
+
+                    Destroy(warning, warningDuration);
+                }
             }
+
+            // ê²½ê³  í›„ ì œê±°
+            Destroy(tempObj);
+        }
+
+        yield return new WaitForSeconds(warningDuration);
+
+        // ì‹¤ì œ ìŠ¤í°
+        foreach (var (spawnPos, prefab) in spawnDataList)
+        {
+            Instantiate(prefab, spawnPos, Quaternion.identity);
         }
     }
 
@@ -134,7 +180,7 @@ public class WaveManager : MonoBehaviour
     {
         while (true)
         {
-            ActivateWaveSpawnerGroups();
+            yield return StartCoroutine(SpawnWithWarning());
             yield return new WaitForSeconds(spawnInterval);
         }
     }
