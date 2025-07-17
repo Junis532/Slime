@@ -2,19 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-public enum SkillType
-{
-    None = 0,
-    Boom = 1,
-    FootprintTeleport = 2,
-    Mucus = 3,
-    PoisonGas = 4,
-    Fireball = 5,
-    Teleport = 6,
-    Lightning = 7,
-    Windwall = 8
-}
+using SkillNumber.Skills;
 
 public class JoystickDirectionIndicator3 : MonoBehaviour
 {
@@ -34,32 +22,52 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     public GameObject fireballPrefab;
     public Transform firePoint;
-
     public GameObject lightningPrefab;
     public GameObject LightningEffectPrefab;
-
     public GameObject windWallPrefab;
-
     public GameObject teleportEffectPrefab;
     public float teleportEffectDuration = 1f;
-
     public GameObject bombPrefab;
-
     public GameObject mucusProjectilePrefab;
 
     private GameObject indicatorInstance;
     private int currentIndicatorIndex = -1;
-
     private PlayerController playerController;
     private bool isTouchingJoystick, wasTouchingJoystickLastFrame;
     private Vector2 lastInputDirection = Vector2.right;
     private float lastInputMagnitude = 0f;
-
     private bool hasUsedSkill = false, prevIsRolling = false;
     private bool isTeleportMode = false, isLightningMode = false, isMucusMode = false;
     private Vector3 teleportTargetPosition, lightningTargetPosition, mucusTargetPosition;
     private Vector2 lightningCastDirection;
     private bool prevBlockInputActive = false;
+
+    // ★ 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
+    public int CurrentUsingSkillIndex
+    {
+        get
+        {
+            int diceValue = DiceAnimation.currentDiceResult;
+            if (diceValue <= 0 || hasUsedSkill) return 0;
+            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
+                return 0;
+            return SkillSelect.FinalSkillOrder[diceValue - 1];
+        }
+    }
+
+    // 선택적 SkillType 반환(사용처에 따라)
+    public SkillType CurrentUsingSkillType
+    {
+        get
+        {
+            int diceValue = DiceAnimation.currentDiceResult;
+            if (diceValue <= 0 || hasUsedSkill) return SkillType.None;
+            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
+                return SkillType.None;
+            int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceValue - 1];
+            return (SkillType)mappedSkillNumber;
+        }
+    }
 
     void Start()
     {
