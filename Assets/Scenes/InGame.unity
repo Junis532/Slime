@@ -5686,8 +5686,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   spawnInterval: 1
-  spawnOffset: 0.3
   bulletCount: 1
+  bowPrefab: {fileID: 3899278281159487786, guid: ff983a99fa2cd924e88b225510d78d85, type: 3}
+  effectBowPrefab: {fileID: 3899278281159487786, guid: a841f71ff35ca3b46ad9d194d64fb10d, type: 3}
+  bowOffset: {x: -0.6, y: 0.5, z: 0}
 --- !u!114 &846765399
 MonoBehaviour:
   m_ObjectHideFlags: 0

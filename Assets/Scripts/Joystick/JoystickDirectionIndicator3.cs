@@ -98,6 +98,12 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         }
         prevBlockInputActive = isBlockActive;
 
+        if (!prevIsRolling && DiceAnimation.isRolling)
+        {
+            ResetInputStates();
+        }
+
+
         if (isBlockActive || DiceAnimation.currentDiceResult <= 0)
         {
             DisableInputAndIndicators();

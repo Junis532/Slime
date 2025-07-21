@@ -1,31 +1,28 @@
+ï»¿using UnityEngine;
 using DG.Tweening;
-using UnityEngine;
 
 public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
     public float followDuration = 0.3f;
-    public float baseSpawnOffsetDistance = 0.5f;
-
-    private float currentSpawnOffsetDistance;
-    private float spawnOffsetVelocity = 0f;
 
     private Transform target;
     private Transform player;
     private bool isFollowingPlayer = true;
-
-    private Vector3 spawnOffsetDirection;
-    private Vector3 spawnOffset;
-
-    private System.Random localRandom;
-    private Collider2D myCollider;
     private Coroutine moveCoroutine;
+    private Collider2D myCollider;
+    private Vector3 spawnOffset = Vector3.zero;
 
-    private GroupController groupController;
+    public void SetSpawnOffset(Vector3 offset) { spawnOffset = offset; }
+
+    public void SyncSetRotation(float angle)
+    {
+        if (isFollowingPlayer)
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
 
     void OnEnable()
     {
-        // 1. Æ®À©/ÄÚ·çÆ¾ È®½ÇÈ÷ Á¾·á
         transform.DOKill();
         if (moveCoroutine != null)
         {
@@ -34,78 +31,29 @@ public class BulletAI : MonoBehaviour
         }
         StopAllCoroutines();
 
-        // 2. ÁÖ¿ä º¯¼ö ¸®¼Â
         isFollowingPlayer = true;
         target = null;
-
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         if (myCollider == null)
             myCollider = GetComponent<Collider2D>();
         if (myCollider != null)
-            myCollider.enabled = false; // (ÃÊ±âÈ­!)
+            myCollider.enabled = false;
 
         transform.localScale = Vector3.zero;
 
-        // 3. ½ºÆù °¢µµ/¿ÀÇÁ¼Â »õ ·£´ý ¼¼ÆÃ
-        localRandom = new System.Random(System.DateTime.Now.Millisecond + GetInstanceID());
-        float angle = (float)(localRandom.NextDouble() * 360.0);
-        float rad = angle * Mathf.Deg2Rad;
-        spawnOffsetDirection = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f).normalized;
-
-        currentSpawnOffsetDistance = baseSpawnOffsetDistance;
-        spawnOffset = spawnOffsetDirection * currentSpawnOffsetDistance;
-
-        // 4. À§Ä¡/È¸Àü ÃÊ±âÈ­
-        if (player != null)
-            transform.position = player.position + spawnOffset;
-        else
-            transform.position = Vector3.zero;
-
-        transform.rotation = Quaternion.identity;
-
-        // 5. ½ºÆù Æ®À© + ÄÝ¶óÀÌ´õ È°¼º ¿¹¾à + Å¸°Ù ÀüÈ¯ ¿¹¾à
+        // ìœ„ì¹˜, íšŒì „ì€ BulletSpawnerì—ì„œ ì§€ì •(ì†Œí™˜ì‹œë§ˆë‹¤)!
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
             if (myCollider != null)
                 myCollider.enabled = true;
-
             Invoke(nameof(SwitchToEnemy), followDuration);
         });
     }
 
-    void OnDisable()
-    {
-        // 1. Æ®À©/ÄÚ·çÆ¾ È®½ÇÈ÷ Á¾·á
-        transform.DOKill();
-        if (moveCoroutine != null)
-        {
-            StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
-        StopAllCoroutines();
-
-        // 2. ÄÝ¶óÀÌ´õµµ ºñÈ°¼ºÈ­ (È¤½Ã ³²¾ÆÀÖÀ» ¼ö ÀÖÀ½)
-        if (myCollider != null)
-            myCollider.enabled = false;
-    }
-
     void Update()
     {
-        if (player == null) return;
-
-        float targetScale = Mathf.Max(Mathf.Abs(player.localScale.x), 1f);
-        float scaleEffectFactor = 0.3f;
-
-        currentSpawnOffsetDistance = Mathf.SmoothDamp(
-            currentSpawnOffsetDistance,
-            baseSpawnOffsetDistance * (1f + (targetScale - 1f) * scaleEffectFactor),
-            ref spawnOffsetVelocity,
-            0.3f);
-
-        spawnOffset = spawnOffsetDirection * currentSpawnOffsetDistance;
-
-        if (isFollowingPlayer)
+        if (isFollowingPlayer && player != null)
         {
             transform.position = player.position + spawnOffset;
         }
@@ -132,11 +80,10 @@ public class BulletAI : MonoBehaviour
         {
             Vector3 direction = (target.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle - 90f);
+            transform.rotation = Quaternion.Euler(0, 0, angle);
             transform.position += direction * moveSpeed * Time.deltaTime;
             yield return null;
         }
-
         ReturnToPoolSelf();
     }
 
@@ -145,7 +92,6 @@ public class BulletAI : MonoBehaviour
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
         float closestDist = Mathf.Infinity;
         Transform closest = null;
-
         foreach (string tag in enemyTags)
         {
             GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
@@ -159,7 +105,6 @@ public class BulletAI : MonoBehaviour
                 }
             }
         }
-
         target = closest;
     }
 
@@ -171,15 +116,12 @@ public class BulletAI : MonoBehaviour
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
                 hp.TakeDamage();
-
             ReturnToPoolSelf();
         }
     }
 
-    // Ç® ¸Å´ÏÀú·Î ¹ÝÈ¯ÇÏ¸é¼­µµ ³»ºÎ µ¿ÀÛ 100% Á¤¸®(¹Ýº¹¾ÈµÇ°Ô)
     void ReturnToPoolSelf()
     {
-        // º¸ÀåÂ÷¿ø¿¡¼­ Ãß°¡, Disable Àü¿¡ ½ÃÇà
         transform.DOKill();
         if (moveCoroutine != null)
         {
