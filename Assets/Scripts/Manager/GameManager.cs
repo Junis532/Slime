@@ -103,7 +103,7 @@ public class GameManager : MonoSingleTone<GameManager>
         potionEnemyStats.ResetStats();
         waveManager.UpdateWaveText();
 
-        
+
         if (shopUI != null)
         {
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
@@ -151,53 +151,28 @@ public class GameManager : MonoSingleTone<GameManager>
             }
         }
 
-        // 모든 코인 삭제
+        // 코인, 총알, 스킬 삭제 부분 그대로
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
         foreach (GameObject coin in coins)
         {
             PoolManager.Instance.ReturnToPool(coin);
         }
-
-        // 모든 총알 삭제
         GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
         foreach (GameObject bullet in bullets)
         {
             PoolManager.Instance.ReturnToPool(bullet);
         }
-
-        // 모든 스킬 삭제
         GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
         foreach (GameObject skill in skills)
         {
             Destroy(skill);
         }
 
-        // 적들이 Destroy될 때까지 대기 (최대 2초 대기)
-        float waitTime = 0f;
-        float maxWaitTime = 2f;
-
-        while (waitTime < maxWaitTime)
-        {
-            bool anyEnemyLeft = false;
-            foreach (string tag in enemyTags)
-            {
-                if (GameObject.FindGameObjectsWithTag(tag).Length > 0)
-                {
-                    anyEnemyLeft = true;
-                    break;
-                }
-            }
-
-            if (!anyEnemyLeft)
-                break;
-
-            waitTime += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        // 적 다 죽은 후 상점으로 전환
+        // 기다리지 않고 바로 상점 상태로 전환
         ChangeStateToShop();
+        yield break;
     }
+
 
     public void ChangeStateToIdle()
     {

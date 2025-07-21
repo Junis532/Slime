@@ -3354,9 +3354,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.055555556
     y: 0
-    width: 1
+    width: 0.8888889
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -5670,7 +5670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 60
+  timeRemaining: 14
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -17942,6 +17942,9 @@ MonoBehaviour:
   - prefabName: DashEnemy 1
     prefab: {fileID: 2507638887593701492, guid: 8771d3e99e4a0e44fb9130ec64428f02, type: 3}
     initialSize: 100
+  - prefabName: LongRangeEnemy 1
+    prefab: {fileID: 3833762692476826909, guid: aa297bd7bcd43404387b54f3e5843cae, type: 3}
+    initialSize: 100
   - prefabName: PotionEnemy 1
     prefab: {fileID: 5146421425971238944, guid: 18a468bd81f75154f895d60ef1c997e2, type: 3}
     initialSize: 100
@@ -17984,9 +17987,6 @@ MonoBehaviour:
   - prefabName: Footprint
     prefab: {fileID: 2485792175993486139, guid: e18122252be164b49bf366d949aded8e, type: 3}
     initialSize: 300
-  - prefabName: Footprint
-    prefab: {fileID: 5988627149002087349, guid: 3da7db377f9ea9446bf8e77948e1416e, type: 3}
-    initialSize: 50
 --- !u!4 &1673252425
 Transform:
   m_ObjectHideFlags: 0

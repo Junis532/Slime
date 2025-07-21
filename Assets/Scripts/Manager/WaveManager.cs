@@ -68,6 +68,10 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnWithWarning()
     {
+        // ★ 상점상태 체크: 상점이면 즉시 중단, 절대 스폰하지 않음
+        if (GameManager.Instance != null && GameManager.Instance.IsShop())
+            yield break;
+
         WaveData currentWaveData = waveDataList[currentWave - 1];
         if (currentWaveData == null || currentWaveData.skillMonsterLists.Count == 0)
         {
@@ -110,9 +114,13 @@ public class WaveManager : MonoBehaviour
             spawnPositions.Add(spawnPosition);
         }
 
-        // 경고 이펙트
+        // 경고 이펙트 (상점 진입시 중간에 코루틴 종료되어도 스폰 안됨)
         for (int i = 0; i < spawnPositions.Count; i++)
         {
+            // 상점상태 즉시 중지
+            if (GameManager.Instance != null && GameManager.Instance.IsShop())
+                yield break;
+
             GameObject prefab = spawnMonsters[i];
             Vector2 spawnPos = spawnPositions[i];
 
@@ -126,7 +134,6 @@ public class WaveManager : MonoBehaviour
                 if (t == tempObj.transform) continue;
                 if (IsEnemyTag(t.gameObject.tag) && warningEffectPrefab != null)
                 {
-                    // 🔔 풀매니저로 경고 이펙트 소환
                     GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
                         warningEffectPrefab.name, t.position, Quaternion.identity);
                     if (warning != null)
@@ -159,7 +166,12 @@ public class WaveManager : MonoBehaviour
             }
             Destroy(tempObj);
         }
+
         yield return new WaitForSeconds(warningDuration);
+
+        // 상점 진입시 혹시나 몬스터 스폰 중단됨(안전장치)
+        if (GameManager.Instance != null && GameManager.Instance.IsShop())
+            yield break;
 
         // 몬스터 스폰 풀매니저로
         for (int i = 0; i < spawnPositions.Count; i++)
@@ -209,6 +221,9 @@ public class WaveManager : MonoBehaviour
         yield return new WaitForSeconds(initialDelay);
         while (true)
         {
+            // ★ Shop 상태 진입시 즉시 중지 (안전장치)
+            if (GameManager.Instance != null && GameManager.Instance.IsShop())
+                yield break;
             yield return StartCoroutine(SpawnWithWarning());
             yield return new WaitForSeconds(spawnInterval);
         }
