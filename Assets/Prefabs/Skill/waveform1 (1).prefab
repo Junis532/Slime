@@ -127,3 +127,5 @@ MonoBehaviour:
   fallSpeed: 27
   impactEffectPrefab: {fileID: 2571534968070971899, guid: 09512fef138398140bd878a67bcd6b90, type: 3}
   impactEffectDuration: 0.3
+  impactSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
+  impactSoundVolume: 1

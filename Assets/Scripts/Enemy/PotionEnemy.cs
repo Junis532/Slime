@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Collections;
 using UnityEngine;
 
 public class PotionEnemy : EnemyBase
@@ -81,11 +80,17 @@ public class PotionEnemy : EnemyBase
                 pauseTimer = 0f;
                 stopTimer = 0f;
 
-                // 포션 생성
+                // 포션 생성 (PoolManager 사용)
                 if (potionPrefab != null)
                 {
-                    GameObject potion = Instantiate(potionPrefab, transform.position, Quaternion.identity);
-                    Destroy(potion, potionLifetime);
+                    GameObject potion = PoolManager.Instance.SpawnFromPool(potionPrefab.name, transform.position, Quaternion.identity);
+
+                    if (potion != null)
+                    {
+                        PotionBehavior pb = potion.GetComponent<PotionBehavior>();
+                        if (pb != null)
+                            pb.StartLifetime(potionLifetime);
+                    }
                 }
 
                 if (dashPreviewInstance != null)
@@ -101,7 +106,6 @@ public class PotionEnemy : EnemyBase
         {
             isStopping = true;
             pauseTimer = 0f;
-
             // 이동 멈춤 상태이므로 transform 이동도 하지 않음
             return;
         }

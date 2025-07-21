@@ -15,7 +15,7 @@ public class DieUI : MonoBehaviour
 
     void OnLeaveClicked()
     {
-        Application.Quit();
+        LoadingManager.LoadScene("MainMenu");
     }
 
     void OnRetryClicked()

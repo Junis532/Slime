@@ -47,6 +47,6 @@ public class Coin : MonoBehaviour
     void CollectCoin()
     {
         GameManager.Instance.playerStats.coin += 1;
-        Destroy(gameObject);
+        PoolManager.Instance.ReturnToPool(gameObject);
     }
 }

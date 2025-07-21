@@ -26,12 +26,11 @@ public class WaveManager : MonoBehaviour
     void Start()
     {
         if (playerSkillController == null)
-            playerSkillController = FindFirstObjectByType<JoystickDirectionIndicator3>(); 
+            playerSkillController = FindFirstObjectByType<JoystickDirectionIndicator3>();
         Debug.Log("[WaveManager] 스킬 순서: " + string.Join(", ", SkillSelect.FinalSkillOrder));
         ResetWave();
         StartSpawnLoop();
     }
-
 
     public void ResetWave()
     {
@@ -112,7 +111,6 @@ public class WaveManager : MonoBehaviour
         }
 
         // 경고 이펙트
-        // 경고 이펙트(적 그룹이면 여러 개, 싱글이면 1개)
         for (int i = 0; i < spawnPositions.Count; i++)
         {
             GameObject prefab = spawnMonsters[i];
@@ -128,40 +126,60 @@ public class WaveManager : MonoBehaviour
                 if (t == tempObj.transform) continue;
                 if (IsEnemyTag(t.gameObject.tag) && warningEffectPrefab != null)
                 {
-                    // 몬스터 본체(자식들) 위치에 이펙트 생성
-                    GameObject warning = Instantiate(warningEffectPrefab, t.position, Quaternion.identity);
+                    // 🔔 풀매니저로 경고 이펙트 소환
+                    GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
+                        warningEffectPrefab.name, t.position, Quaternion.identity);
+                    if (warning != null)
+                    {
+                        SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+                        if (sr != null)
+                        {
+                            sr.color = new Color(1, 0, 0, 0);
+                            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
+                        }
+                        StartCoroutine(ReturnWarningToPool(warning, warningDuration));
+                    }
+                    hasRealEnemy = true;
+                }
+            }
+            if (!hasRealEnemy && IsEnemyTag(tempObj.tag) && warningEffectPrefab != null)
+            {
+                GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
+                    warningEffectPrefab.name, spawnPos, Quaternion.identity);
+                if (warning != null)
+                {
                     SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
                     if (sr != null)
                     {
                         sr.color = new Color(1, 0, 0, 0);
                         sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
                     }
-                    Destroy(warning, warningDuration);
-                    hasRealEnemy = true; // 적 자식이 하나라도 있으면
+                    StartCoroutine(ReturnWarningToPool(warning, warningDuration));
                 }
-            }
-            // 자식 중 Enemy가 하나도 없으면, 자기 자신 위치에
-            if (!hasRealEnemy && IsEnemyTag(tempObj.tag) && warningEffectPrefab != null)
-            {
-                GameObject warning = Instantiate(warningEffectPrefab, spawnPos, Quaternion.identity);
-                SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    sr.color = new Color(1, 0, 0, 0);
-                    sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
-                }
-                Destroy(warning, warningDuration);
             }
             Destroy(tempObj);
         }
         yield return new WaitForSeconds(warningDuration);
 
-
-        // 몬스터 스폰
+        // 몬스터 스폰 풀매니저로
         for (int i = 0; i < spawnPositions.Count; i++)
-            Instantiate(spawnMonsters[i], spawnPositions[i], Quaternion.identity);
+        {
+            string poolName = spawnMonsters[i].name;
+            GameManager.Instance.poolManager.SpawnFromPool(poolName, spawnPositions[i], Quaternion.identity);
+        }
+
+        Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {spawnCount}마리, 스킬({currentSkillNumber})에 매핑된 몬스터 수: {monsterList.Count}개");
     }
 
+    // 경고 이펙트 풀로 반환 (DOTween 정리 포함)
+    IEnumerator ReturnWarningToPool(GameObject warning, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+        if (sr != null)
+            sr.DOKill();
+        GameManager.Instance.poolManager.ReturnToPool(warning);
+    }
 
     void UpdateEnemyHP()
     {

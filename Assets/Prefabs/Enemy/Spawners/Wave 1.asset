@@ -30,8 +30,13 @@ MonoBehaviour:
     - {fileID: 6605092330801733792, guid: 2dbe54c14c1885c46913944259e1c920, type: 3}
   - monsters: []
   - monsters: []
-  - monsters: []
-  - monsters: []
-  - monsters: []
+  - monsters:
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
+  - monsters:
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
+    - {fileID: 4356220898937643329, guid: d9e59b9e953fe884b98f1138f6d0565c, type: 3}
   minSpawnCount: 3
   maxSpawnCount: 3

@@ -178,10 +178,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7018eb955ca55454ca20912c109af36f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockbackForce: 1
   damageMultiplier: 0.1
   lifetime: 5
   damageInterval: 0.5
+  pushStrength: 7
+  pushRadius: 2
 --- !u!1001 &2531546041079907776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -311,7 +312,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7018eb955ca55454ca20912c109af36f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockbackForce: 1
   damageMultiplier: 0.1
   lifetime: 5
   damageInterval: 0.5
+  pushStrength: 7
+  pushRadius: 2

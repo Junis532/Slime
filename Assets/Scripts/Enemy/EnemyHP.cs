@@ -3,27 +3,33 @@ using UnityEngine;
 
 public class EnemyHP : MonoBehaviour
 {
-    public GameObject hpBarPrefab; // EnemyHPBar 프리팹
+    public GameObject hpBarPrefab; // EnemyHPBar 프리팹 (PoolManager에 동일한 이름으로 등록 필요)
     private EnemyHPBar hpBar;
     private float currentHP;
     private float maxHP;
 
-    private SpriteRenderer spriteRenderer; // 추가
+    private SpriteRenderer spriteRenderer;
 
-    [System.Obsolete]
     void Start()
     {
         maxHP = GameManager.Instance.enemyStats.maxHP;
         currentHP = maxHP;
 
-        // HP바 생성 및 초기화
-        Canvas worldCanvas = FindObjectOfType<Canvas>(); // 월드캔버스 찾아서
-        GameObject hpBarObj = Instantiate(hpBarPrefab, worldCanvas.transform);
+        // 월드캔버스 찾아서 부모 지정
+        Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
+
+
+        // 1. 풀에서 HP바 생성 (부모 설정)
+        GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(
+            hpBarPrefab.name, Vector3.zero, Quaternion.identity);
+        hpBarObj.transform.SetParent(worldCanvas.transform, false);
+
+        // 2. 초기화 및 비활성화
         hpBar = hpBarObj.GetComponent<EnemyHPBar>();
         hpBar.Init(transform, maxHP);
-        hpBarObj.SetActive(false); // 처음엔 안 보이게
+        hpBarObj.SetActive(false);
 
-        // 스프라이트렌더러 컴포넌트 캐싱
+        // 3. 스프라이트렌더러 캐싱
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
@@ -82,8 +88,9 @@ public class EnemyHP : MonoBehaviour
 
     private void Die()
     {
+        // HP바 반환 (Destroy → ReturnToPool)
         if (hpBar != null)
-            Destroy(hpBar.gameObject);
+            PoolManager.Instance.ReturnToPool(hpBar.gameObject);
 
         // 공통 EnemiesDie 스크립트 실행
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();

@@ -1,13 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using DG.Tweening;
 
 public class ZacSkill : MonoBehaviour
 {
-    public GameObject piecePrefab;     // ¶³¾îÁú ¿ÀºêÁ§Æ® ÇÁ¸®ÆÕ
-    public int pieceCount = 5;         // Æ¨°Ü³ª¿Ã Á¶°¢ ¼ö
-    public float radius = 1.5f;        // Æ¨°Ü³ª¿Ã ¹æÇâ ¹üÀ§ ¹İ°æ
-    public float jumpPower = 1f;       // Æ¨±â´Â ³ôÀÌ
-    public float jumpDuration = 0.5f;  // Á¡ÇÁ Áö¼Ó ½Ã°£
+    public GameObject piecePrefab;     // ë–¨ì–´ì§ˆ ì˜¤ë¸Œì íŠ¸ í”„ë¦¬íŒ¹
+    public int pieceCount = 5;         // íŠ•ê²¨ë‚˜ì˜¬ ì¡°ê° ìˆ˜
+    public float radius = 1.5f;        // íŠ•ê²¨ë‚˜ì˜¬ ë°©í–¥ ë²”ìœ„ ë°˜ê²½
+    public float jumpPower = 1f;       // íŠ•ê¸°ëŠ” ë†’ì´
+    public float jumpDuration = 0.5f;  // ì í”„ ì§€ì† ì‹œê°„
 
     public void SpawnPieces()
     {
@@ -15,9 +15,11 @@ public class ZacSkill : MonoBehaviour
         {
             Vector3 spawnPos = transform.position;
 
-            GameObject piece = Instantiate(piecePrefab, spawnPos, Quaternion.identity);
+            // Instantiate â†’ PoolManagerë¡œ ë³€ê²½
+            GameObject piece = PoolManager.Instance.SpawnFromPool(piecePrefab.name, spawnPos, Quaternion.identity);
+            if (piece == null) continue;
 
-            // Collider2D ºñÈ°¼ºÈ­
+            // Collider2D ë¹„í™œì„±í™”
             Collider2D col = piece.GetComponent<Collider2D>();
             if (col != null)
                 col.enabled = false;
@@ -25,7 +27,8 @@ public class ZacSkill : MonoBehaviour
             Vector2 randomDir = Random.insideUnitCircle.normalized;
             Vector3 targetPos = spawnPos + (Vector3)randomDir * radius;
 
-            // DOTweenÀ¸·Î Á¡ÇÁ ¿¬Ãâ
+            // DOTweenìœ¼ë¡œ ì í”„ ì—°ì¶œ (íŠ¸ìœˆ ì¤‘ë³µ ë°©ì§€ìš© DOKill ê¶Œì¥)
+            piece.transform.DOKill();
             piece.transform.DOJump(
                 targetPos,
                 jumpPower,
@@ -35,7 +38,7 @@ public class ZacSkill : MonoBehaviour
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
-                // Á¡ÇÁ ¿Ï·á ÈÄ Collider È°¼ºÈ­
+                // ì í”„ ì™„ë£Œ í›„ Collider í™œì„±í™”
                 if (col != null)
                     col.enabled = true;
             });

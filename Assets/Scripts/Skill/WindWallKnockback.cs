@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 public class WindWallKnockback : MonoBehaviour
 {
-
     [Header("적에게 줄 피해량 (플레이어 공격력 비례)")]
     public float damageMultiplier = 0.1f;
-
     private int damage;
 
     [Header("바람막 지속시간")]
@@ -26,9 +24,8 @@ public class WindWallKnockback : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (IsNotPlayer(collision.collider))
+        if (IsEnemy(collision.collider))
         {
-            
             EnemyHP hp = collision.collider.GetComponent<EnemyHP>();
             if (hp != null)
             {
@@ -41,7 +38,7 @@ public class WindWallKnockback : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (IsNotPlayer(collision.collider))
+        if (IsEnemy(collision.collider))
         {
             if (!damageTimers.ContainsKey(collision.collider))
                 damageTimers[collision.collider] = 0f;
@@ -69,8 +66,12 @@ public class WindWallKnockback : MonoBehaviour
         }
     }
 
-    private bool IsNotPlayer(Collider2D other)
+    // 적 태그만 판별하는 함수
+    private bool IsEnemy(Collider2D other)
     {
-        return !other.CompareTag("Player");
+        return other.CompareTag("Enemy") ||
+               other.CompareTag("DashEnemy") ||
+               other.CompareTag("LongRangeEnemy") ||
+               other.CompareTag("PotionEnemy");
     }
 }

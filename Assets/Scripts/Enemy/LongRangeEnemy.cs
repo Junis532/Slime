@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Collections;
 using UnityEngine;
 
 public class LongRangeEnemy : EnemyBase
@@ -80,48 +79,52 @@ public class LongRangeEnemy : EnemyBase
 
     void Shoot(Vector2 dir)
     {
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        // PoolManager로 총알 소환
+        GameObject bullet = PoolManager.Instance.SpawnFromPool(bulletPrefab.name, transform.position, Quaternion.identity);
 
-        BulletBehavior bulletBehavior = bullet.GetComponent<BulletBehavior>();
-        if (bulletBehavior == null)
-            bulletBehavior = bullet.AddComponent<BulletBehavior>();
+        if (bullet != null)
+        {
+            BulletBehavior bulletBehavior = bullet.GetComponent<BulletBehavior>();
+            if (bulletBehavior == null)
+                bulletBehavior = bullet.AddComponent<BulletBehavior>();
 
-        bulletBehavior.Initialize(dir.normalized, bulletSpeed, bulletLifetime);
+            bulletBehavior.Initialize(dir.normalized, bulletSpeed, bulletLifetime);
+        }
     }
 }
 
 /// <summary>
-/// 총알 움직임과 시간 기반 소멸 관리
+/// 총알 움직임과 시간 기반 소멸 관리 - Pool 적용
 /// </summary>
 public class BulletBehavior : MonoBehaviour
 {
     private Vector2 direction;
     private float speed;
     private float lifeTime;
-
     private float timer = 0f;
 
+    // 총알 세팅
     public void Initialize(Vector2 dir, float spd, float lifetime)
     {
         direction = dir;
         speed = spd;
         lifeTime = lifetime;
+        timer = 0f;                // 풀 재사용 대비!
     }
 
-    void Start()
+    void OnEnable()
     {
-        // Rigidbody2D 컴포넌트 없어도 됨, 필요하면 제거 가능
+        timer = 0f;   // 풀에서 재활성화 시 타이머 초기화
     }
 
     void Update()
     {
-        // 위치 이동 (transform.Translate)
         transform.Translate(direction * speed * Time.deltaTime);
 
         timer += Time.deltaTime;
         if (timer >= lifeTime)
         {
-            Destroy(gameObject);
+            PoolManager.Instance.ReturnToPool(gameObject); // Destroy -> ReturnToPool
         }
     }
 
@@ -129,7 +132,7 @@ public class BulletBehavior : MonoBehaviour
     {
         if (collision.CompareTag("Player") || collision.CompareTag("Wall"))
         {
-            Destroy(gameObject);
+            PoolManager.Instance.ReturnToPool(gameObject); // Destroy -> ReturnToPool
         }
     }
 }

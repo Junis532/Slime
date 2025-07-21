@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class FootprinterSkill : MonoBehaviour
 {
     public GameObject footprinterPrefab;
-    public GameObject poisonEffectPrefab; // ☠️ 이펙트 프리팹 연결
+    public GameObject poisonEffectPrefab;
     public float skillDuration = 3f;
     public float fadeSpeed = 0.5f;
     public float footprinterInterval = 0.3f;
@@ -15,14 +15,10 @@ public class FootprinterSkill : MonoBehaviour
     private Color initialColor;
 
     private bool isPoisonGasActive = false;
-
-    // 🟡 이 오브젝트가 발자국인지 판단
     public bool isFootprint = false;
 
-    // 발자국 리스트
     private static List<GameObject> footprintList = new List<GameObject>();
 
-    // 외부 접근용: 가장 오래된 발자국 위치
     public static Vector3 OldestFootprintPosition
     {
         get
@@ -44,7 +40,6 @@ public class FootprinterSkill : MonoBehaviour
     {
         if (!isFootprint)
         {
-            // ▶ 플레이어일 경우: 발자국 생성만
             if (Time.time - lastFootprinterTime >= footprinterInterval)
             {
                 CreateFootprint();
@@ -53,7 +48,7 @@ public class FootprinterSkill : MonoBehaviour
         }
         else
         {
-            // ▶ 발자국일 경우: 점점 사라지게 하고 제거
+            // 점점 사라지게 하고 반환
             if (spriteRenderer != null)
             {
                 if (spriteRenderer.color.a > 0)
@@ -63,7 +58,7 @@ public class FootprinterSkill : MonoBehaviour
                 }
                 else
                 {
-                    Destroy(gameObject);
+                    PoolManager.Instance.ReturnToPool(gameObject); // Destroy → 풀반납
                 }
             }
         }
@@ -71,9 +66,10 @@ public class FootprinterSkill : MonoBehaviour
 
     void CreateFootprint()
     {
-        GameObject footprint = Instantiate(footprinterPrefab, transform.position, Quaternion.identity);
+        // 풀매니저 활용
+        GameObject footprint = PoolManager.Instance.SpawnFromPool(footprinterPrefab.name, transform.position, Quaternion.identity);
+        if (footprint == null) return;
 
-        // 👣 발자국으로 지정
         FootprinterSkill footprintScript = footprint.GetComponent<FootprinterSkill>();
         if (footprintScript != null)
         {
@@ -89,18 +85,19 @@ public class FootprinterSkill : MonoBehaviour
 
         if (isPoisonGasActive)
         {
-            // ☠️ 콜라이더 활성화
             Collider2D col = footprint.GetComponent<Collider2D>();
             if (col != null) col.enabled = true;
 
-            // ☠️ 이펙트 생성
             if (poisonEffectPrefab != null)
             {
-                GameObject effect = Instantiate(poisonEffectPrefab, footprint.transform);
+                // 이펙트도 풀링 권장!
+                GameObject effect = PoolManager.Instance.SpawnFromPool(poisonEffectPrefab.name, footprint.transform.position, Quaternion.identity);
+                if (effect != null)
+                    effect.transform.SetParent(footprint.transform, false); // 별도로 부모설정
+
                 effect.transform.localPosition = Vector3.zero;
                 StartCoroutine(DestroyEffectAfterDelay(effect, 10f));
             }
-
             StartCoroutine(DisablePoisonEffect(footprint, 10f));
         }
 
@@ -111,13 +108,12 @@ public class FootprinterSkill : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         footprintList.Remove(footprint);
-        Destroy(footprint);
+        PoolManager.Instance.ReturnToPool(footprint); // Destroy → ReturnToPool
     }
 
     IEnumerator DisablePoisonEffect(GameObject footprint, float delay)
     {
         yield return new WaitForSeconds(delay);
-
         if (footprint != null && footprint.TryGetComponent(out Collider2D col))
         {
             col.enabled = false;
@@ -127,7 +123,7 @@ public class FootprinterSkill : MonoBehaviour
     IEnumerator DestroyEffectAfterDelay(GameObject effect, float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (effect != null) Destroy(effect);
+        if (effect != null) PoolManager.Instance.ReturnToPool(effect); // Destroy → ReturnToPool
     }
 
     public void ActivatePoisonGasMode(float duration)

@@ -5,7 +5,7 @@ public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
     public float followDuration = 0.3f;
-    public float baseSpawnOffsetDistance = 0.5f; // 기준 거리
+    public float baseSpawnOffsetDistance = 0.5f;
 
     private float currentSpawnOffsetDistance;
     private float spawnOffsetVelocity = 0f;
@@ -14,37 +14,57 @@ public class BulletAI : MonoBehaviour
     private Transform player;
     private bool isFollowingPlayer = true;
 
-    private Vector3 spawnOffsetDirection; // 방향은 고정 (초기 랜덤 각도에서 뽑음)
+    private Vector3 spawnOffsetDirection;
     private Vector3 spawnOffset;
 
     private System.Random localRandom;
     private Collider2D myCollider;
+    private Coroutine moveCoroutine;
 
-    void Start()
+    private GroupController groupController;
+
+    void OnEnable()
     {
-        transform.localScale = Vector3.zero;
+        // 1. 트윈/코루틴 확실히 종료
+        transform.DOKill();
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
+        }
+        StopAllCoroutines();
 
-        myCollider = GetComponent<Collider2D>();
-        if (myCollider != null)
-            myCollider.enabled = false;
+        // 2. 주요 변수 리셋
+        isFollowingPlayer = true;
+        target = null;
 
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        if (player == null)
-        {
-            Debug.LogWarning("플레이어를 찾을 수 없습니다.");
-            Destroy(gameObject);
-            return;
-        }
 
+        if (myCollider == null)
+            myCollider = GetComponent<Collider2D>();
+        if (myCollider != null)
+            myCollider.enabled = false; // (초기화!)
+
+        transform.localScale = Vector3.zero;
+
+        // 3. 스폰 각도/오프셋 새 랜덤 세팅
         localRandom = new System.Random(System.DateTime.Now.Millisecond + GetInstanceID());
         float angle = (float)(localRandom.NextDouble() * 360.0);
         float rad = angle * Mathf.Deg2Rad;
         spawnOffsetDirection = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f).normalized;
 
-        // 초기 spawnOffset 거리 세팅
         currentSpawnOffsetDistance = baseSpawnOffsetDistance;
         spawnOffset = spawnOffsetDirection * currentSpawnOffsetDistance;
 
+        // 4. 위치/회전 초기화
+        if (player != null)
+            transform.position = player.position + spawnOffset;
+        else
+            transform.position = Vector3.zero;
+
+        transform.rotation = Quaternion.identity;
+
+        // 5. 스폰 트윈 + 콜라이더 활성 예약 + 타겟 전환 예약
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
             if (myCollider != null)
@@ -54,13 +74,27 @@ public class BulletAI : MonoBehaviour
         });
     }
 
+    void OnDisable()
+    {
+        // 1. 트윈/코루틴 확실히 종료
+        transform.DOKill();
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
+        }
+        StopAllCoroutines();
+
+        // 2. 콜라이더도 비활성화 (혹시 남아있을 수 있음)
+        if (myCollider != null)
+            myCollider.enabled = false;
+    }
+
     void Update()
     {
         if (player == null) return;
 
         float targetScale = Mathf.Max(Mathf.Abs(player.localScale.x), 1f);
-
-        // 커지는 범위를 20% 정도만 반영하고 싶으면 0.2f 곱하기
         float scaleEffectFactor = 0.3f;
 
         currentSpawnOffsetDistance = Mathf.SmoothDamp(
@@ -77,8 +111,6 @@ public class BulletAI : MonoBehaviour
         }
     }
 
-
-
     void SwitchToEnemy()
     {
         isFollowingPlayer = false;
@@ -86,11 +118,11 @@ public class BulletAI : MonoBehaviour
 
         if (target != null)
         {
-            StartCoroutine(MoveTowardsTarget());
+            moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else
         {
-            Destroy(gameObject, 1f); // 적 없으면 1초 뒤 삭제
+            ReturnToPoolSelf();
         }
     }
 
@@ -105,7 +137,7 @@ public class BulletAI : MonoBehaviour
             yield return null;
         }
 
-        Destroy(gameObject);
+        ReturnToPoolSelf();
     }
 
     void FindClosestTarget()
@@ -138,16 +170,27 @@ public class BulletAI : MonoBehaviour
         {
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
-            {
                 hp.TakeDamage();
-            }
 
-            Destroy(gameObject);
+            ReturnToPoolSelf();
         }
     }
 
-    void OnDestroy()
+    // 풀 매니저로 반환하면서도 내부 동작 100% 정리(반복안되게)
+    void ReturnToPoolSelf()
     {
-        transform.DOKill(); // DOTween 메모리 정리
+        // 보장차원에서 추가, Disable 전에 시행
+        transform.DOKill();
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
+        }
+        StopAllCoroutines();
+
+        if (myCollider != null)
+            myCollider.enabled = false;
+
+        PoolManager.Instance.ReturnToPool(gameObject);
     }
 }

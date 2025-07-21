@@ -60,7 +60,7 @@ public class BulletSpawner : MonoBehaviour
             for (int i = 0; i < bulletCount; i++)
             {
                 Vector3 spawnPos = GetNonOverlappingPosition(playerPos, spawnedPositions);
-                Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
+                GameManager.Instance.poolManager.SpawnFromPool(bulletPrefab.name, spawnPos, Quaternion.identity);
                 spawnedPositions.Add(spawnPos);
             }
 

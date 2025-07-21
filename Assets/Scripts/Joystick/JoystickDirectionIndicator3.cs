@@ -42,6 +42,11 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     private Vector2 lightningCastDirection;
     private bool prevBlockInputActive = false;
 
+    [Header("오디오")]
+    public AudioClip teleportSound;
+    private AudioSource audioSource;
+
+
     // ★ 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
     public int CurrentUsingSkillIndex
     {
@@ -73,6 +78,10 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     void Update()
@@ -129,8 +138,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 UpdateTeleportIndicator(input);
             else if (currentSkill == SkillType.Lightning && isLightningMode)
                 UpdateLightningIndicator(input);
-            else if (currentSkill == SkillType.Mucus && isMucusMode)
-                UpdateMucusIndicator(input);
+            //else if (currentSkill == SkillType.Mucus && isMucusMode)
+            //    UpdateMucusIndicator(input);
             else
             {
                 OnSkillButtonPressed();
@@ -260,23 +269,23 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     }
 
     // 새로 추가한 mucus 범위 표시 및 위치 갱신 함수
-    void UpdateMucusIndicator(Vector2 input)
-    {
-        int index = (int)SkillType.Mucus - 1;
-        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
-        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
-        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
-        mucusTargetPosition = basePos;
+    //void UpdateMucusIndicator(Vector2 input)
+    //{
+    //    int index = (int)SkillType.Mucus - 1;
+    //    float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
+    //    Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+    //    Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
+    //    mucusTargetPosition = basePos;
 
-        if (indicatorInstance == null) return;
+    //    if (indicatorInstance == null) return;
 
-        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
-        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
+    //    float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+    //    indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
-        indicatorInstance.SetActive(true);
-    }
+    //    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+    //    indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
+    //    indicatorInstance.SetActive(true);
+    //}
 
     public void OnSkillButtonPressed()
     {
@@ -293,7 +302,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         isTeleportMode = currentSkill == SkillType.Teleport;
         isLightningMode = currentSkill == SkillType.Lightning;
-        isMucusMode = currentSkill == SkillType.Mucus;
+        //isMucusMode = currentSkill == SkillType.Mucus;
     }
 
     void SetupIndicator(int prefabIndex)
@@ -352,25 +361,22 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             case SkillType.Windwall:
                 SpawnWindWall();
                 break;
-            case SkillType.Boom:
-                ShootBomb();
-                break;
-            case SkillType.FootprintTeleport:
-                FootprintTeleport();
-                break;
-            case SkillType.Mucus:
-                if (isMucusMode)
-                {
-                    Mucus();
-                    isMucusMode = false;
-                }
-                break;
-            case SkillType.PoisonGas:
-                PoisonGas();
-            break;
-            default:
-                Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
-                break;
+            //case SkillType.Boom:
+            //    ShootBomb();
+            //    break;
+            //case SkillType.Mucus:
+            //    if (isMucusMode)
+            //    {
+            //        Mucus();
+            //        isMucusMode = false;
+            //    }
+            //    break;
+            //case SkillType.PoisonGas:
+            //    PoisonGas();
+            //break;
+            //default:
+            //    Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
+            //    break;
         }
 
         hasUsedSkill = true;
@@ -396,6 +402,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             Destroy(effect, teleportEffectDuration);
         }
         transform.position = targetPos;
+
+        if (teleportSound != null && audioSource != null)
+            audioSource.PlayOneShot(teleportSound);
     }
 
     private void CastLightning(Vector3 targetPos)
@@ -458,27 +467,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         bomb.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
         bomb.GetComponent<BombProjectile>()?.Init(lastInputDirection);
     }
-
-    private void FootprintTeleport()
-    {
-        Vector3 targetPos = FootprinterSkill.OldestFootprintPosition;
-
-        if (targetPos == Vector3.zero)
-        {
-            Debug.LogWarning("⚠ 가장 오래된 발자국이 없어 순간이동 불가");
-            return;
-        }
-
-        if (teleportEffectPrefab != null)
-        {
-            GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
-            Destroy(effect, teleportEffectDuration);
-        }
-
-        transform.position = targetPos;
-        Debug.Log($"[발자국 순간이동] 위치: {targetPos}");
-    }
-
     private void Mucus()
     {
         if (mucusProjectilePrefab == null || firePoint == null) return;

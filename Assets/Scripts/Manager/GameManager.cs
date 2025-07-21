@@ -27,6 +27,8 @@ public class GameManager : MonoSingleTone<GameManager>
     public LongRangeEnemy longRangeEnemy;
     public PotionEnemy potionEnemy;
     public Timer timer;
+    public AudioManager audioManager;
+    public PoolManager poolManager;
     public ShopManager shopManager;
     public WaveManager waveManager;
     public DialogManager dialogManager;
@@ -57,6 +59,12 @@ public class GameManager : MonoSingleTone<GameManager>
 
     protected new void Awake()
     {
+        // VSync 비활성화 (모니터 주사율 영향 제거)
+        QualitySettings.vSyncCount = 0;
+
+        // 프레임 고정
+        Application.targetFrameRate = 60;
+
         // 중복 GameManager 방지
         if (Instance != null && Instance != this)
         {
@@ -147,14 +155,14 @@ public class GameManager : MonoSingleTone<GameManager>
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
         foreach (GameObject coin in coins)
         {
-            Destroy(coin);
+            PoolManager.Instance.ReturnToPool(coin);
         }
 
         // 모든 총알 삭제
         GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
         foreach (GameObject bullet in bullets)
         {
-            Destroy(bullet);
+            PoolManager.Instance.ReturnToPool(bullet);
         }
 
         // 모든 스킬 삭제
