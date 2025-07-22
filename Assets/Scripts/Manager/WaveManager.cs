@@ -12,7 +12,7 @@ public class WaveManager : MonoBehaviour
     [Header("웨이브 스폰 설정")]
     public Transform playerTransform;
     public float spawnInterval = 5f;
-    public float spawnRadius = 5f;
+    public float spawnRadius = 5f; // Player-centric spawn radius
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
     public TextMeshProUGUI waveText;
@@ -20,6 +20,13 @@ public class WaveManager : MonoBehaviour
 
     [Header("★ 반드시 인스펙터/코드로 연결")]
     public JoystickDirectionIndicator3 playerSkillController;   // << 추가 >>
+
+    // New: Define min/max spawn coordinates for the overall bounding box
+    [Header("스폰 가능 전체 영역 (맵 경계)")]
+    public float minMapX = -10f;
+    public float maxMapX = 10f;
+    public float minMapY = -6f;
+    public float maxMapY = 6f;
 
     private Coroutine spawnCoroutine;
 
@@ -103,15 +110,23 @@ public class WaveManager : MonoBehaviour
         int spawnCount = Random.Range(currentWaveData.minSpawnCount, currentWaveData.maxSpawnCount + 1);
         List<GameObject> spawnMonsters = new List<GameObject>();
         List<Vector2> spawnPositions = new List<Vector2>();
+
         for (int i = 0; i < spawnCount; i++)
         {
             // 각 몬스터는 랜덤
             GameObject selected = monsterList[Random.Range(0, monsterList.Count)];
             spawnMonsters.Add(selected);
 
+            // Calculate a position around the player
             Vector2 spawnOffset = Random.insideUnitCircle.normalized * spawnRadius;
-            Vector2 spawnPosition = (Vector2)playerTransform.position + spawnOffset;
-            spawnPositions.Add(spawnPosition);
+            Vector2 potentialSpawnPosition = (Vector2)playerTransform.position + spawnOffset;
+
+            // Clamp the potential spawn position to the defined map boundaries
+            float finalX = Mathf.Clamp(potentialSpawnPosition.x, minMapX, maxMapX);
+            float finalY = Mathf.Clamp(potentialSpawnPosition.y, minMapY, maxMapY);
+            Vector2 finalSpawnPosition = new Vector2(finalX, finalY);
+
+            spawnPositions.Add(finalSpawnPosition);
         }
 
         // 경고 이펙트 (상점 진입시 중간에 코루틴 종료되어도 스폰 안됨)
