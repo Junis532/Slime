@@ -177,4 +177,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 25
   followDuration: 0.1
-  baseSpawnOffsetDistance: 0.5

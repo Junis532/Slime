@@ -181,8 +181,6 @@ MonoBehaviour:
   damageMultiplier: 0.1
   lifetime: 5
   damageInterval: 0.5
-  pushStrength: 7
-  pushRadius: 2
 --- !u!1001 &2531546041079907776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -313,7 +311,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageMultiplier: 0.1
-  lifetime: 5
+  lifetime: 3
   damageInterval: 0.5
-  pushStrength: 7
-  pushRadius: 2

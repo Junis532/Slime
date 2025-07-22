@@ -5670,7 +5670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1069711806}
-  timeRemaining: 14
+  timeRemaining: 30
   timerRunning: 1
 --- !u!114 &846765398
 MonoBehaviour:
@@ -5687,9 +5687,9 @@ MonoBehaviour:
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   spawnInterval: 1
   bulletCount: 1
-  bowPrefab: {fileID: 3899278281159487786, guid: ff983a99fa2cd924e88b225510d78d85, type: 3}
-  effectBowPrefab: {fileID: 3899278281159487786, guid: a841f71ff35ca3b46ad9d194d64fb10d, type: 3}
-  bowOffset: {x: -0.6, y: 0.5, z: 0}
+  effectBowPrefab: {fileID: 5252764124514571402, guid: ed0bb0e35e84261439d271ab564525b3, type: 3}
+  bowDistance: 0.6
+  arrowDistanceFromPlayer: 0.6
 --- !u!114 &846765399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20483,6 +20483,36 @@ MonoBehaviour:
   spawnInterval: 15
   poisonLifetime: 10
   spawnOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &1919898618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1919898548}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e3e0db538b7f95408485b711037f432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
+  bombShootInterval: 3
+  bombDetectRange: 10
+--- !u!114 &1919898619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1919898548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ec3ee9384557f748ab761c6748d982b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mucusPrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
+  firePoint: {fileID: 273251364}
+  fireCooldown: 3
 --- !u!1 &1923769050
 GameObject:
   m_ObjectHideFlags: 0
@@ -23004,9 +23034,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 492544042}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: fireballSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: teleportSound
       value: 
       objectReference: {fileID: 8300000, guid: ef16ba81ebd644a44986f936e1e14a42, type: 3}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: windWallSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: skillSaveButton
       value: 
@@ -23147,6 +23185,10 @@ PrefabInstance:
       propertyPath: joystick
       value: 
       objectReference: {fileID: 985239026}
+    - target: {fileID: 8816511963348474582, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: smoothTime
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[0]'
       value: 
@@ -23230,6 +23272,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       insertIndex: 13
       addedObject: {fileID: 1919898607}
+    - targetCorrespondingSourceObject: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1919898618}
+    - targetCorrespondingSourceObject: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1919898619}
   m_SourcePrefab: {fileID: 100100000, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
 --- !u!1001 &8202578718991682936
 PrefabInstance:

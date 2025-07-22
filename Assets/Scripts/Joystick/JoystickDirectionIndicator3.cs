@@ -44,6 +44,8 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
     [Header("오디오")]
     public AudioClip teleportSound;
+    public AudioClip windWallSound;
+    public AudioClip fireballSound; // New: Audio clip for Fireball
     private AudioSource audioSource;
 
 
@@ -98,7 +100,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         }
         prevBlockInputActive = isBlockActive;
 
-        if (!prevIsRolling && DiceAnimation.isRolling)
+        if (prevIsRolling && !DiceAnimation.isRolling)
         {
             ResetInputStates();
         }
@@ -110,7 +112,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             return;
         }
 
-        
+
         Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
         isTouchingJoystick = input.magnitude > 0.2f;
         SetHideImageState(!isTouchingJoystick);
@@ -347,7 +349,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         switch (skill)
         {
             case SkillType.Fireball:
-                ShootFireball();
+                ShootFireball(); // Audio will be played here
                 break;
             case SkillType.Teleport:
                 if (isTeleportMode)
@@ -367,22 +369,13 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             case SkillType.Windwall:
                 SpawnWindWall();
                 break;
-            //case SkillType.Boom:
-            //    ShootBomb();
-            //    break;
-            //case SkillType.Mucus:
-            //    if (isMucusMode)
-            //    {
-            //        Mucus();
-            //        isMucusMode = false;
-            //    }
-            //    break;
-            //case SkillType.PoisonGas:
-            //    PoisonGas();
-            //break;
-            //default:
-            //    Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
-            //    break;
+
+                //case SkillType.PoisonGas:
+                //    PoisonGas();
+                //break;
+                //default:
+                //    Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
+                //    break;
         }
 
         hasUsedSkill = true;
@@ -395,6 +388,13 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     private void ShootFireball()
     {
         if (fireballPrefab == null || firePoint == null) return;
+
+        // Play the Fireball sound if assigned
+        if (fireballSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(fireballSound);
+        }
+
         GameObject obj = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
         obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
         obj.GetComponent<FireballProjectile>()?.Init(lastInputDirection);
@@ -462,24 +462,15 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     private void SpawnWindWall()
     {
         if (windWallPrefab == null) return;
+
+        // Play the Wind Wall sound if assigned
+        if (windWallSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(windWallSound);
+        }
+
         GameObject wall = Instantiate(windWallPrefab, transform.position, Quaternion.identity);
         wall.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-    }
-
-    private void ShootBomb()
-    {
-        if (bombPrefab == null || firePoint == null) return;
-        GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
-        bomb.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-        bomb.GetComponent<BombProjectile>()?.Init(lastInputDirection);
-    }
-    private void Mucus()
-    {
-        if (mucusProjectilePrefab == null || firePoint == null) return;
-
-        GameObject obj = Instantiate(mucusProjectilePrefab, firePoint.position, Quaternion.identity);
-        obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-        obj.GetComponent<MucusProjectile>()?.Init(mucusTargetPosition);
     }
 
     private void PoisonGas()
@@ -506,8 +497,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         if (fp != null)
         {
             fp.ActivatePoisonGasMode(10f);
-            
+
         }
     }
-
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BombProjectile : MonoBehaviour
 {
-    public float speed = 8f;
+    public float speed = 4f;
     public float lifeTime = 2.5f;
 
     public float explosionRadius = 2f;               // 폭발 반경
@@ -16,7 +16,7 @@ public class BombProjectile : MonoBehaviour
         direction = dir.normalized;
 
         // 플레이어 공격력 기반 데미지 설정 (예: 3배)
-        damage = Mathf.FloorToInt(GameManager.Instance.playerStats.attack * 3f);
+        damage = Mathf.FloorToInt(GameManager.Instance.playerStats.attack * 0.5f);
 
         Destroy(gameObject, lifeTime);
     }
