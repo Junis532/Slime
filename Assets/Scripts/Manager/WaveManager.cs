@@ -21,6 +21,8 @@ public class WaveManager : MonoBehaviour
     [Header("★ 반드시 인스펙터/코드로 연결")]
     public JoystickDirectionIndicator3 playerSkillController;   // << 추가 >>
 
+    private int lastValidSkillIndex = -1;
+
     // New: Define min/max spawn coordinates for the overall bounding box
     [Header("스폰 가능 전체 영역 (맵 경계)")]
     public float minMapX = -10f;
@@ -87,10 +89,20 @@ public class WaveManager : MonoBehaviour
         }
 
         int currentSkillNumber = playerSkillController != null ? playerSkillController.CurrentUsingSkillIndex : 0;
-        if (currentSkillNumber <= 0)
+
+        // 스킬이 유효하면 저장하고, 아니면 마지막 유효 스킬을 사용
+        if (currentSkillNumber > 0)
         {
-            Debug.LogWarning("[WaveManager] 현재 사용 중인 스킬이 없음: 몬스터 스폰 스킵");
-            yield break;
+            lastValidSkillIndex = currentSkillNumber;
+        }
+        else
+        {
+            if (lastValidSkillIndex <= 0)
+            {
+                Debug.LogWarning("[WaveManager] 현재 스킬이 없고 이전 사용된 스킬도 없음: 몬스터 스폰 스킵");
+                yield break;
+            }
+            currentSkillNumber = lastValidSkillIndex;
         }
 
         int skillListIndex = currentSkillNumber - 1;
@@ -189,11 +201,14 @@ public class WaveManager : MonoBehaviour
             yield break;
 
         // 몬스터 스폰 풀매니저로
+        // 몬스터 스폰 (Instantiate 방식)
         for (int i = 0; i < spawnPositions.Count; i++)
         {
-            string poolName = spawnMonsters[i].name;
-            GameManager.Instance.poolManager.SpawnFromPool(poolName, spawnPositions[i], Quaternion.identity);
+            GameObject prefab = spawnMonsters[i];
+            Vector2 spawnPos = spawnPositions[i];
+            Instantiate(prefab, spawnPos, Quaternion.identity);
         }
+
 
         Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {spawnCount}마리, 스킬({currentSkillNumber})에 매핑된 몬스터 수: {monsterList.Count}개");
     }
