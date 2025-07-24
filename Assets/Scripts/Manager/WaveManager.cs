@@ -135,12 +135,12 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         //UpdateWaveText();
         UpdateEnemyHP();
-        StartCoroutine(SpawnWithWarning());
+        //StartCoroutine(SpawnWithWarning());
         if (ShopManager.Instance != null)
             ShopManager.Instance.ResetRerollPrice();
 
         GameManager.Instance.ChangeStateToGame();
-        RestartSpawnLoop();
+        //RestartSpawnLoop();
     }
 
     bool IsEnemyTag(string tag)
