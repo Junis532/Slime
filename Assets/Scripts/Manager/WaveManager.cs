@@ -32,6 +32,15 @@ public class WaveManager : MonoBehaviour
 
     private Coroutine spawnCoroutine;
 
+    [Header("맵 관련")]
+    private GameObject currentMapInstance;
+
+    [Header("포탈")]
+    public GameObject portalPrefab;
+    public GameObject shopPortalPrefab;
+    public Vector2 portalOffset = new Vector2(0f, 2f);
+    private bool portalSpawned = false;
+
     void Start()
     {
         if (playerSkillController == null)
@@ -40,6 +49,54 @@ public class WaveManager : MonoBehaviour
         ResetWave();
         StartSpawnLoop();
     }
+
+    void Update()
+    {
+        if (!portalSpawned && GameManager.Instance.CurrentState == "Clear")
+        {
+            SpawnPortal();
+            portalSpawned = true;
+        }
+    }
+
+    void SpawnPortal()
+    {
+        if (playerTransform == null)
+        {
+            Debug.LogWarning("플레이어 트랜스폼이 연결되지 않았습니다.");
+            return;
+        }
+
+        Vector2 portalPosition = (Vector2)playerTransform.position + portalOffset;
+
+        WaveData currentWaveData = null;
+        if (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
+        {
+            currentWaveData = waveDataList[currentWave - 1];
+        }
+
+        if (currentWaveData != null && currentWaveData.isShopMap)
+        {
+            if (shopPortalPrefab == null)
+            {
+                Debug.LogWarning("상점 포탈 프리팹이 연결되지 않았습니다.");
+                return;
+            }
+            Instantiate(shopPortalPrefab, portalPosition, Quaternion.identity);
+            Debug.Log("[WaveManager] 클리어 상태 - 상점 포탈 생성됨");
+        }
+        else
+        {
+            if (portalPrefab == null)
+            {
+                Debug.LogWarning("포탈 프리팹이 연결되지 않았습니다.");
+                return;
+            }
+            Instantiate(portalPrefab, portalPosition, Quaternion.identity);
+            Debug.Log("[WaveManager] 클리어 상태 - 포탈 생성됨");
+        }
+    }
+
 
     public void ResetWave()
     {
@@ -60,12 +117,28 @@ public class WaveManager : MonoBehaviour
             Debug.LogWarning("더 이상 웨이브가 없습니다.");
             return;
         }
+
+        // 이전 맵 제거
+        if (currentMapInstance != null)
+        {
+            Destroy(currentMapInstance);
+            currentMapInstance = null;
+        }
+
+        // 새 맵 프리팹 인스턴스화
+        WaveData waveData = waveDataList[currentWave];
+        if (waveData.mapPrefab != null)
+        {
+            currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
+        }
+
         currentWave++;
         //UpdateWaveText();
         UpdateEnemyHP();
         StartCoroutine(SpawnWithWarning());
         if (ShopManager.Instance != null)
             ShopManager.Instance.ResetRerollPrice();
+
         GameManager.Instance.ChangeStateToGame();
         RestartSpawnLoop();
     }

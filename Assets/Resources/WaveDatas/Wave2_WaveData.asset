@@ -47,3 +47,5 @@ MonoBehaviour:
     - {fileID: 5458510719133782858, guid: a768219100b226a4d89d7acb3cee9e0f, type: 3}
   minSpawnCount: 3
   maxSpawnCount: 5
+  mapPrefab: {fileID: 4042789970182054825, guid: c6e2b988659e97c43a0e8d041e7a00f9, type: 3}
+  isShopMap: 1

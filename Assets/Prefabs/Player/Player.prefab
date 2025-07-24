@@ -21,10 +21,13 @@ GameObject:
   - component: {fileID: 977684244640882011}
   - component: {fileID: 6045572874715174237}
   - component: {fileID: 2574320177181981338}
+  - component: {fileID: 945894389789902049}
   - component: {fileID: 5541766964541958170}
   - component: {fileID: 3569891383239720541}
   - component: {fileID: 7348652413250357216}
-  m_Layer: 0
+  - component: {fileID: 8397408728027269628}
+  - component: {fileID: 2672119383809875811}
+  m_Layer: 9
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -90,7 +93,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  m_Sprite: {fileID: 3849653053731301040, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -144,9 +147,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputVec: {x: 0, y: 0}
-  smoothTime: 0.1
+  smoothTime: 0
   canMove: 1
   joystick: {fileID: 0}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &1713953795467074080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,7 +226,7 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.16}
   m_Radius: 0.13
 --- !u!114 &596596526947038125
 MonoBehaviour:
@@ -261,26 +267,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleSprites:
-  - {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: -6015076115631128014, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: -3126225356833462703, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: 4757211523733148363, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: 4169622859758817906, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: -1130083785902081503, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: 4096342191472955793, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: 5847738791911658271, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
-  - {fileID: -3080028064676090369, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+  - {fileID: 3849653053731301040, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: -6651595109115532579, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: 7422294177687754584, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: -5683733934018645311, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: 6402325692262460786, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: 1528471920660774602, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: 3177706425798341343, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: -1096102898587847706, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
+  - {fileID: 5783037581342087642, guid: 35456fb346f32fb42b1eb0e820f48b0c, type: 3}
   moveSprites:
-  - {fileID: -9095196822728518287, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: 2270236354037247264, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: 7751722143754526998, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: -243147324809725674, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: -4882477217233123295, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: 31893863579762109, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: -8022918409455177333, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: -3233113612691947321, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: -204673466843399005, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
-  - {fileID: 1921087515718519626, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+  - {fileID: 8792432185145641336, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -4057255455349774950, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -5825175320717511138, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -5576832320780851217, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -6667187714540397544, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: 7661752724262660612, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -3032393595285280181, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -7076051637959772536, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -1673889373007223636, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
+  - {fileID: -6194320128911903003, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
   frameRate: 0.05
   currentState: 0
 --- !u!114 &977684244640882011
@@ -306,17 +312,9 @@ MonoBehaviour:
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
   - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
   - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
-  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
   distancesFromPlayer:
   - 3.5
   - 3
-  - 3
-  - 0
-  - 4
-  - 0
   - 3
   - 0
   spriteBackOffsets:
@@ -324,15 +322,7 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0
-  - 0
-  - 0
-  - 0
   skillAngleOffsets:
-  - 0
-  - 0
-  - 0
-  - 0
   - 0
   - 0
   - 0
@@ -346,6 +336,10 @@ MonoBehaviour:
   teleportEffectDuration: 0.3
   bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
   mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
+  fireballSound: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
+  teleportSound: {fileID: 8300000, guid: ef16ba81ebd644a44986f936e1e14a42, type: 3}
+  lightningSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
+  windWallSound: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
 --- !u!114 &6045572874715174237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,6 +366,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathPanel: {fileID: 0}
   deathCanvasGroup: {fileID: 0}
+--- !u!114 &945894389789902049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c1366738a3a04f469433ad03dcd271e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poisonPrefab: {fileID: 6950589694986560093, guid: d6ca1447baef0da4b81dbe7158aba161, type: 3}
+  spawnInterval: 15
+  poisonLifetime: 10
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5541766964541958170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,6 +416,8 @@ MonoBehaviour:
   fadeSpeed: 0.5
   footprinterInterval: 0.1
   isFootprint: 0
+  autoTogglePoisonGas: 1
+  toggleInterval: 5
 --- !u!114 &7348652413250357216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,3 +435,33 @@ MonoBehaviour:
   radius: 2
   jumpPower: 0.5
   jumpDuration: 0.5
+--- !u!114 &8397408728027269628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e3e0db538b7f95408485b711037f432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
+  bombShootInterval: 3
+  bombDetectRange: 10
+--- !u!114 &2672119383809875811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ec3ee9384557f748ab761c6748d982b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mucusPrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
+  firePoint: {fileID: 8740702165785062773}
+  fireCooldown: 3

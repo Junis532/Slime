@@ -9,10 +9,16 @@ public class WaveData : ScriptableObject
 
     public int minSpawnCount = 3;
     public int maxSpawnCount = 5;
+
+    [Header("∏  «¡∏Æ∆’")]
+    public GameObject mapPrefab;
+
+    [Header("ªÛ¡° ∏  ø©∫Œ")]
+    public bool isShopMap = false;
 }
 
 [System.Serializable]
 public class SkillMonsterList
 {
     public List<GameObject> monsters;
-}
+}    

@@ -171,7 +171,7 @@ public class GameManager : MonoSingleTone<GameManager>
         }
 
         // 기다리지 않고 바로 상점 상태로 전환
-        ChangeStateToShop();
+        ChangeStateToClear();
         //ChangeStateToClear();
         yield break;
     }
@@ -192,7 +192,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (timer != null)
         {
-            timer.ResetTimer(1000f);
+            timer.ResetTimer(10f);
         }
 
         diceAnimation.StartRollingLoop();
