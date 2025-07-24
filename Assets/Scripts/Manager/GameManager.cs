@@ -22,6 +22,8 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats itemStats6;
     public ItemStats itemStats7;
     public ItemStats itemStats8;
+    public ItemStats itemStats9;
+    public ItemStats itemStats10;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -50,8 +52,8 @@ public class GameManager : MonoSingleTone<GameManager>
         Lobby,
         Game,
         Shop,
-        End,
-        Clear
+        Clear,
+        End
     }
 
     private GameState currentState = GameState.Lobby;
@@ -101,7 +103,7 @@ public class GameManager : MonoSingleTone<GameManager>
         dashEnemyStats.ResetStats();
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
-        waveManager.UpdateWaveText();
+        //waveManager.UpdateWaveText();
 
 
         if (shopUI != null)
@@ -170,6 +172,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         // 기다리지 않고 바로 상점 상태로 전환
         ChangeStateToShop();
+        //ChangeStateToClear();
         yield break;
     }
 
@@ -186,6 +189,11 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Game;
         Debug.Log("상태: Game - 웨이브 진행 중");
+
+        if (timer != null)
+        {
+            timer.ResetTimer(1000f);
+        }
 
         diceAnimation.StartRollingLoop();
 
@@ -204,11 +212,6 @@ public class GameManager : MonoSingleTone<GameManager>
         waveManager.StopSpawnLoop();
 
         shopManager.FirstRerollItems();
-
-        if (timer != null)
-        {
-            timer.ResetTimer(60f);
-        }
 
         if (shopUI != null)
         {
@@ -238,7 +241,18 @@ public class GameManager : MonoSingleTone<GameManager>
         }
     }
 
+    public void ChangeStateToClear()
+    {
+        currentState = GameState.Clear;
+        Debug.Log("상태: Clear - 웨이브 클리어");
 
+        diceAnimation.StopRollingLoop();
+
+        waveManager.StopSpawnLoop();
+
+        Time.timeScale = 1f;
+        if (shopUI != null) shopUI.SetActive(false);
+    }
 
     public void ChangeStateToEnd()
     {
@@ -248,17 +262,10 @@ public class GameManager : MonoSingleTone<GameManager>
         if (shopUI != null) shopUI.SetActive(false);
     }
 
-    public void ChangeStateToClear()
-    {
-        currentState = GameState.Clear;
-        Debug.Log("상태: Clear - 모든 웨이브 클리어");
-        Time.timeScale = 0f;
-        if (shopUI != null) shopUI.SetActive(false);
-    }
 
     public bool IsIdle() => currentState == GameState.Lobby;
     public bool IsGame() => currentState == GameState.Game;
     public bool IsShop() => currentState == GameState.Shop;
-    public bool IsEnd() => currentState == GameState.End;
     public bool IsClear() => currentState == GameState.Clear;
+    public bool IsEnd() => currentState == GameState.End;
 }

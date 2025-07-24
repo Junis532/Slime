@@ -37,6 +37,10 @@ public class DashEnemy : EnemyBase
     [Header("벽 레이어 마스크")]
     public LayerMask wallLayerMask;  // 반드시 Wall 레이어 설정
 
+    [Header("회피 관련")]
+    public float avoidanceRange = 1.5f;   // 장애물 감지 범위
+    public LayerMask obstacleMask;        // 장애물 레이어 (Wall 등)
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -59,10 +63,11 @@ public class DashEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
+        Vector2 currentPos = transform.position;
         Vector2 dirVec = (player.transform.position - transform.position);
         Vector2 inputVec = dirVec.normalized;
 
-        // 대쉬 중
+        // 대시 중에는 회피 없이 DashMove() 처리
         if (isDashing)
         {
             DashMove();
@@ -79,7 +84,7 @@ public class DashEnemy : EnemyBase
             return;
         }
 
-        // 대쉬 준비 중
+        // 대시 준비 중 - 대시 방향은 플레이어 방향 고정, 회피 적용은 하지 않음
         if (isPreparingToDash)
         {
             pauseTimer += Time.deltaTime;
@@ -111,18 +116,21 @@ public class DashEnemy : EnemyBase
             return;
         }
 
-        // 일반 이동에서 속도는 개별 speed 사용
-        dashTimer += Time.deltaTime;
-        if (dashTimer >= dashCooldown)
+        // 일반 이동 중 장애물 회피 적용
+        Vector2 avoidanceVec = Vector2.zero;
+        RaycastHit2D hitAvoid = Physics2D.Raycast(currentPos, inputVec, avoidanceRange, obstacleMask);
+        if (hitAvoid.collider != null)
         {
-            isPreparingToDash = true;
-            pauseTimer = 0f;
-            dashDirection = inputVec;  // 대쉬 방향 고정
-            return;
+            Vector2 hitNormal = hitAvoid.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+            avoidanceVec = sideStep.normalized * 1.5f;
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * speed * Time.deltaTime;  // 여기 speed 사용
+        Vector2 finalMoveDir = (inputVec + avoidanceVec).normalized;
+
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalMoveDir, ref currentVelocity, smoothTime);
+        Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
         if (currentDirection.magnitude > 0.01f)
@@ -137,6 +145,19 @@ public class DashEnemy : EnemyBase
 
         if (dashPreviewInstance != null && !isPreparingToDash)
             dashPreviewInstance.SetActive(false);
+
+        // 대시 타이머 업데이트 및 대시 준비 시작
+        dashTimer += Time.deltaTime;
+        if (dashTimer >= dashCooldown)
+        {
+            isPreparingToDash = true;
+            pauseTimer = 0f;
+
+            // 대시 방향은 항상 플레이어 방향 (회피 없이)
+            dashDirection = inputVec;
+
+            return;
+        }
     }
 
     private void DashMove()
@@ -146,6 +167,7 @@ public class DashEnemy : EnemyBase
 
         if (hit.collider != null)
         {
+            // 장애물이 있으면 멈추고 대쉬 종료
             transform.position = hit.point - dashDirection.normalized * 0.01f;
             EndDash();
         }

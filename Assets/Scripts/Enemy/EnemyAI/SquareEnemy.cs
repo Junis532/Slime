@@ -7,9 +7,22 @@ public class SquareEnemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    [Header("직사각형 경로 설정")]
+    [Header("경로 설정")]
+    public Vector2 pathCenter = Vector2.zero;
+    public float pathWidth = 20f;
+    public float pathHeight = 12f;
+
     private Vector2[] waypoints;
     private int currentWaypointIndex = 0;
+
+    private Vector2 currentVelocity;
+    private Vector2 currentDirection;
+
+    public float smoothTime = 0.1f;
+
+    [Header("회피 관련")]
+    public float avoidanceRange = 2f;
+    public LayerMask obstacleMask;
 
     void Start()
     {
@@ -19,43 +32,72 @@ public class SquareEnemy : EnemyBase
         originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
 
-        // 꼭짓점 설정 (시계 방향 순서)
-        waypoints = new Vector2[]
-        {
-            new Vector2(-10,  6),
-            new Vector2( 10,  6),
-            new Vector2( 10, -6),
-            new Vector2(-10, -6)
-        };
-
-        // 시작 위치 설정
+        GenerateWaypoints();
         transform.position = waypoints[0];
         currentWaypointIndex = 1;
+    }
+
+    void GenerateWaypoints()
+    {
+        float halfWidth = pathWidth / 2f;
+        float halfHeight = pathHeight / 2f;
+
+        waypoints = new Vector2[]
+        {
+            pathCenter + new Vector2(-halfWidth,  halfHeight),
+            pathCenter + new Vector2( halfWidth,  halfHeight),
+            pathCenter + new Vector2( halfWidth, -halfHeight),
+            pathCenter + new Vector2(-halfWidth, -halfHeight)
+        };
     }
 
     void Update()
     {
         if (!isLive) return;
 
+        Vector2 currentPos = transform.position;
         Vector2 target = waypoints[currentWaypointIndex];
-        Vector2 moveDir = (target - (Vector2)transform.position).normalized;
+        Vector2 dirToTarget = (target - currentPos).normalized;
 
-        transform.position = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        // 장애물 회피 검사
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToTarget, avoidanceRange, obstacleMask);
 
-        // 방향 반전 (x축 기준)
-        if (moveDir.x != 0)
+        Vector2 avoidanceVector = Vector2.zero;
+        if (hit.collider != null)
         {
-            Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (moveDir.x < 0 ? -1 : 1);
-            transform.localScale = scale;
+            Vector2 hitNormal = hit.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal).normalized;
+            avoidanceVector = sideStep * 1.5f;
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+        // 최종 방향
+        Vector2 finalDir = (dirToTarget + avoidanceVector).normalized;
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
+        Vector2 moveVec = currentDirection * speed * Time.deltaTime;
+        transform.Translate(moveVec);
 
-        // 다음 꼭짓점으로 이동
         if (Vector2.Distance(transform.position, target) < 0.1f)
         {
             currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+        }
+
+        // 방향 반전
+        if (currentDirection.x != 0)
+        {
+            Vector3 scale = transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * (currentDirection.x < 0 ? -1 : 1);
+            transform.localScale = scale;
+        }
+
+        // 애니메이션 처리
+        if (currentDirection.magnitude > 0.01f)
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+        }
+        else
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 
@@ -72,7 +114,7 @@ public class SquareEnemy : EnemyBase
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // 플레이어 사망 처리 필요 시 여기에
+                // 플레이어 사망 처리
             }
         }
     }
@@ -80,5 +122,23 @@ public class SquareEnemy : EnemyBase
     private void OnDestroy()
     {
         isLive = false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
+
+        // 사각형 경로 표시
+        Vector2 p1 = pathCenter + new Vector2(-pathWidth / 2f, pathHeight / 2f);
+        Vector2 p2 = pathCenter + new Vector2(pathWidth / 2f, pathHeight / 2f);
+        Vector2 p3 = pathCenter + new Vector2(pathWidth / 2f, -pathHeight / 2f);
+        Vector2 p4 = pathCenter + new Vector2(-pathWidth / 2f, -pathHeight / 2f);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(p1, p2);
+        Gizmos.DrawLine(p2, p3);
+        Gizmos.DrawLine(p3, p4);
+        Gizmos.DrawLine(p4, p1);
     }
 }

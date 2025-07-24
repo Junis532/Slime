@@ -21,6 +21,10 @@ public class MagnetEnemy : EnemyBase
     public float followSpeed = 2f;    // 적이 플레이어를 따라가는 속도
     public float pullForce = 1.5f;    // 플레이어를 끌어당기는 힘
 
+    [Header("회피 관련")]
+    public float avoidanceRange = 2f;        // 장애물 감지 범위
+    public LayerMask obstacleMask;           // 장애물 레이어 지정
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -29,7 +33,6 @@ public class MagnetEnemy : EnemyBase
         originalSpeed = followSpeed;
         speed = originalSpeed;
 
-        // 감지 범위 표시
         if (rangeVisualPrefab != null)
         {
             rangeVisualInstance = Instantiate(rangeVisualPrefab, transform.position, Quaternion.identity, transform);
@@ -44,31 +47,49 @@ public class MagnetEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
-        Vector2 toPlayer = player.transform.position - transform.position;
-        float distance = toPlayer.magnitude;
+        Vector2 currentPos = transform.position;
+        Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
+        float distance = dirToPlayer.magnitude;
 
         // 좌우 반전
-        if (toPlayer.x != 0)
+        if (dirToPlayer.x != 0)
         {
             Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (toPlayer.x < 0 ? -1 : 1);
+            scale.x = Mathf.Abs(scale.x) * (dirToPlayer.x < 0 ? -1 : 1);
             transform.localScale = scale;
         }
 
-        // ───────────── 플레이어를 강제로 끌어당김 ─────────────
+        // 장애물 회피 레이캐스트 검사
+        Vector2 dirNormalized = dirToPlayer.normalized;
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirNormalized, avoidanceRange, obstacleMask);
+
+        Vector2 avoidanceVector = Vector2.zero;
+
+        if (hit.collider != null)
+        {
+            Vector2 hitNormal = hit.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+
+            avoidanceVector = sideStep.normalized * 1.5f; // 조절 가능
+            Debug.DrawRay(currentPos, sideStep * 2f, Color.green);
+        }
+
+        // 최종 방향 (플레이어 방향 + 회피 벡터)
+        Vector2 finalDir = (dirNormalized + avoidanceVector).normalized;
+
+        // 플레이어를 끌어당기는 힘 적용 (감지 범위 내)
         if (distance <= detectionRange)
         {
             Vector3 pullDir = (transform.position - player.transform.position).normalized;
             player.transform.position += pullDir * pullForce * Time.deltaTime;
         }
 
-        // ───────────── 적은 항상 따라감 ─────────────
-        Vector2 dirVec = toPlayer.normalized;
-        currentDirection = Vector2.SmoothDamp(currentDirection, dirVec, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * followSpeed * Time.deltaTime;
-        transform.Translate(nextVec);
+        // 적 움직임 (회피 포함)
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
+        Vector2 moveVec = currentDirection * followSpeed * Time.deltaTime;
+        transform.Translate(moveVec);
 
-        // 애니메이션
+        // 애니메이션 처리
         if (currentDirection.magnitude > 0.01f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
@@ -87,7 +108,9 @@ public class MagnetEnemy : EnemyBase
         {
             int damage = GameManager.Instance.enemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
+
+            if (GameManager.Instance.playerDamaged != null)
+                GameManager.Instance.playerDamaged.PlayDamageEffect();
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {

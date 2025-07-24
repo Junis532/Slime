@@ -51,12 +51,22 @@ public class DiceAnimation : MonoBehaviour
     void Start()
     {
         image = GetComponent<Image>();
+
+        if (image == null)
+        {
+            Debug.LogError("❌ Image 컴포넌트가 없습니다!");
+            return;
+        }
+
+        if (diceSprites == null || diceSprites.Count == 0)
+        {
+            Debug.LogError("❌ diceSprites가 설정되지 않았거나 비어 있습니다!");
+            return;
+        }
+
         RollOnceAtStart();
-        //UpdateSkillImage();
-        //UpdateSaveDiceImageByNoSkillCount();
-        if (waitTimerText != null)
-            waitTimerText.text = "";
     }
+
 
     void OnEnable() => StartRollingLoop();
     void OnDisable() => StopRollingLoop();

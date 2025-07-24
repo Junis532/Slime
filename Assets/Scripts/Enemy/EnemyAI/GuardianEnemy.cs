@@ -14,7 +14,6 @@ public class GuardianEnemy : EnemyBase
 
     public float smoothTime = 0.1f;
     public float fireRange = 5f;
-
     private GameObject player;
     private LineRenderer laserLineRenderer;
 
@@ -22,7 +21,12 @@ public class GuardianEnemy : EnemyBase
     public Color laserColor = Color.red;
     public float laserWidth = 0.1f;
 
-    // 데미지 타이머
+    // 장애물 회피
+    [Header("회피 관련")]
+    public float avoidanceRange = 1.5f;
+    public LayerMask obstacleMask;
+
+    // 데미지 루틴
     private bool isDamaging = false;
 
     void Start()
@@ -35,23 +39,20 @@ public class GuardianEnemy : EnemyBase
 
         player = GameObject.FindWithTag("Player");
 
-        // LineRenderer 추가 및 설정
+        // 레이저 세팅
         laserLineRenderer = gameObject.AddComponent<LineRenderer>();
         laserLineRenderer.positionCount = 2;
         laserLineRenderer.enabled = false;
         laserLineRenderer.startWidth = laserWidth;
         laserLineRenderer.endWidth = laserWidth;
 
-        // 커스텀 GlowLine 셰이더 적용
         Material laserMat = new Material(Shader.Find("Unlit/GlowLine"));
         laserMat.SetColor("_Color", laserColor);
-        laserMat.SetColor("_EmissionColor", laserColor * 5f);  // 발광 강도 조절
+        laserMat.SetColor("_EmissionColor", laserColor * 5f);
         laserLineRenderer.material = laserMat;
 
         laserLineRenderer.startColor = laserColor;
         laserLineRenderer.endColor = laserColor;
-
-        // 레이저가 스프라이트보다 위에 보이도록 정렬
         laserLineRenderer.sortingLayerName = "Default";
         laserLineRenderer.sortingOrder = 10;
     }
@@ -60,16 +61,29 @@ public class GuardianEnemy : EnemyBase
     {
         if (!isLive || player == null) return;
 
-        Vector2 dirVec = (player.transform.position - transform.position);
-        float distance = dirVec.magnitude;
-        Vector2 inputVec = dirVec.normalized;
+        Vector2 currentPos = transform.position;
+        Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
 
-        // 움직임
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+        // -------- 장애물 회피 --------
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
+        Vector2 avoidanceVector = Vector2.zero;
+
+        if (hit.collider != null)
+        {
+            Vector2 hitNormal = hit.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+            avoidanceVector = sideStep.normalized * 1.5f;
+
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
+        }
+
+        Vector2 finalDir = (dirToPlayer + avoidanceVector).normalized;
+
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
-        // 방향 반전
+        // -------- 회전 및 애니메이션 --------
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -83,7 +97,9 @@ public class GuardianEnemy : EnemyBase
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
 
-        // 레이저 및 데미지 처리
+        // -------- 레이저 공격 --------
+        float distance = Vector2.Distance(player.transform.position, transform.position);
+
         if (distance <= fireRange)
         {
             if (!laserLineRenderer.enabled)
@@ -91,8 +107,7 @@ public class GuardianEnemy : EnemyBase
 
             Vector3 startPos = transform.position;
             Vector3 endPos = player.transform.position;
-
-            startPos.z = -1f; // 레이저가 플레이어와 적 스프라이트 위에 위치하도록 Z값 조절
+            startPos.z = -1f;
             endPos.z = -1f;
 
             laserLineRenderer.SetPosition(0, startPos);
@@ -131,8 +146,14 @@ public class GuardianEnemy : EnemyBase
             if (playerStats.currentHP <= 0)
             {
                 playerStats.currentHP = 0;
-                // 플레이어 죽음 처리 가능
+                // 사망 처리
             }
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
     }
 }

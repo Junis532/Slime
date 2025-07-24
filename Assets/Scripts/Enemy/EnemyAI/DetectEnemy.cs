@@ -27,6 +27,10 @@ public class DetectEnemy : EnemyBase
     private readonly float minY = -6f;
     private readonly float maxY = 6f;
 
+    [Header("회피 관련")]
+    public float avoidanceRange = 2f;
+    public LayerMask obstacleMask;
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -71,17 +75,50 @@ public class DetectEnemy : EnemyBase
 
         if (hasDetectedPlayer)
         {
-            Vector2 dirVec = toPlayer.normalized;
-            currentDirection = Vector2.SmoothDamp(currentDirection, dirVec, ref currentVelocity, smoothTime);
-            Vector2 nextVec = currentDirection * speed * Time.deltaTime;
-            transform.Translate(nextVec);
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+            TrackPlayerWithAvoidance(player);
         }
         else
         {
             RandomMove();
         }
+    }
+
+    /// <summary>
+    /// 플레이어 추적 + 장애물 회피
+    /// </summary>
+    private void TrackPlayerWithAvoidance(GameObject player)
+    {
+        Vector2 currentPos = transform.position;
+        Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
+
+        // 장애물 감지
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
+        Vector2 avoidanceVector = Vector2.zero;
+
+        if (hit.collider != null)
+        {
+            Vector2 hitNormal = hit.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal); // 옆으로 피해감
+
+            avoidanceVector = sideStep.normalized * 1.5f;
+
+            // Debug
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
+        }
+
+        // 최종 방향
+        Vector2 finalDir = (dirToPlayer + avoidanceVector).normalized;
+
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
+        Vector2 moveVec = currentDirection * speed * Time.deltaTime;
+
+        transform.Translate(moveVec);
+
+        // 애니메이션
+        if (moveVec.magnitude > 0.01f)
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+        else
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
     }
 
     private void RandomMove()
@@ -97,16 +134,11 @@ public class DetectEnemy : EnemyBase
         Vector2 moveVec = randomDirection.normalized * speed * Time.deltaTime;
         Vector3 newPos = transform.position + (Vector3)moveVec;
 
-        // 범위 내 위치 보정
         newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
         newPos.y = Mathf.Clamp(newPos.y, minY, maxY);
 
         bool hitBoundary = false;
-
-        // 경계 감지 후 방향 변경
-        if (newPos.x == minX || newPos.x == maxX)
-            hitBoundary = true;
-        if (newPos.y == minY || newPos.y == maxY)
+        if (newPos.x == minX || newPos.x == maxX || newPos.y == minY || newPos.y == maxY)
             hitBoundary = true;
 
         transform.position = newPos;
@@ -114,7 +146,7 @@ public class DetectEnemy : EnemyBase
         if (hitBoundary)
         {
             PickRandomDirection();
-            randomMoveTimer = 0f; // 방향 바뀌었으니 타이머 초기화
+            randomMoveTimer = 0f;
         }
 
         if (moveVec.magnitude > 0.01f)
@@ -145,10 +177,7 @@ public class DetectEnemy : EnemyBase
             GameManager.Instance.playerDamaged.PlayDamageEffect();
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // 사망 처리 가능
-            }
         }
     }
 
@@ -158,5 +187,11 @@ public class DetectEnemy : EnemyBase
 
         if (rangeVisualInstance != null)
             Destroy(rangeVisualInstance);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
     }
 }

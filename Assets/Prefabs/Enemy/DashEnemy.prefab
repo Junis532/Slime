@@ -284,6 +284,10 @@ MonoBehaviour:
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 40
+  avoidanceRange: 1.5
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ public class WaveManager : MonoBehaviour
     public float spawnRadius = 5f; // Player-centric spawn radius
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
-    public TextMeshProUGUI waveText;
+    //public TextMeshProUGUI waveText;
     public int currentWave = 1;
 
     [Header("★ 반드시 인스펙터/코드로 연결")]
@@ -44,14 +44,14 @@ public class WaveManager : MonoBehaviour
     public void ResetWave()
     {
         currentWave = 1;
-        UpdateWaveText();
+        //UpdateWaveText();
     }
 
-    public void UpdateWaveText()
-    {
-        if (waveText != null)
-            waveText.text = $"WAVE {currentWave}";
-    }
+    //public void UpdateWaveText()
+    //{
+    //    if (waveText != null)
+    //        waveText.text = $"WAVE {currentWave}";
+    //}
 
     public void StartNextWave()
     {
@@ -61,7 +61,7 @@ public class WaveManager : MonoBehaviour
             return;
         }
         currentWave++;
-        UpdateWaveText();
+        //UpdateWaveText();
         UpdateEnemyHP();
         StartCoroutine(SpawnWithWarning());
         if (ShopManager.Instance != null)

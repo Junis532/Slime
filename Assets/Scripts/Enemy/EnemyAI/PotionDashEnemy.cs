@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class longRangeDashEnemy : EnemyBase
+public class PotionDashEnemy : EnemyBase
 {
     private bool isLive = true;
 
@@ -38,7 +38,7 @@ public class longRangeDashEnemy : EnemyBase
     [Header("포션 생성 경고 프리뷰")]
     public GameObject potionWarningPrefab;
     public float potionWarningOffset = 0f;
-    public float potionWarningDuration = 1f; // ✅ 경고 유지 시간
+    public float potionWarningDuration = 1f;
     private List<Vector3> warningPositions = new List<Vector3>();
     private List<GameObject> warningInstances = new List<GameObject>();
 
@@ -50,6 +50,10 @@ public class longRangeDashEnemy : EnemyBase
     public float potionLifetime = 2f;
     public float potionSpreadRadius = 1f;
     public int numberOfPotionsToSpawn = 6;
+
+    [Header("회피 관련")]
+    public float avoidanceRange = 1.5f;
+    public LayerMask obstacleMask;  // 장애물 레이어 (Wall 등)
 
     void Start()
     {
@@ -73,6 +77,7 @@ public class longRangeDashEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
+        Vector2 currentPos = transform.position;
         Vector2 dirVec = (player.transform.position - transform.position);
         Vector2 inputVec = dirVec.normalized;
 
@@ -124,16 +129,20 @@ public class longRangeDashEnemy : EnemyBase
             return;
         }
 
-        dashTimer += Time.deltaTime;
-        if (dashTimer >= dashCooldown)
+        // **회피 기능 추가 (대시 중이 아닐 때만)**
+        Vector2 avoidanceVec = Vector2.zero;
+        RaycastHit2D hitAvoid = Physics2D.Raycast(currentPos, inputVec, avoidanceRange, obstacleMask);
+        if (hitAvoid.collider != null)
         {
-            isPreparingToDash = true;
-            pauseTimer = 0f;
-            dashDirection = inputVec;
-            return;
+            Vector2 hitNormal = hitAvoid.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal).normalized;
+            avoidanceVec = sideStep * 1.5f;
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+        Vector2 finalMoveDir = (inputVec + avoidanceVec).normalized;
+
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalMoveDir, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
@@ -149,6 +158,15 @@ public class longRangeDashEnemy : EnemyBase
 
         if (dashPreviewInstance != null)
             dashPreviewInstance.SetActive(false);
+
+        dashTimer += Time.deltaTime;
+        if (dashTimer >= dashCooldown)
+        {
+            isPreparingToDash = true;
+            pauseTimer = 0f;
+            dashDirection = inputVec;
+            return;
+        }
     }
 
     private void DashMove()

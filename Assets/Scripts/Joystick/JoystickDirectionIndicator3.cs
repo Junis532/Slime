@@ -37,19 +37,21 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
     private Vector2 lastInputDirection = Vector2.right;
     private float lastInputMagnitude = 0f;
     private bool hasUsedSkill = false, prevIsRolling = false;
-    private bool isTeleportMode = false, isLightningMode = false, isMucusMode = false;
-    private Vector3 teleportTargetPosition, lightningTargetPosition, mucusTargetPosition;
+    private bool isTeleportMode = false, isLightningMode = false;
+    private Vector3 teleportTargetPosition, lightningTargetPosition;
     private Vector2 lightningCastDirection;
     private bool prevBlockInputActive = false;
 
     [Header("오디오")]
-    public AudioClip teleportSound;
-    public AudioClip windWallSound;
-    public AudioClip fireballSound; // New: Audio clip for Fireball
     private AudioSource audioSource;
+    public AudioClip fireballSound;
+    public AudioClip teleportSound;
+    public AudioClip lightningSound;
+    public AudioClip windWallSound;
 
 
-    // ★ 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
+
+    // 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
     public int CurrentUsingSkillIndex
     {
         get
@@ -122,7 +124,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
             hasUsedSkill = false;
             isTeleportMode = false;
             isLightningMode = false;
-            isMucusMode = false;
             DiceAnimation.hasUsedSkill = false;
         }
         prevIsRolling = DiceAnimation.isRolling;
@@ -181,7 +182,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         hasUsedSkill = false;
         isTeleportMode = false;
         isLightningMode = false;
-        isMucusMode = false;
         currentIndicatorIndex = -1;
 
         if (indicatorInstance != null) Destroy(indicatorInstance);
@@ -197,7 +197,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         currentIndicatorIndex = -1;
         isTeleportMode = false;
         isLightningMode = false;
-        isMucusMode = false;
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
     }
 
@@ -276,24 +275,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         indicatorInstance.SetActive(true);
     }
 
-    // 새로 추가한 mucus 범위 표시 및 위치 갱신 함수
-    //void UpdateMucusIndicator(Vector2 input)
-    //{
-    //    int index = (int)SkillType.Mucus - 1;
-    //    float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
-    //    Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
-    //    Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
-    //    mucusTargetPosition = basePos;
 
-    //    if (indicatorInstance == null) return;
-
-    //    float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
-    //    indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
-
-    //    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-    //    indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
-    //    indicatorInstance.SetActive(true);
-    //}
 
     public void OnSkillButtonPressed()
     {
@@ -310,7 +292,6 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         isTeleportMode = currentSkill == SkillType.Teleport;
         isLightningMode = currentSkill == SkillType.Lightning;
-        //isMucusMode = currentSkill == SkillType.Mucus;
     }
 
     void SetupIndicator(int prefabIndex)
@@ -349,8 +330,9 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
         switch (skill)
         {
             case SkillType.Fireball:
-                ShootFireball(); // Audio will be played here
+                ShootFireball();
                 break;
+
             case SkillType.Teleport:
                 if (isTeleportMode)
                 {
@@ -358,6 +340,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                     isTeleportMode = false;
                 }
                 break;
+
             case SkillType.Lightning:
                 if (isLightningMode)
                 {
@@ -366,16 +349,14 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                     isLightningMode = false;
                 }
                 break;
+
             case SkillType.Windwall:
                 SpawnWindWall();
                 break;
 
-                //case SkillType.PoisonGas:
-                //    PoisonGas();
-                //break;
-                //default:
-                //    Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
-                //    break;
+            default:
+                Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
+                break;
         }
 
         hasUsedSkill = true;
@@ -441,6 +422,7 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(fallDelay);
+
             if (lightning == null)
             {
                 lightning = Instantiate(lightningPrefab, targetPos, Quaternion.Euler(0f, 0f, angle));
@@ -452,6 +434,13 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
                 lightning.SetActive(true);
             }
             ld?.Init();
+
+            // 번개 이펙트 시작할 때 효과음 재생
+            if (audioSource != null && lightningSound != null)
+            {
+                audioSource.PlayOneShot(lightningSound);
+            }
+
             yield return new WaitForSeconds(onTime);
             lightning?.SetActive(false);
             yield return new WaitForSeconds(offTime);
@@ -471,33 +460,5 @@ public class JoystickDirectionIndicator3 : MonoBehaviour
 
         GameObject wall = Instantiate(windWallPrefab, transform.position, Quaternion.identity);
         wall.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-    }
-
-    private void PoisonGas()
-    {
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
-
-
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-        {
-            var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
-            if (footprinterSkill != null)
-            {
-                if (footprinterSkill.enabled == false)
-                {
-                    Debug.LogWarning("⚠ FootprinterSkill이 비활성화되어 있어 Poison Gas 모드 활성화 불가");
-                    return;
-                }
-            }
-        }
-
-        FootprinterSkill fp = player.GetComponent<FootprinterSkill>();
-        if (fp != null)
-        {
-            fp.ActivatePoisonGasMode(10f);
-
-        }
     }
 }

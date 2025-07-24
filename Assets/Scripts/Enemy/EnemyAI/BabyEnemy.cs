@@ -27,6 +27,14 @@ public class BabyEnemy : EnemyBase
         }
     }
 
+    void Update()
+    {
+        if (!isLive) return;
+
+        // 항상 Idle 애니메이션 재생
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+    }
+
     IEnumerator SpawnLoop()
     {
         while (isLive)

@@ -107,7 +107,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c66a088e24d3f241a9a11b147c32676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  originalSpeed: 0
+  speed: 0
   smoothTime: 0.1
+  avoidanceRange: 1.5
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &3818131844207129269
 MonoBehaviour:
   m_ObjectHideFlags: 0

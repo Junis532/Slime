@@ -8,11 +8,6 @@ public class FallingLightningEffect : MonoBehaviour
     public GameObject impactEffectPrefab;
     public float impactEffectDuration = 1f;
 
-    // ▼ 추가: 효과음 클립
-    [Header("임팩트 효과음")]
-    public AudioClip impactSound;
-    public float impactSoundVolume = 1.0f;
-
     private bool isFalling = true;
     private Vector3 fallDirection;
 
@@ -48,11 +43,6 @@ public class FallingLightningEffect : MonoBehaviour
         {
             GameObject effect = Instantiate(impactEffectPrefab, targetPosition, Quaternion.identity);
             Destroy(effect, impactEffectDuration);
-        }
-        // ▼ 임팩트 효과음
-        if (impactSound != null)
-        {
-            AudioSource.PlayClipAtPoint(impactSound, targetPosition, impactSoundVolume);
         }
         Destroy(gameObject);
     }

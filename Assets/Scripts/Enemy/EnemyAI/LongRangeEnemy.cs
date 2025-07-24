@@ -20,6 +20,10 @@ public class LongRangeEnemy : EnemyBase
 
     public float bulletLifetime = 3f;       // 총알 생존 시간 (초)
 
+    [Header("회피 관련")]
+    public float avoidanceRange = 2f;       // 장애물 감지 범위
+    public LayerMask obstacleMask;          // 장애물 레이어 지정
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -36,29 +40,51 @@ public class LongRangeEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
-        Vector2 toPlayer = player.transform.position - transform.position;
+        Vector2 currentPos = transform.position;
+        Vector2 toPlayer = (Vector2)player.transform.position - currentPos;
         float distance = toPlayer.magnitude;
-        Vector2 inputVec;
+        Vector2 dirToPlayer = toPlayer.normalized;
+
+        // ------------------ 장애물 레이캐스트 검사 ------------------
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
+
+        Vector2 avoidanceVector = Vector2.zero;
+
+        if (hit.collider != null)
+        {
+            // 장애물이 감지됨 → 옆으로 회피 방향 계산
+            Vector2 hitNormal = hit.normal; // 장애물 표면 노멀 벡터
+
+            // hitNormal에 수직인 방향(옆으로)
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+
+            // 오른쪽 또는 왼쪽 방향으로 선택(여기선 오른쪽으로)
+            avoidanceVector = sideStep.normalized * 1.5f;
+
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
+        }
+
+        // ------------------ 최종 이동 방향 계산 ------------------
+        Vector2 moveDir;
 
         if (distance < safeDistance)
         {
-            // 플레이어가 가까우면 도망가면서 공격
-            inputVec = (-toPlayer).normalized;
+            // 가까우면 도망가면서 공격
+            moveDir = (-dirToPlayer + avoidanceVector).normalized;
 
             if (Time.time - lastFireTime >= fireCooldown)
             {
-                Shoot(toPlayer.normalized);
+                Shoot(dirToPlayer); // 플레이어 쪽으로 총알 발사
                 lastFireTime = Time.time;
             }
         }
         else
         {
-            // 멀면 플레이어 쪽으로 이동
-            inputVec = toPlayer.normalized;
+            // 멀면 플레이어 쪽으로 이동 + 회피
+            moveDir = (dirToPlayer + avoidanceVector).normalized;
         }
 
-        // 방향 보간 이동, 속도는 개별 speed 사용
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+        currentDirection = Vector2.SmoothDamp(currentDirection, moveDir, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
@@ -79,7 +105,6 @@ public class LongRangeEnemy : EnemyBase
 
     void Shoot(Vector2 dir)
     {
-        // PoolManager로 총알 소환
         GameObject bullet = PoolManager.Instance.SpawnFromPool(bulletPrefab.name, transform.position, Quaternion.identity);
 
         if (bullet != null)
@@ -91,5 +116,29 @@ public class LongRangeEnemy : EnemyBase
             bulletBehavior.Initialize(dir.normalized, bulletSpeed, bulletLifetime);
         }
     }
-}
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!isLive) return;
+
+        if (collision.CompareTag("Player"))
+        {
+            int damage = GameManager.Instance.longRangeEnemyStats.attack;
+            GameManager.Instance.playerStats.currentHP -= damage;
+            GameManager.Instance.playerDamaged.PlayDamageEffect();
+
+            if (GameManager.Instance.playerStats.currentHP <= 0)
+            {
+                GameManager.Instance.playerStats.currentHP = 0;
+                // 죽음 처리
+            }
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
+        // 레이캐스트 시각화는 Debug.DrawRay()로 확인하세요.
+    }
+}

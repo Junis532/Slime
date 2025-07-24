@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillMonsterLists:
   - monsters:
+    - {fileID: 8847101972784448359, guid: 371c1216db1428c4a843c6e3a2c50820, type: 3}
+    - {fileID: 1237129817742183486, guid: b391a71ff1d5a5a4894ef9606c013d22, type: 3}
+    - {fileID: 7402118277218628972, guid: a9203d7f7e5f8fb4aacc5eacfebd6c60, type: 3}
+    - {fileID: 13824927093301827, guid: e359a31dfb560d54dbfd4d812cf62fed, type: 3}
+    - {fileID: 3392239743107653290, guid: 52e4fb3c19a82c140b4a5f8fc5f8e16c, type: 3}
+    - {fileID: 9212327244895764985, guid: 477fca3ae7717434a8e7cc4fba010c18, type: 3}
+    - {fileID: 4283070405193138936, guid: bd700aec3741b984f81c7e34c4b52308, type: 3}
+  - monsters:
     - {fileID: 8480623311141170132, guid: 4a2a19b36c5dadf48ab8ae6e32df45ac, type: 3}
     - {fileID: 7932767109772811646, guid: e55c6bf5b978916409a8389ba3a004f2, type: 3}
     - {fileID: 1335179596553281429, guid: 8b200e4f1532471418665e6390e01a48, type: 3}
@@ -29,14 +37,6 @@ MonoBehaviour:
     - {fileID: 726710317583024019, guid: 661a1ef12efcbd04a909dc9dbc21f30a, type: 3}
     - {fileID: 7690267022270844596, guid: 7da87a90702f2b542a851c8a96b0fc13, type: 3}
     - {fileID: 4263975483038788105, guid: d6ec8118be6257244b7405c7ec6932e7, type: 3}
-  - monsters:
-    - {fileID: 8847101972784448359, guid: 371c1216db1428c4a843c6e3a2c50820, type: 3}
-    - {fileID: 1237129817742183486, guid: b391a71ff1d5a5a4894ef9606c013d22, type: 3}
-    - {fileID: 7402118277218628972, guid: a9203d7f7e5f8fb4aacc5eacfebd6c60, type: 3}
-    - {fileID: 13824927093301827, guid: e359a31dfb560d54dbfd4d812cf62fed, type: 3}
-    - {fileID: 3392239743107653290, guid: 52e4fb3c19a82c140b4a5f8fc5f8e16c, type: 3}
-    - {fileID: 9212327244895764985, guid: 477fca3ae7717434a8e7cc4fba010c18, type: 3}
-    - {fileID: 4283070405193138936, guid: bd700aec3741b984f81c7e34c4b52308, type: 3}
   - monsters:
     - {fileID: 8480623311141170132, guid: d97bdbfbefb2dbb4eaddc5a8aee9361c, type: 3}
     - {fileID: 6162550853712639807, guid: 671283309dddebc4da89d3b207289268, type: 3}

@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillMonsterLists:
   - monsters:
+    - {fileID: 8175465479611273834, guid: dc88e8771cf3c994bb1ba8270d51511b, type: 3}
+    - {fileID: 3514091679325746580, guid: 50f036ec11dc9e04ba73941c188187de, type: 3}
+    - {fileID: 4617620212515756894, guid: 9f0f81e66acad124e8e3dba6f3f2f0ac, type: 3}
+    - {fileID: 9209442936251851862, guid: 5945a5197f5e8e54183a51d268616926, type: 3}
+    - {fileID: 1295602979402763773, guid: 3754c7f996cdc3a4f97330c3c4b140f4, type: 3}
+    - {fileID: 8887150425432330392, guid: 5f25a0877c292da45a053604bc0f7fed, type: 3}
+    - {fileID: 8847101972784448359, guid: 48bfd78b0e2f53e438980be571abfef2, type: 3}
+  - monsters:
     - {fileID: 2769131468291759991, guid: f1ca355fd126db14183cafbbbd2e6452, type: 3}
     - {fileID: 2463700352385391436, guid: 3d13dfb1e60751c47a0604e29c6ca5ab, type: 3}
     - {fileID: 7475728730986949702, guid: 3a79496243ed00d4eb852e3598f42ecc, type: 3}
@@ -29,14 +37,6 @@ MonoBehaviour:
     - {fileID: 7994732534507966569, guid: 05d5f907d2b586b40aeb73793bfbbe38, type: 3}
     - {fileID: 8405461780666404552, guid: 7b6efc6b721ddd747988cbdaad5bf696, type: 3}
     - {fileID: 6853444056848478951, guid: 605f83f4bc94be0468377c0e8acb5c6b, type: 3}
-  - monsters:
-    - {fileID: 8175465479611273834, guid: dc88e8771cf3c994bb1ba8270d51511b, type: 3}
-    - {fileID: 3514091679325746580, guid: 50f036ec11dc9e04ba73941c188187de, type: 3}
-    - {fileID: 4617620212515756894, guid: 9f0f81e66acad124e8e3dba6f3f2f0ac, type: 3}
-    - {fileID: 9209442936251851862, guid: 5945a5197f5e8e54183a51d268616926, type: 3}
-    - {fileID: 1295602979402763773, guid: 3754c7f996cdc3a4f97330c3c4b140f4, type: 3}
-    - {fileID: 8887150425432330392, guid: 5f25a0877c292da45a053604bc0f7fed, type: 3}
-    - {fileID: 8847101972784448359, guid: 48bfd78b0e2f53e438980be571abfef2, type: 3}
   - monsters:
     - {fileID: 3456684345926189568, guid: 11fcc7419c202c64a99de19f66e8239c, type: 3}
     - {fileID: 8480623311141170132, guid: a42ef26f1dfee6944a897121ce47fa41, type: 3}

@@ -16,7 +16,7 @@ public class DashEnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 3.8f;
+        speed = 3.4f;
         maxHP = 20;
         currentHP = maxHP;
         speed = 3.4f;

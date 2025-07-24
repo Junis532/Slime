@@ -28,6 +28,10 @@ public class PotionEnemy : EnemyBase
     public GameObject potionPrefab;
     public float potionLifetime = 2f;
 
+    [Header("회피 관련")]
+    public float avoidanceRange = 2f;       // 장애물 감지 범위
+    public LayerMask obstacleMask;          // 장애물 레이어 지정
+
     private GameObject dashPreviewInstance;
 
     void Start()
@@ -52,8 +56,25 @@ public class PotionEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
-        Vector2 dirVec = (player.transform.position - transform.position);
-        Vector2 inputVec = dirVec.normalized;
+        Vector2 currentPos = transform.position;
+        Vector2 toPlayer = (Vector2)player.transform.position - currentPos;
+        Vector2 inputVec = toPlayer.normalized;
+
+        // 장애물 감지 레이캐스트
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, inputVec, avoidanceRange, obstacleMask);
+
+        Vector2 avoidanceVector = Vector2.zero;
+
+        if (hit.collider != null)
+        {
+            Vector2 hitNormal = hit.normal;
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+
+            // 오른쪽 방향으로 회피
+            avoidanceVector = sideStep.normalized * 1.5f;
+
+            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
+        }
 
         // 멈춰있는 상태
         if (isStopping)
@@ -63,15 +84,15 @@ public class PotionEnemy : EnemyBase
 
             if (dashPreviewInstance != null)
             {
-                dashPreviewInstance.SetActive(true);
-
-                Vector3 direction = new Vector3(inputVec.x, inputVec.y, 0f).normalized;
+                // 범위 표시 각도 조정
+                Vector3 direction = (inputVec + avoidanceVector).normalized;
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
                 dashPreviewInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
                 Vector3 basePos = transform.position + direction * previewDistanceFromEnemy;
                 Vector3 offset = -dashPreviewInstance.transform.up * previewBackOffset;
                 dashPreviewInstance.transform.position = basePos + offset;
+                dashPreviewInstance.SetActive(true);
             }
 
             if (pauseTimer >= stopDuration)
@@ -80,11 +101,9 @@ public class PotionEnemy : EnemyBase
                 pauseTimer = 0f;
                 stopTimer = 0f;
 
-                // 포션 생성 (PoolManager 사용)
                 if (potionPrefab != null)
                 {
                     GameObject potion = PoolManager.Instance.SpawnFromPool(potionPrefab.name, transform.position, Quaternion.identity);
-
                     if (potion != null)
                     {
                         PotionBehavior pb = potion.GetComponent<PotionBehavior>();
@@ -106,12 +125,13 @@ public class PotionEnemy : EnemyBase
         {
             isStopping = true;
             pauseTimer = 0f;
-            // 이동 멈춤 상태이므로 transform 이동도 하지 않음
             return;
         }
 
-        // 추적 이동, transform.Translate 사용
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+        // 장애물 회피를 포함한 최종 이동 방향
+        Vector2 finalDir = (inputVec + avoidanceVector).normalized;
+
+        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 

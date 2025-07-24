@@ -20,7 +20,7 @@ public class PlayerDamaged : MonoBehaviour
         spriteRenderer.DOKill();  // 혹시 이전 애니메이션 있으면 정리
         spriteRenderer.color = Color.red;  // 빨간색으로 변경
         spriteRenderer.DOColor(originalColor, 0.5f);  // 0.5초 동안 원래 색으로 돌아감
-        GameManager.Instance.audioManager.PlaySFX(AudioManager.Instance.hitSound);  // 효과음 재생
+        //GameManager.Instance.audioManager.PlaySFX(AudioManager.Instance.hitSound);  // 효과음 재생
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)

@@ -206,6 +206,10 @@ MonoBehaviour:
   previewBackOffset: 0
   potionPrefab: {fileID: 6950589694986560093, guid: 681df01c0e58e284488d0e7a0b837d2b, type: 3}
   potionLifetime: 5
+  avoidanceRange: 1.5
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &5691304153326943676
 MonoBehaviour:
   m_ObjectHideFlags: 0

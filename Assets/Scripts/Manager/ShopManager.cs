@@ -238,6 +238,48 @@ public class ShopManager : MonoBehaviour
             }
         }
         //-----------------------------------------------------------------------------------------
+        else if (item == GameManager.Instance.itemStats9)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                var BombSkill = playerObj.GetComponent<BombSkill>();
+                if (BombSkill != null)
+                {
+                    if (!BombSkill.enabled)
+                    {
+                        BombSkill.enabled = true;
+
+                    }
+                    else
+                    {
+                        Debug.Log("[Shop] 이미 활성화됨");
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------------------------------------------
+        else if (item == GameManager.Instance.itemStats10)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                var MucusSkill = playerObj.GetComponent<MucusSkill>();
+                if (MucusSkill != null)
+                {
+                    if (!MucusSkill.enabled)
+                    {
+                        MucusSkill.enabled = true;
+
+                    }
+                    else
+                    {
+                        Debug.Log("[Shop] 이미 활성화됨");
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------------------------------------------
 
 
         // 구매 후 모든 버튼 비활성화 (모두 비활성화)

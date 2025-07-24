@@ -11,6 +11,11 @@ public class Timer : MonoBehaviour
     {
         int seconds = Mathf.CeilToInt(timeRemaining);
         timerText.text = seconds.ToString();
+
+        // 알파값 조절
+        Color c = timerText.color;
+        c.a = (timeRemaining > 0f) ? 1f : 0f;
+        timerText.color = c;
     }
 
     public void ResetTimer(float newTime)

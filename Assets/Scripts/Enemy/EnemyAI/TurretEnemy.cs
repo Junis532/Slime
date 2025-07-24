@@ -16,20 +16,12 @@ public class TurretEnemy : EnemyBase
     public float bulletLifetime = 3f;
 
     [Header("시각적 범위 표시")]
-    public GameObject rangeVisualPrefab;     // 범위를 표시할 프리팹 (예: 투명한 원)
     private GameObject rangeVisualInstance;
 
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
-
-        // 시각적 범위 표시 생성
-        if (rangeVisualPrefab != null)
-        {
-            rangeVisualInstance = Instantiate(rangeVisualPrefab, transform.position, Quaternion.identity, transform);
-            rangeVisualInstance.transform.localScale = Vector3.one * fireRange * 2f;
-        }
 
         originalSpeed = GameManager.Instance.longRangeEnemyStats.speed;
         speed = originalSpeed;
